@@ -1,0 +1,79 @@
+scalar Date
+
+interface MindmapError {
+  message: String!
+  path: String
+}
+
+type Mindmap {
+  _id: ID!
+  owner: String!
+  title: String!
+  description: String
+  originalMap: String!
+  currentMap: String
+  mapimage: String
+  editinghistory: EditingHistory
+  createdAt: String
+  updatedAt: String
+}
+
+type EditingHistory {
+  updated: String
+  editedMap: String
+}
+
+# getMindmaps
+type MindmapsResult {
+  mindmaps: [Mindmap]
+  currentPage: Int
+  totalPages: Int
+}
+
+# Queries section
+type Query {
+  getMindmaps(search: String, page: Int, limit: Int): MindmapsResult
+  getMindmap(_id: ID!): [Mindmap]
+}
+
+# Mutation section
+type ReturnedMindmapError implements MindmapError {
+  message: String!
+  locations: [String]
+  path: String
+}
+
+# CreateMindmap
+input MindmapInputCreate {
+  owner: String
+  title: String
+  description: String
+  originalMap: String
+  currentMap: String
+  mapimage: String
+}
+
+type CreateMindmapPayload {
+  mindmap: Mindmap
+  mindmapErrors: [ReturnedMindmapError]
+}
+
+# updateMindmap
+input MindmapInputUpdate {
+  title: String!
+  description: String
+  currentMap: String
+  mapimage: String
+  editinghistory: String
+}
+
+type UpdateMindmapPayload {
+  mindmap: Mindmap
+  mindmapErrors: [ReturnedMindmapError]
+}
+
+type Mutation {
+  createMindmap(input: MindmapInputCreate): CreateMindmapPayload
+  updateMindmap(_id: ID!, input: MindmapInputUpdate!): UpdateMindmapPayload
+  deleteMindmap(_id: ID!): String
+}

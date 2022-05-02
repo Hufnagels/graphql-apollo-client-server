@@ -1,0 +1,93 @@
+scalar Date
+
+interface UserError {
+  message: String!
+  path: String
+}
+
+type User {
+  _id: ID!
+  # username: String!
+  firstName: String
+  lastName: String
+  date_of_birth: String
+  email: String!
+  password: String
+  createdAt: String
+  updatedAt: String
+  token: String
+}
+
+type Tokens {
+  accessToken: String
+  refreshToken: String
+}
+type Auth {
+  user: User
+  tokens: Tokens
+}
+
+# getUsers
+type UsersResult {
+  users: [User]
+  currentPage: Int
+  totalPages: Int
+  count: Int
+}
+
+# Queries section
+type Query {
+  users: [User]
+  getUsers(search: String, page: Int, limit: Int): UsersResult
+  getUser(_id: ID!): User!
+}
+
+# Mutation section
+type ReturnedUserError implements UserError {
+  message: String!
+  locations: [String]
+  path: String
+}
+
+# createUser --> register
+input UserInputCreate {
+  # username: String
+  firstName: String
+  lastName: String
+  date_of_birth: String
+  email: String
+  password: String
+}
+
+type CreateUserPayload {
+  user: User
+  userErrors: [ReturnedUserError]
+}
+
+# updateUser
+input UserInputUpdate {
+  #username: String
+  firstName: String
+  lastName: String
+  date_of_birth: String
+  #email: String
+}
+
+type UpdateUserPayload {
+  user: User
+  userErrors: [ReturnedUserError]
+}
+
+# loginUser
+input UserInputLogin {
+  email: String
+  password: String
+}
+
+type Mutation {
+  createUser(input: UserInputCreate): Auth #User #CreateUserPayload
+  updateUser(_id: ID!, input: UserInputUpdate!): User #UpdateUserPayload
+  deleteUser(_id: ID!): String
+  loginUser(input:UserInputLogin): Auth
+  refreshToken: Auth
+}

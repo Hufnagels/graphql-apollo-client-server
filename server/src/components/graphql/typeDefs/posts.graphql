@@ -1,0 +1,75 @@
+scalar Date
+
+interface PostError {
+  message: String!
+  path: String
+}
+
+type Post {
+  _id: ID!
+  author: String!
+  title: String!
+  subtitle: String
+  description: String
+  titleimage: String
+  createdAt: String
+  updatedAt: String
+}
+  
+# getPosts
+type PostsResult {
+  posts: [Post]
+  currentPage: Int
+  totalPages: Int
+}
+
+# Queries section
+type Query {
+  getPosts(search: String, page: Int, limit: Int): PostsResult
+  getPost(_id: ID!): Post
+}
+
+# Mutation section
+type ReturnedPostError implements PostError {
+  message: String!
+  locations: [String]
+  path: String
+}
+
+# CreatePost
+input PostInputCreate {
+  author: String
+  title: String
+  subtitle: String
+  description: String
+  titleimage: String
+}
+
+type CreatePostPayload {
+  post: Post
+  postErrors: [ReturnedPostError]
+}
+
+# updatePost
+input PostInputUpdate {
+  title: String
+  subtitle: String
+  description: String
+  titleimage: String
+}
+
+type UpdatePostPayload {
+  post: [Post]
+  postErrors: [ReturnedPostError]
+}
+
+type DeletePostPayload {
+  post: Boolean
+  postErrors: [ReturnedPostError]
+}
+
+type Mutation {
+  createPost(input: PostInputCreate): CreatePostPayload
+  updatePost(_id: ID!, input: PostInputUpdate!): UpdatePostPayload
+  deletePost(_id: ID!): DeletePostPayload
+}

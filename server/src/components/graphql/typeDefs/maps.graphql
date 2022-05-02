@@ -1,0 +1,79 @@
+scalar Date
+
+interface MapError {
+  message: String!
+  path: String
+}
+
+type Map {
+  _id: ID!
+  owner: String!
+  title: String!
+  description: String
+  originalMap: String!
+  currentMap: String
+  mapimage: String
+  editinghistory: EditingHistory
+  createdAt: String
+  updatedAt: String
+}
+
+type EditingHistory {
+  updated: String
+  editedMap: String
+}
+
+# getMaps
+type MapsResult {
+  maps: [Map]
+  currentPage: Int
+  totalPages: Int
+}
+
+# Queries section
+type Query {
+  getMaps(search: String, page: Int, limit: Int): MapsResult
+  getMap(_id: ID!): [Map]
+}
+
+# Mutation section
+type ReturnedMapError implements MapError {
+  message: String!
+  locations: [String]
+  path: String
+}
+
+# CreateMap
+input MapInputCreate {
+  owner: String!
+  title: String!
+  description: String
+  originalMap: String!
+  currentMap: String
+  mapimage: String
+}
+
+type CreateMapPayload {
+  map: Map
+  mapErrors: [ReturnedMapError]
+}
+
+# updateMap
+input MapInputUpdate {
+  title: String!
+  description: String
+  currentMap: String
+  mapimage: String
+  editinghistory: String
+}
+
+type UpdateMapPayload {
+  map: Map
+  mapErrors: [ReturnedMapError]
+}
+
+type Mutation {
+  createMap(input: MapInputCreate): CreateMapPayload
+  updateMap(_id: ID!, input: MapInputUpdate!): UpdateMapPayload
+  deleteMap(_id: ID!): String
+}
