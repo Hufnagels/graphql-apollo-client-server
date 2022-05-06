@@ -22,7 +22,7 @@ const App = () => {
   const [open, setOpen] = React.useState(false);
 
   const { isLoggedIn, user, tokens } = useSelector((state) => state.auth);
-
+console.log('App js isLoggedIn, user, tokens',isLoggedIn, user, tokens)
   const page = useRoutes(routes(isLoggedIn));
   const dispatch = useDispatch()
 
@@ -41,20 +41,20 @@ const App = () => {
     dispatch(logout());
   };
 
-  console.log('App user'/* , user, tokens */);
+  //console.log('App user'/* , user, tokens */);
 
   if (user && !open) {
     const decodedToken = jwtDecode((tokens.accessToken))
-    //console.log('App user decodedToken', decodedToken, Date.now() - decodedToken.exp * 1000);
+//console.log('App user decodedToken', decodedToken, Date.now() - decodedToken.exp * 1000);
     if (decodedToken.exp * 1000 < Date.now()) {
-      console.log('decodedToken expired')
+//console.log('decodedToken expired')
       handleOpenDialog()
     }
   }
 
 
   React.useLayoutEffect(() => {
-    console.log("App.js->useLayoutEffect"/* , user */);
+//console.log("App.js->useLayoutEffect"/* , user */);
     if (!open) return
     const variant = 'error'
     enqueueSnackbar('Token expired', { variant })

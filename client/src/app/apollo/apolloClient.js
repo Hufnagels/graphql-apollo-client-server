@@ -9,15 +9,78 @@ import {
 import { onError } from "@apollo/client/link/error"
 import { setContext } from "@apollo/client/link/context"
 
+import { split, } from '@apollo/client';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { createClient } from 'graphql-ws';
+
+import { store, persistor } from '../store/store'
+console.log('apolloClient store', store.getState().auth.tokens)
+
+
+
 const httpLink = new HttpLink({
-  uri: process.env.REACT_APP_NODESERVER_BASEURL
+  uri: `http://${process.env.REACT_APP_NODESERVER_BASEURL}/graphql`,
 })
 
 const authLink = setContext((_, { headers }) => {
+  const token = localStorage.getItem('token') || ""
   return {
     headers: {
       ...headers,
-      authorization: localStorage.getItem('token') || ""
+      authorization: token ? `Bearer ${token}` : "",
+    }
+  }
+})
+const tokenLink = new ApolloLink((operation, forward) => {
+  const token = localStorage.getItem('token') || ""
+  operation.setContext({
+    headers: {
+      authorization: token ? `Bearer ${token}` : 'No valid token found'
+    }
+  })
+  return forward(operation)
+})
+
+const wsLink = new GraphQLWsLink(createClient({
+  url: `ws://${process.env.REACT_APP_NODESERVER_BASEURL}/subscriptions`,
+  connectionParams: async () => {
+      const token = localStorage.getItem('token') || store.getState().auth.tokens.accessToken || ""
+      return {
+        headers: {
+          authToken: token
+        }
+      }
+    },
+    connectionCallback: (error) => {
+      console.log('connectionCallback', error)
+    },
+  
+  options: {
+    lazy: true,
+    reconnect: true,
+    },
+  
+}));
+
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === 'OperationDefinition' &&
+      definition.operation === 'subscription'
+    );
+  },
+  wsLink,
+  tokenLink.concat(httpLink),
+);
+
+/* const authLink = setContext((_, { headers }) => {
+  const token = localStorage.getItem('token') || ""
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",
     }
   }
 })
@@ -29,22 +92,14 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
     ),
     )
   if (networkError) console.dir('NetworkError', networkError)
-})
+}) */
 
 
-const tokenLink = new ApolloLink((operation, forward) => {
-  const token = localStorage.getItem('token') || ""
-  operation.setContext({
-    headers: {
-      authorization: token ? `Bearer ${token}` : 'No valid token found'
-    }
-  })
-  return forward(operation)
-})
+
 
 const client = new ApolloClient({
   //uri: process.env.REACT_APP_NODESERVER_BASEURL,
-  link: tokenLink.concat(httpLink), //from([httpLink, authLink, errorLink]),
+  link: splitLink, //tokenLink.concat(splitLink), //from([httpLink, authLink, errorLink]),
   cache: new InMemoryCache(),
   connectToDevTools: true
 });

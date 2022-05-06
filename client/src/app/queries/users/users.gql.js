@@ -84,20 +84,3 @@ export const DELETE_USER = gql`
     deleteUser(id: $id)
   }
 `
-export const LOGIN_USER = gql`
-  mutation LoginUser($input: UserInputLogin) {
-    loginUser(input: $input) {
-      user {
-        _id
-        lastName
-        firstName
-        email
-        token
-      }
-      tokens {
-        accessToken
-        refreshToken
-      }
-    }
-  }
-`

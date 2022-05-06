@@ -17,6 +17,7 @@ import UpdatePost from "../../components/Posts/ListItem";
 import UsersListIndex from '../../components/Users/ListIndex2'
 import UsersListItem from "../../components/Users/ListItem";
 // import Profile from '../pages/backend/User/Profile'
+import Chat from "../../components/Chat/Chat"
 
 ///////ADMIN SECTION
 import MainLayout from "../../pages/frontend/Layout/MainLayout";
@@ -64,6 +65,11 @@ const routes = (isLoggedIn) => [
           { path: "/app/blogs/:id", element: <UpdatePost /> },
           { path: "/app/blogs/:id/preview", element: <PostPreview /> },
         ],
+      },
+      {
+        path: "/app/chat",
+        element: <Chat />,
+
       },
       {
         path: '/app/users',

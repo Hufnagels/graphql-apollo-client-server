@@ -80,17 +80,20 @@ const CustomTheme = createTheme({
           "&.link-button:hover ": {
             opacity: '1',
             boxShadow: 'none !important',
-            backgroundColor: '#6879dd !important',
+            backgroundColor: '#0288d1 !important',
           },
           "&.link-button:active ": {
             opacity: '1',
             boxShadow: 'none !important',
-            backgroundColor: '#002884 !important',
+            //backgroundColor: '#002884 !important',
+            backgroundColor: 'transparent !important',
           },
           "&.link-button.active-button": {
             border:'none',
             boxShadow: 'none',
-            backgroundColor: '#6879dd  !important',
+            //backgroundColor: '#6879dd  !important',
+            backgroundColor: 'transparent  !important',
+            borderBottom: '1px solid #0288d1',
           },
         }
         

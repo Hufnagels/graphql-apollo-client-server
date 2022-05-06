@@ -12,6 +12,7 @@ const AdminLayout = () => {
     { name: 'Maps', link: '/app/maps' },
     { name: 'MindMaps', link: '/app/mindmaps' },
     { name: 'Blogs', link: '/app/blogs' },
+    { name: 'Chat', link: '/app/chat' },
     { name: 'Home', link: '/' },
   ];
   const settings = [

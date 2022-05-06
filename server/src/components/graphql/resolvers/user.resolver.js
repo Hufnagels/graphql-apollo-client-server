@@ -1,14 +1,16 @@
 import _ from 'lodash'
-import jwt from 'jsonwebtoken'
-import bcrypt from 'bcryptjs'
 import mongoose from "mongoose"
 import { ApolloError, } from 'apollo-server-express'
-import Joi from 'joi'
+
+// import jwt from 'jsonwebtoken'
+// import bcrypt from 'bcryptjs'
+// import Joi from 'joi'
 
 import User from '../../database/models/user.model.js'
-import { registerUserValidator, loginUserValidator } from '../validators/user.validator.js'
+
 import { issueTokens, checkSignedIn, getRefreshToken } from '../../../app/controllers/auth.js'
-import { JWT_TOKEN_SECRET, JWT_TOKEN_EXPIRES_IN } from '../../../app/config/config.js'
+// import { registerUserValidator, loginUserValidator } from '../validators/user.validator.js'
+// import { JWT_TOKEN_SECRET, JWT_TOKEN_EXPIRES_IN } from '../../../app/config/config.js'
 //import AuthContext from '../../middleware/auth.js'
 // const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET
 // const JWT_TOKEN_EXPIRES_IN = process.env.JWT_TOKEN_EXPIRES_IN
@@ -70,48 +72,6 @@ const UserResolver = {
   },
 
   Mutation: {
-    loginUser: async (parent, { input: { email, password } }) => {
-      // check credentials
-      //await loginUserValidator.validateAsync({ email, password }, { abortEarly: false })
-
-      const user = await User.findOne({ email })
-      if (!user) throw new ApolloError('User with this credentials does not exists', 'USER_NOT_EXISTS_ERROR')
-
-      // Password checking
-      const isValid = await bcrypt.compare(password, user.password)
-      if (!isValid) throw new ApolloError('User with this credentials does not exists', 'USER_INCORRECT_PASSWORD_ERROR')
-
-      // Create JSON webtoken
-      const tokens = await issueTokens(user)
-console.log('tokens',tokens)
-      return {
-        user,
-        tokens
-      }
-      // const token = jwt.sign(
-      //   {
-      //     id: user._id,
-      //     email
-      //   },
-      //   JWT_TOKEN_SECRET, //JWT_TOKEN_SECRET,
-      //   {
-      //     expiresIn: JWT_TOKEN_EXPIRES_IN
-      //   }
-      // )
-      user.token = tokens.accessToken
-      return {
-        id: user._id,
-        ...user._doc
-      }
-    },
-    refreshToken: async (parent, args, { req }, context) => {
-      const authUser = await getRefreshToken(req, true)
-      const tokens = await issueTokens(authUser)
-      return {
-        user: authUser,
-        ...tokens
-      }
-    },
     createUser: async (parent, { input: { firstName, lastName, date_of_birth, email, password } }, context) => {
       // In this case, we'll pretend there is no data when
       // we're not logged in. Another option would be to
@@ -137,7 +97,7 @@ console.log('tokens',tokens)
 
       // Create JSON webtoken
       const tokens = await issueTokens(newUser)
-      newUser.token = refreshToken
+      newUser.token = tokens.refreshToken
       //console.log('created user tokens', tokens)
       // Store new User
       const res = await newUser.save()
@@ -163,6 +123,7 @@ console.log('tokens',tokens)
 
     // Protected routes
     deleteUser: async (parent, args, { req }, context, info) => {
+      await checkSignedIn(req, true)
       const { _id } = args
       await User.findByIdAndDelete({ _id })
       return true

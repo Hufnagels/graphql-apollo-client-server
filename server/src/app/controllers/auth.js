@@ -39,7 +39,7 @@ export const issueTokens = async ({ id, email, }) => {
 
 export const checkSignedIn = async (req, requiredAuth = false) => {
   const authHeader = req.headers.authorization
-  // console.log('auth.js', authHeader)
+  if (process.env.NODE_ENV !== 'production') console.log('auth.js checkSignedIn', authHeader)
   if (authHeader) {
     const heaaderToken = authHeader.split(' ')[1]
     const decodedToken = await jwt.verify(heaaderToken, JWT_TOKEN_SECRET)
@@ -47,13 +47,27 @@ export const checkSignedIn = async (req, requiredAuth = false) => {
     //console.log('auth.js token:', heaaderToken, decodedToken, authUser)
     if (!authUser) throw new AuthenticationError('Authentication failed', 'AUTHENTICATION_ERROR')
     if (requiredAuth) return authUser
-    return null
   }
+  return null
+}
+
+export const checkUserExist = async (authHeader, requiredAuth = false) => {
+  //const authHeader = req.headers.authorization
+  if (process.env.NODE_ENV !== 'production') console.log('auth.js checkUserExist', authHeader)
+  if (authHeader) {
+    const heaaderToken = authHeader.split(' ')[1]
+    const decodedToken = await jwt.verify(heaaderToken, JWT_TOKEN_SECRET)
+    const authUser = await User.findById(decodedToken.id)
+    //console.log('auth.js token:', heaaderToken, decodedToken, authUser)
+    if (!authUser) throw new AuthenticationError('Authentication failed', 'AUTHENTICATION_ERROR')
+    if (requiredAuth) return authUser
+  }
+  return null
 }
 
 export const getRefreshToken = async (req, requiredAuth = false) => {
   const authHeader = req.headers.refreshToken
-  // console.log('auth.js', authHeader)
+  if (process.env.NODE_ENV !== 'production') console.log('auth.js getRefreshToken', authHeader)
   if (authHeader) {
     const heaaderToken = authHeader.split(' ')[1]
     const decodedToken = await jwt.verify(heaaderToken, JWT_REFRESHTOKEN_SECRET)

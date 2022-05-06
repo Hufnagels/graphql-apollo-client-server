@@ -18,14 +18,14 @@ type User {
   token: String
 }
 
-type Tokens {
-  accessToken: String
-  refreshToken: String
-}
-type Auth {
-  user: User
-  tokens: Tokens
-}
+# type Tokens {
+#   accessToken: String
+#   refreshToken: String
+# }
+# type Auth {
+#   user: User
+#   tokens: Tokens
+# }
 
 # getUsers
 type UsersResult {
@@ -37,7 +37,7 @@ type UsersResult {
 
 # Queries section
 type Query {
-  users: [User]
+  # users: [User]
   getUsers(search: String, page: Int, limit: Int): UsersResult
   getUser(_id: ID!): User!
 }
@@ -79,15 +79,15 @@ type UpdateUserPayload {
 }
 
 # loginUser
-input UserInputLogin {
-  email: String
-  password: String
-}
+# input UserInputLogin {
+#   email: String
+#   password: String
+# }
 
 type Mutation {
   createUser(input: UserInputCreate): Auth #User #CreateUserPayload
   updateUser(_id: ID!, input: UserInputUpdate!): User #UpdateUserPayload
   deleteUser(_id: ID!): String
-  loginUser(input:UserInputLogin): Auth
-  refreshToken: Auth
+  # loginUser(input:UserInputLogin): Auth
+  # refreshToken: Auth
 }

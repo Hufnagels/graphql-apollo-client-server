@@ -61,7 +61,16 @@ const HeaderResponsiveAppBar = (props) => {
 
   return (
     <React.Fragment>
-      <AppBar position="static" enableColorOnDark >
+      <AppBar
+        position="static"
+        enableColorOnDark
+        sx={{
+          backgroundColor: (theme) =>
+            theme.palette.mode === 'light'
+              ? theme.palette.info.light
+              : theme.palette.info.dark,
+        }}
+      >
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             {/*
@@ -112,7 +121,7 @@ const HeaderResponsiveAppBar = (props) => {
                 aria-controls="menu-appbar"
                 aria-haspopup="true"
                 onClick={handleOpenNavMenu}
-                color="inherit"
+                color="secondary"
               >
                 <MenuIcon />
               </IconButton>
@@ -168,7 +177,13 @@ const HeaderResponsiveAppBar = (props) => {
             {props.settings && <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <MoreIcon color="custom" /> {/* <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" /> */}
+                  <MoreIcon
+                    sx={{
+                      color: (theme) => theme.palette.mode === 'light'
+                        ? theme.palette.info.dark
+                        : theme.palette.info.light,
+                    }}
+                  /> {/* <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" /> */}
                 </IconButton>
               </Tooltip>
               <Menu

@@ -1,0 +1,39 @@
+scalar Date
+
+interface UserError {
+  message: String!
+  path: String
+}
+
+type User {
+  _id: ID!
+  # username: String!
+  firstName: String
+  lastName: String
+  date_of_birth: String
+  email: String!
+  password: String
+  createdAt: String
+  updatedAt: String
+  token: String
+}
+
+type Tokens {
+  accessToken: String
+  refreshToken: String
+}
+type Auth {
+  user: User
+  tokens: Tokens
+}
+
+# loginUser
+input UserInputLogin {
+  email: String
+  password: String
+}
+
+type Mutation {
+  loginUser(input:UserInputLogin): Auth
+  refreshToken: Auth
+}

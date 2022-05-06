@@ -29,7 +29,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 // Custom
 import { useMutation } from "@apollo/client";
 import { LOGIN_USER } from "../../app/queries";
-import { authContext } from "../../app/context/authContext"
+//import { authContext } from "../../app/context/authContext"
 import { login } from '../../app/reducers/authSlice'
 
 const validationSchema = yup.object({
@@ -47,8 +47,25 @@ const SignInSide = () => {
 
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const context = useContext(authContext)
-  const [loginUser, { error }] = useMutation(LOGIN_USER);
+  //const context = useContext(authContext)
+  const [loginUser, { error }] = useMutation(LOGIN_USER, {
+    variables: {
+      input: {
+        "email": '',
+        "password": '',
+      }
+    },
+    onCompleted: ({ loginUser }) => {
+      console.log('loginUser', loginUser)
+      localStorage.setItem('token', loginUser.tokens.accessToken);
+      dispatch(login(loginUser))
+      navigate('/app');
+    },
+    onError: (error) => {
+      const variant = 'error'
+      enqueueSnackbar(error.message, { variant })
+    }
+  });
   const { enqueueSnackbar } = useSnackbar();
   const [values, setValues] = React.useState({
     email: '',
@@ -74,8 +91,8 @@ const SignInSide = () => {
       loginUser(
         {
           variables: { input: values }
-        }
-      ).then((res) => {
+        },
+      )/* .then((res) => {
         console.log('loginUser promise', res.data.loginUser)
         //context.login(res.data.loginUser.user, res.data.loginUser.tokens)
         dispatch(login(res.data.loginUser))
@@ -87,7 +104,7 @@ const SignInSide = () => {
         //console.log('loginUser catch err', err.message)
         const variant = 'error'
         enqueueSnackbar(err.message, { variant })
-      })
+      }) */
     },
   })
 
@@ -111,8 +128,10 @@ const SignInSide = () => {
         sx={{
           backgroundImage: 'url(https://source.unsplash.com/random)',
           backgroundRepeat: 'no-repeat',
-          backgroundColor: (t) =>
-            t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
+          backgroundColor: (theme) =>
+            theme.palette.mode === 'light'
+              ? theme.palette.info.light
+              : theme.palette.info.dark,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -197,7 +216,12 @@ const SignInSide = () => {
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={{
+                  mt: 3, mb: 2, backgroundColor: (theme) =>
+                    theme.palette.mode === 'light'
+                      ? theme.palette.info.light
+                      : theme.palette.info.dark,
+                }}
               >
                 Sign In
               </Button>
