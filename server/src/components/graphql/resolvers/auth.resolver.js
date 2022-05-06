@@ -38,9 +38,9 @@ const AuthResolver = {
         email: user.email,
         token: tokens.accessToken,
       }
-      console.log('Auth resolver tokens', returnedUser, tokens)
+      console.log('Auth resolver tokens', user, returnedUser, tokens)
       return {
-        returnedUser,
+        user:returnedUser,
         tokens
       }
       // const token = jwt.sign(

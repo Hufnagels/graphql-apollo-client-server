@@ -227,8 +227,9 @@ const Chat = () => {
                           content: evt.target.value,
                         })
                       }
-                      onKeyUp={(evt) => {
-                        if (evt.keyCode === 13) {
+                      onKeyUp={(event) => {
+                        const key = event.key || event.keyCode;
+                        if (key === 13) {
                           onSend();
                         }
                       }}
