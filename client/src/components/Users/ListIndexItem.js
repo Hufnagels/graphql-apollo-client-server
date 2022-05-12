@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 // Material
 import {
@@ -7,13 +7,11 @@ import {
   Grid,
   Card,
   CardHeader,
-  CardMedia,
   CardContent,
   IconButton,
   Menu,
   MenuItem,
   Divider,
-  Skeleton,
 } from '@mui/material'
 import { red } from '@mui/material/colors';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -21,7 +19,6 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 const ListIndexItem = (props) => {
 
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -50,11 +47,11 @@ const ListIndexItem = (props) => {
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          <MenuItem onClick={handleClose}><Link to={"/app/users/"+props.data._id} key={"mapkey_" + props.data._id}>Open</Link></MenuItem>
+          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/" + props.data._id} key={"mapkey_" + props.data._id}>Open</Link></MenuItem>
           <MenuItem onClick={handleClose}>Preview</MenuItem>
           <Divider />
           <MenuItem onClick={handleClose}>Delete</MenuItem>
-          
+
         </Menu>
         <CardContent>
           <pre>{JSON.stringify(props.data, null, 2)}</pre>

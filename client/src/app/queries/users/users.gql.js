@@ -27,22 +27,11 @@ export const GET_USER = gql`
   query GetUser($id: ID!) {
     getUser(_id: $id) {
       _id
-      # username
       firstName
       lastName
       email
       date_of_birth
       token
-      # ... on UserNotFoundError {
-      #   message
-      # }
-      # ... on User {
-      #   _id
-      #   username
-      #   firstName
-      #   lastName
-      #   email
-      # }
     }
   }
 `
@@ -80,7 +69,7 @@ export const UPDATE_USER = gql`
 `;
 
 export const DELETE_USER = gql`
-  mutation($id: String) {
-    deleteUser(id: $id)
+  mutation($id: ID!) {
+    deleteUser(_id: $id)
   }
 `

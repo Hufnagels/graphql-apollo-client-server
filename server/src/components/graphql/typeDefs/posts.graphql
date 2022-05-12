@@ -21,6 +21,7 @@ type PostsResult {
   posts: [Post]
   currentPage: Int
   totalPages: Int
+  count: Int
 }
 
 # Queries section

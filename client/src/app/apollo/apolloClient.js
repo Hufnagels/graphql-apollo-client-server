@@ -1,30 +1,29 @@
+import React from 'react';
 import {
   ApolloClient,
   InMemoryCache,
-  ApolloProvider,
   HttpLink,
-  ApolloLink,
-  from
-} from "@apollo/client";
-import { onError } from "@apollo/client/link/error"
-import { setContext } from "@apollo/client/link/context"
-
+} from '@apollo/client';
+import { setContext } from '@apollo/client/link/context'
+import { ApolloProvider } from '@apollo/react-hooks'
 import { split, } from '@apollo/client';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 
+// Custom
 import { store, persistor } from '../store/store'
+import { REACT_APP_LS_TOKEN_NAME } from '../config/config'
+
 console.log('apolloClient store', store.getState().auth.tokens)
-
-
 
 const httpLink = new HttpLink({
   uri: `http://${process.env.REACT_APP_NODESERVER_BASEURL}/graphql`,
 })
 
 const authLink = setContext((_, { headers }) => {
-  const token = localStorage.getItem('token') || ""
+  const token = store.getState().auth.tokens.accessToken || localStorage.getItem(REACT_APP_LS_TOKEN_NAME) || ""
+  console.log('apolloClient authLink', token)
   return {
     headers: {
       ...headers,
@@ -32,35 +31,25 @@ const authLink = setContext((_, { headers }) => {
     }
   }
 })
-const tokenLink = new ApolloLink((operation, forward) => {
-  const token = localStorage.getItem('token') || ""
-  operation.setContext({
-    headers: {
-      authorization: token ? `Bearer ${token}` : 'No valid token found'
-    }
-  })
-  return forward(operation)
-})
 
 const wsLink = new GraphQLWsLink(createClient({
   url: `ws://${process.env.REACT_APP_NODESERVER_BASEURL}/subscriptions`,
-  connectionParams: async () => {
-      const token = localStorage.getItem('token') || store.getState().auth.tokens.accessToken || ""
-      return {
-        headers: {
-          authToken: token
-        }
-      }
-    },
-    connectionCallback: (error) => {
-      console.log('connectionCallback', error)
-    },
-  
   options: {
     lazy: true,
     reconnect: true,
-    },
-  
+
+  },
+  connectionParams: async () => {
+    const token = store.getState().auth.tokens.accessToken || localStorage.getItem(REACT_APP_LS_TOKEN_NAME) || ""
+    return {
+      headers: {
+        authToken: token
+      }
+    }
+  },
+  connectionCallback: (error) => {
+    console.log('connectionCallback', error)
+  },
 }));
 
 const splitLink = split(
@@ -72,19 +61,9 @@ const splitLink = split(
     );
   },
   wsLink,
-  tokenLink.concat(httpLink),
+  authLink.concat(httpLink),
 );
-
-/* const authLink = setContext((_, { headers }) => {
-  const token = localStorage.getItem('token') || ""
-  return {
-    headers: {
-      ...headers,
-      authorization: token ? `Bearer ${token}` : "",
-    }
-  }
-})
-
+/*
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors)
     graphQLErrors.forEach(({ message, locations, path }) => console.dir(

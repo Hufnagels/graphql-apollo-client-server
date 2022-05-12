@@ -49,55 +49,59 @@ const validationSchema = yup.object({
     .oneOf([yup.ref('password'), null], 'Passwords must match')
 });
 
-const Add = ({ onClick, active, refetch, setUsers }) => {
+const Add = ({ onClick, active, refetch, users, setUsers }) => {
 
   const { enqueueSnackbar } = useSnackbar();
 
   const [dateOfBirth, setDateOfBirth] = React.useState(new Date())
   const [open, setOpen] = React.useState(active);
 
-  const [createUser, { data, loading, error }] = useMutation(CREATE_USER);
+  const [createUser, { error }] = useMutation(CREATE_USER, {
+    onCompleted: ({ createUser }) => {
+      console.log('CREATE_USER completed', createUser.user)
+      //       setUsers({
+      //         ...users,
+      //         data: createUser.user
+      //       })
+      const variant = 'success'
+      enqueueSnackbar('User created successfully', { variant })
+      onClick(false)
+      setOpen(false)
+      // console.log('createUser setUsers', users)
+      refetch();
+    },
+    onError: (error) => {
+      console.log('CREATE_USER error', error)
+    }
+  });
 
   const formik = useFormik({
     initialValues: {
       // "username": '',
-      "firstName": '',
-      "lastName": '',
+      "firstName": 'Varkonyi',
+      "lastName": 'Istvan',
       "date_of_birth": '',
-      "email": '',
-      "password": '',
-      "passwordConfirmation": '',
+      "email": 'kbvconsulting@gmail.com',
+      "password": 'asasasas',
+      "passwordConfirmation": 'asasasas',
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
       values.date_of_birth = dateOfBirth.toISOString()
       const newData = _.omit(values, 'passwordConfirmation')
-      createUser({ variables: { input: newData } }).then((res) => {
-        console.log('createUser promise', res.data.createUser)
-        setUsers(prevState => [...prevState, res.data.createUser])
-        const variant = 'success'
-        enqueueSnackbar('User created successfully', { variant })
-        onClick(false)
-        setOpen(false)
-        console.log('createUser setUsers')
-        refetch();
-      }).catch(err => {
-        //console.log('createUser catch', err)
-        const variant = 'error'
-        enqueueSnackbar(err.message, { variant })
-      })
+      createUser({ variables: { input: newData } })
     },
   })
 
-  const handleClickOpen = () => {
+  /* const handleClickOpen = () => {
     setOpen(true);
-  };
+  }; */
 
   const handleClose = () => {
-    setOpen(false);
+
     onClick(false)
     formik.resetForm()
-
+    setOpen(false);
   };
 
   React.useEffect(() => {
@@ -110,6 +114,8 @@ const Add = ({ onClick, active, refetch, setUsers }) => {
         {JSON.stringify(error, null, 2)}
       </pre>}
       <Dialog
+        fullWidth
+        maxWidth={'md'}
         keepMounted
         open={open}
         onClose={(_, reason) => {
@@ -145,11 +151,12 @@ const Add = ({ onClick, active, refetch, setUsers }) => {
               fullWidth
               autoFocus
               margin="dense"
+              type="text"
+              variant="standard"
               id="lastName"
               name="lastName"
               label="Last name"
-              type="text"
-              variant="standard"
+
               value={formik.values.lastName}
               onChange={formik.handleChange}
               error={formik.touched.lastName && Boolean(formik.errors.lastName)}
@@ -159,12 +166,12 @@ const Add = ({ onClick, active, refetch, setUsers }) => {
               fullWidth
               autoFocus
               margin="dense"
+              type="text"
+              variant="standard"
               id="firstName"
               name="firstName"
               label="First name"
-              type="text"
 
-              variant="standard"
               value={formik.values.firstName}
               onChange={formik.handleChange}
               error={formik.touched.firstName && Boolean(formik.errors.firstName)}
@@ -174,12 +181,12 @@ const Add = ({ onClick, active, refetch, setUsers }) => {
               fullWidth
               autoFocus
               margin="dense"
+              type="email"
+              variant="standard"
               id="email"
               name="email"
               label="Email Address"
-              type="email"
 
-              variant="standard"
               value={formik.values.email}
               onChange={formik.handleChange}
               error={formik.touched.email && Boolean(formik.errors.email)}
@@ -211,12 +218,13 @@ const Add = ({ onClick, active, refetch, setUsers }) => {
             />
             <TextField
               fullWidth
+              autoComplete="off"
+              type="password"
+              variant="standard"
               id="password"
               name="password"
               label="Password"
-              type="password"
-              variant="standard"
-              autoComplete="off"
+
               value={formik.values.password}
               onChange={formik.handleChange}
               error={formik.touched.password && Boolean(formik.errors.password)}
@@ -224,13 +232,14 @@ const Add = ({ onClick, active, refetch, setUsers }) => {
             />
             <TextField
               fullWidth
+              autoComplete="off"
+              margin="dense"
+              type="password"
+              variant="standard"
               id="passwordConfirmation"
               name="passwordConfirmation"
               label="Confirm Password"
-              type="password"
-              variant="standard"
-              margin="dense"
-              autoComplete="off"
+
               value={formik.values.passwordConfirmation}
               onChange={formik.handleChange}
               error={formik.touched.passwordConfirmation && Boolean(formik.errors.passwordConfirmation)}

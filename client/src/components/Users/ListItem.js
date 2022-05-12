@@ -9,7 +9,7 @@ const ListItem = () => {
   const navigate = useNavigate();
 
   const [user, setUser] = React.useState([])
-  const { data, loading, error, refetch } = useQuery(GET_USER, {
+  const { data, loading, error } = useQuery(GET_USER, {
     variables: { id: id }
   });
 

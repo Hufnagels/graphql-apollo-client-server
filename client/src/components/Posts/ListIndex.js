@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
-import { useLazyQuery, } from "@apollo/client";
-import { Link, useLocation } from "react-router-dom"
-import _ from "lodash"
+import { useLazyQuery, } from '@apollo/client';
+import { useLocation } from 'react-router-dom'
+import _ from 'lodash'
 
 // Material
 import {
@@ -26,51 +26,75 @@ const ListIndex = () => {
   const [openDialog, setOpenDialog] = React.useState(false)
   const [search, setSearch] = React.useState(null)
 
-  const [posts, setPosts] = React.useState([])
+  const [posts, setPosts] = React.useState({data:[]})
 
   const [page, setPage] = React.useState(1);
   const [totalpage, setTotalPage] = React.useState(1)
   const [perpage, setPerpage] = React.useState(10)
+  const [count, setCount] = React.useState(0)
   const [visiblePN, setVisiblePN] = React.useState(false)
 
   const [
     fetchFilteredPosts,
-    { data, loading, error, called, refetch }
+    { data, loading, error, refetch }
   ] = useLazyQuery(GET_POSTS, {
     variables: {
       search,
       page: page,
       limit: perpage
+    },
+    onCompleted: ({ getPosts }) => {
+      console.log('getPosts', getPosts)
+      //setPosts(getPosts.posts)
+      setTotalPage(getPosts.totalPages)
+      setPage(getPosts.currentPage)
+      setPosts({
+        ...posts,
+        data: getPosts.posts
+      })
+      setTotalPage(getPosts.totalPages)
+      setCount(getPosts.count)
+      if (getPosts.posts.length > 0)
+        setVisiblePN(true)
+      else
+        setVisiblePN(false)
+    },
+    onError: (error) => {
+      console.log(error)
     }
   })
 
   React.useEffect(() => {
-    if (!data) return
-    setPosts(data.getPosts.posts)
-    setTotalPage(data.getPosts.totalPages)
-    if (data.getPosts.posts.length > 0)
-      setVisiblePN(true)
-    else
-      setVisiblePN(false)
-  }, [data])
+    fetchFilteredPosts()
+  },[data])
 
-  React.useEffect(() => {
-    //console.log('ListIndex --> search useEffect', page, perpage, totalpage, data)
-    if (!page) return
-    fetchFilteredPosts({
-      variables: {
-        search,
-        page: page,
-        limit: perpage
-      }
-    }).then((res) => {
-      //console.log('res', res)
-      setPosts(res.data.getPosts.posts)
-      setTotalPage(res.data.getPosts.totalPages)
-      setPage(res.data.getPosts.currentPage)
-    })
-    if (!search) return
-  }, [search, page, perpage, totalpage])
+  // React.useEffect(() => {
+  //   if (!data) return
+  //   setPosts(data.getPosts.posts)
+  //   setTotalPage(data.getPosts.totalPages)
+  //   if (data.getPosts.posts.length > 0)
+  //     setVisiblePN(true)
+  //   else
+  //     setVisiblePN(false)
+  // }, [data])
+
+  // React.useEffect(() => {
+  //   //console.log('ListIndex --> search useEffect', page, perpage, totalpage, data)
+  //   if (!page) return
+  //   fetchFilteredPosts({
+  //     variables: {
+  //       search,
+  //       page: page,
+  //       limit: perpage
+  //     }
+  //   }).then((res) => {
+  //     //console.log('res', res)
+  //     setPosts(res.data.getPosts.posts)
+  //     setTotalPage(res.data.getPosts.totalPages)
+  //     setPage(res.data.getPosts.currentPage)
+  //   })
+  //   if (!search) return
+  // }, [search, page, perpage, totalpage])
 
   if (loading) return <CircularProgress color="secondary" />
 
@@ -93,11 +117,11 @@ const ListIndex = () => {
           active={openDialog}
           setOpenDialog={setOpenDialog}
           addComponent={
-            <PostAdd onClick={setOpenDialog} active={openDialog} refetch={refetch} setData={setPosts} />
+            <PostAdd onClick={setOpenDialog} active={openDialog} refetch={refetch} />
           }
         />
         <Grid container spacing={{ sm: 1, md: 1 }} >
-          {posts && posts.map((post, idx) => {
+          {posts.data && posts.data.map((post, idx) => {
             return <ListIndexItem data={post} key={idx} />
           })}
         </Grid>

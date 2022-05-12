@@ -179,9 +179,9 @@ const HeaderResponsiveAppBar = (props) => {
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                   <MoreIcon
                     sx={{
-                      color: (theme) => theme.palette.mode === 'light'
-                        ? theme.palette.info.dark
-                        : theme.palette.info.light,
+                      color: (theme) => theme.palette.mode === 'dark'
+                        ? theme.palette.custom.light
+                        : theme.palette.custom.light,
                     }}
                   /> {/* <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" /> */}
                 </IconButton>

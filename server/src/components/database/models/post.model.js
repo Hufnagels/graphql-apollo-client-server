@@ -7,8 +7,8 @@ const postSchema = new Schema(
     titleimage: { type: String, nullable: true, default: '' },
     title: { type: String, required: true, unique: true },
     subtitle: { type: String, nullable: true, default: '' },
-    body: { type: String, nullable: true, default: '' },
-    comments: [{ body: String, date: Date }],
+    description: { type: String, nullable: true, default: '' },
+    comments: [{ comment: String, date: Date }],
     date: { type: Date, default: Date.now },
     hidden: Boolean,
     meta: {

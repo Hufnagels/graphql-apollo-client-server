@@ -25,11 +25,12 @@ const ListIndex = () => {
   const [openDialog, setOpenDialog] = React.useState(false)
   const [search,setSearch] = React.useState(null)
 
-  const [mindmaps,setMindmaps] = React.useState([])
+  const [mindmaps,setMindmaps] = React.useState({data:[]})
 
   const [page, setPage] = React.useState(1);
   const [totalpage, setTotalPage] = React.useState(1)
   const [perpage, setPerpage] = React.useState(10)
+  const [count, setCount] = React.useState(0)
   const [visiblePN, setVisiblePN] = React.useState(false)
 
   const [
@@ -40,35 +41,29 @@ const ListIndex = () => {
       search,
       page:page,
       limit:perpage
+    },
+    onCompleted: ({ getMindmaps }) => {
+      console.log('getMindmaps', getMindmaps)
+      setMindmaps({
+        ...mindmaps,
+        data: getMindmaps.mindmaps
+      })
+      setTotalPage(getMindmaps.totalPages)
+      setCount(getMindmaps.count)
+      if (getMindmaps.mindmaps.length > 0)
+        setVisiblePN(true)
+      else
+        setVisiblePN(false)
+    },
+    onError: (error) => {
+      const variant = 'error'
+      //enqueueSnackbar(error.message, { variant })
     }
   })
 
   React.useEffect(() => {
-    if(!data) return
-    setMindmaps(data.getMindmaps.mindmaps)
-    setTotalPage(data.getMindmaps.totalPages)
-    if (data.getMindmaps.mindmaps.length > 0) 
-      setVisiblePN(true)
-    else
-      setVisiblePN(false)
+    fetchFilteredMindmaps()
   },[data])
-
-  React.useEffect(() => {
-    //console.log('ListIndex --> search useEffect', page, perpage, totalpage, data)
-    if(!page) return
-    fetchFilteredMindmaps({variables:{
-      search,
-      page:page,
-      limit:perpage
-    }}).then((res) => {
-      //console.log('res', res)
-      setMindmaps(res.data.getMindmaps.mindmaps)
-      setTotalPage(res.data.getMindmaps.totalPages)
-      setPage(res.data.getMindmaps.currentPage)
-    })
-    if(!search) return
-
-  },[search, page, perpage, totalpage])
 
   if (loading) return <CircularProgress color="secondary" />
 
@@ -95,7 +90,7 @@ const ListIndex = () => {
           }
         />
         <Grid container spacing={{ sm: 1, md: 1 }} >
-          {mindmaps && mindmaps.map((mindmap, idx) => {
+          {mindmaps.data && mindmaps.data.map((mindmap, idx) => {
             return <ListIndexItem data={mindmap} key={idx} />
           })}
         </Grid>

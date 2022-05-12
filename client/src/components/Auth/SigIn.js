@@ -42,7 +42,7 @@ const validationSchema = yup.object({
     .min(8, 'Password should be of minimum 8 characters length')
     .required('Password is required'),
 });
-
+const REACT_APP_LS_TOKEN_NAME = process.env.REACT_APP_LS_TOKEN_NAME
 const SignInSide = () => {
 
   const navigate = useNavigate()
@@ -57,9 +57,9 @@ const SignInSide = () => {
     },
     onCompleted: ({ loginUser }) => {
       console.log('loginUser', loginUser)
-      localStorage.setItem('token', loginUser.tokens.accessToken);
+      localStorage.setItem(REACT_APP_LS_TOKEN_NAME, loginUser.tokens.accessToken);
       dispatch(login(loginUser))
-      navigate('/app');
+      navigate('/app', { replace: true })
     },
     onError: (error) => {
       const variant = 'error'

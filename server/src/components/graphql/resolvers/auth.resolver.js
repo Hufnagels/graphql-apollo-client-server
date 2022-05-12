@@ -59,12 +59,14 @@ const AuthResolver = {
         ...user._doc
       }
     },
-    refreshToken: async (parent, args, { req }, context) => {
-      const authUser = await getRefreshToken(req, true)
-      const tokens = await issueTokens(authUser)
+    refreshToken: async (parent, { input: { _id, email, } }, context) => {
+console.log('refreshToken context', _id, email) //, context.req.authorization)
+      //return null
+      //const authUser = await getRefreshToken(req, true)
+      const tokens = await issueTokens({ _id, email, })
+console.log('refreshToken tokens', tokens)
       return {
-        user: authUser,
-        ...tokens
+        tokens
       }
     },
   }

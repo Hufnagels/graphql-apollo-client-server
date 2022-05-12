@@ -33,7 +33,13 @@ input UserInputLogin {
   password: String
 }
 
+# refreshToken
+input refreshTokenInput {
+  _id: ID!
+  email: String
+}
+
 type Mutation {
   loginUser(input:UserInputLogin): Auth
-  refreshToken: Auth
+  refreshToken(input:refreshTokenInput): Auth
 }

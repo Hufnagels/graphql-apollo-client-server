@@ -22,3 +22,16 @@ export const GET_MAPS = gql`
     }
   }
 `;
+
+// MUTATIONS
+export const CREATE_MAP = gql`
+  mutation CreateMap($input: MapInputCreate!) {
+    createMap(input: $input) {
+      map {
+        owner
+        title
+        description
+      }
+    }
+  }
+`;

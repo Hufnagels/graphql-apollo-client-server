@@ -20,3 +20,13 @@ export const LOGIN_USER = gql`
   }
 `
 
+export const REFRESH_TOKEN = gql`
+  mutation Mutation($input: refreshTokenInput) {
+    refreshToken(input: $input) {
+      tokens {
+        accessToken
+        refreshToken
+      }
+    }
+  }
+`

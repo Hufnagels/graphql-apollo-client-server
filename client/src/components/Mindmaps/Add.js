@@ -42,7 +42,24 @@ const Add = ({ onClick, active, refetch, setData }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [open, setOpen] = React.useState(active);
 
-  const [createMindmap, { data, loading, error }] = useMutation(CREATE_MINDMAP);
+  const [createMindmap, { error }] = useMutation(CREATE_MINDMAP, {
+    onCompleted: ({ createMindmap }) => {
+      console.log('CREATE_MINDMAP completed', createMindmap)
+      //       setUsers({
+      //         ...users,
+      //         data: createMindmap.user
+      //       })
+      const variant = 'success'
+      enqueueSnackbar('Mindmap created successfully', { variant })
+      onClick(false)
+      setOpen(false)
+      // console.log('createMindmap setUsers', users)
+      refetch();
+    },
+    onError: (error) => {
+      console.log('CREATE_MINDMAP error', error)
+    }
+  });
 
   const emptyMap = {
     id: uuid(),
@@ -71,23 +88,7 @@ const Add = ({ onClick, active, refetch, setData }) => {
     onSubmit: (values) => {
 
       const newData = _.merge(values, emptyMapRecord)
-      setOpen(false)
-      onClick(false)
-      //console.log('add map ', newData)
-      //return null
-      createMindmap({ variables: { input: newData } }).then((res) => {
-        //console.log('createMindmap promise', res)
-        //setData(prevState => [...prevState, res.data.createMindmap])
-        const variant = 'success'
-        enqueueSnackbar('Mindmap created successfully', { variant })
-        onClick(false)
-        setOpen(false)
-        refetch();
-      }).catch(err => {
-        //console.log('createMindmap catch', err)
-        const variant = 'error'
-        enqueueSnackbar(err.message, { variant })
-      })
+      createMindmap({ variables: { input: newData } })
     },
   })
 
@@ -96,10 +97,9 @@ const Add = ({ onClick, active, refetch, setData }) => {
   };
 
   const handleClose = () => {
-    setOpen(false);
     onClick(false)
     formik.resetForm()
-
+    setOpen(false);
   };
 
   React.useEffect(() => {
@@ -109,6 +109,8 @@ const Add = ({ onClick, active, refetch, setData }) => {
   return (
     <div>
       <Dialog
+        fullWidth={'true'}
+        maxWidth={'md'}
         keepMounted
         open={open}
         onClose={(_, reason) => {

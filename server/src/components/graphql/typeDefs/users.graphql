@@ -87,7 +87,7 @@ type UpdateUserPayload {
 type Mutation {
   createUser(input: UserInputCreate): Auth #User #CreateUserPayload
   updateUser(_id: ID!, input: UserInputUpdate!): User #UpdateUserPayload
-  deleteUser(_id: ID!): String
+  deleteUser(_id: ID!): Boolean
   # loginUser(input:UserInputLogin): Auth
   # refreshToken: Auth
 }

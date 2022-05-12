@@ -75,7 +75,7 @@ const serverStart = async () => {
     },
     context: async ({ req, res }) => {
       // subscriptions
-      console.log('context req.body', req.body.query)
+//console.log('context req.body.query', req.body.query)
       /**
        * query: 'mutation ($user: String!, $content: String!) {\n' +
         '  postMessage(user: $user, content: $content)\n' +
@@ -83,7 +83,7 @@ const serverStart = async () => {
        */
 
       // except Subscription
-      console.log('context req.headers', req.headers.authorization)
+//console.log('context req.headers.authorization', req.headers.authorization)
       /**
        * context req.headers {
           host: 'localhost:4002',
@@ -93,7 +93,7 @@ const serverStart = async () => {
           authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyNjk3OGNkZmQzMTRjYjdmYjdlZWZhMSIsImVtYWlsIjoia2J2Y29uc3VsdGluZ0BnbWFpbC5jb20iLCJpYXQiOjE2NTE4MzI2ODksImV4cCI6MTY1MTgzNjI4OX0.h73q0lGmT2UzoBP1F74E3g-0Tqm9ERAC-7dIqeEs-5U',
        */
 
-      console.log('context req.body.operationName', req.body.operationName)
+//console.log('context req.body.operationName', req.body.operationName)
       /**
        * context req.body.operationName GetPosts
        */
@@ -101,7 +101,7 @@ const serverStart = async () => {
       // Try to retrieve a user with the token
       const token = req.headers.authorization || ''
       const user = null //await checkUserExist(token, false);
-      console.log('context user', user)
+//console.log('context user', user)
 
       // Add the user to the context
       return { req, res };

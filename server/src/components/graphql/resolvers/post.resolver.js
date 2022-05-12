@@ -23,6 +23,13 @@ const PostResolver = {
       }
 
       const count = await Posts.countDocuments(searchQuery);
+      if (!count) return {
+        posts: [],
+        totalPages: 1,
+        currentPage: 1,
+        count: 0
+      }
+
       const totalPages = Math.ceil(count / limit)
       const correctedPage = totalPages < page ? totalPages : page
 
@@ -35,7 +42,8 @@ const PostResolver = {
       return {
         posts,
         totalPages: totalPages,
-        currentPage: correctedPage
+        currentPage: correctedPage,
+        count
       }
     },
     getPost: async (parent, args) => {
@@ -51,7 +59,7 @@ const PostResolver = {
       //console.log('add post args', args)
       const { author, title, subtitle, description, titleimage } = args.input;
       let error = {}
-
+      //console.log('create post', author, title, subtitle, description, titleimage)
       const post = new Posts({
         author,
         title,
@@ -59,14 +67,11 @@ const PostResolver = {
         description,
         titleimage
       })
-
-      try {
-        await post.save()
-      } catch (err) {
-        //console.log('err', JSON.stringify(err.keyValue))
-        throw new ApolloError(`The post with the given data ${err.keyValue.title} exist.`)
+      //console.log('create post Post', post)
+      const res = await post.save()
+      return {
+        post: res._doc,
       }
-      return { post }
     },
     deletePost: async (parent, args, context, info) => {
       const { _id } = args

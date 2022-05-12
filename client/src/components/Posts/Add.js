@@ -1,8 +1,8 @@
 import React from 'react'
-import { Formik, useFormik } from "formik";
-import { ContentState } from "draft-js";
+import { useFormik } from 'formik';
 import * as yup from 'yup';
-import _ from 'lodash';
+import { useLocation } from 'react-router-dom'
+import _ from 'lodash'
 import { useSnackbar } from 'notistack';
 
 // Material
@@ -15,7 +15,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Grid,
   TextField,
@@ -63,55 +62,52 @@ const validationSchema = yup.object({
     .transform((_, val) => val === String(val) ? val : null),
 });
 
-const Add = ({ onClick, active, refetch, setData }) => {
+const Add = ({ onClick, active, refetch }) => {
 
+  const location = useLocation();
   const { enqueueSnackbar } = useSnackbar();
-
   const [open, setOpen] = React.useState(active);
-  const [scroll, setScroll] = React.useState('paper');
+  const [title, setTitle] = React.useState(_.capitalize(location.pathname.slice(location.pathname.lastIndexOf("/") + 1, location.pathname.length)))
 
-  const [createPost, { data, loading, error }] = useMutation(CREATE_POST);
+  const [createPost] = useMutation(CREATE_POST, {
+    onCompleted: ({ createPost }) => {
+      console.log('CREATE_POST completed', createPost)
+      const variant = 'success'
+      enqueueSnackbar('Post created successfully', { variant })
+      onClick(false)
+      setOpen(false)
+      // console.log('createUser setUsers', users)
+      refetch();
+    },
+    onError: (error) => {
+      console.log('CREATE_POST error', error)
+      enqueueSnackbar(error, 'error')
+    }
+  });
 
   const formik = useFormik({
     initialValues: {
       "author": '',
       "title": '',
-      "subtitle": null,
-      "description": null,
-      "titleimage": null
+      "subtitle": '',
+      "description": '',
+      "titleimage": ''
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      // console.log('values', values)
-      //const newData = _.omit(values, 'passwordConfirmation')
-
-      createPost({ variables: { input: values } }).then((res) => {
-        // console.log(res)
-        //setData(prevState => [...prevState, res.data.createPost])
-        const variant = 'success'
-        enqueueSnackbar('User created successfully', { variant })
-        setOpen(false)
-        onClick(false)
-        formik.resetForm()
-        refetch();
-      }).catch(err => {
-        //console.log('createUser catch', JSON.stringify(err, null, 2))
-
-        const variant = 'error'
-        enqueueSnackbar(err.message, { variant })
-      })
+      console.log('CREATE_POST', values)
+      createPost({ variables: { input: values } })
     },
   })
 
-  const handleClickOpen = () => {
+  /* const handleClickOpen = () => {
     setOpen(true);
-  };
+  }; */
 
   const handleClose = () => {
-    setOpen(false);
     onClick(false)
     formik.resetForm()
-
+    setOpen(false);
   };
 
   const descriptionElementRef = React.useRef(null);
@@ -140,7 +136,7 @@ const Add = ({ onClick, active, refetch, setData }) => {
               handleClose();
             }
           }}
-          scroll={scroll}
+          scroll={'paper'}
           aria-labelledby="scroll-dialog-title"
           aria-describedby="scroll-dialog-description"
         >
@@ -155,15 +151,13 @@ const Add = ({ onClick, active, refetch, setData }) => {
                 >
                   <CloseIcon />
                 </IconButton>
-                <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                  Add new post
-                </Typography>
+                <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">{title + ': add new'}</Typography>
                 <Button color="inherit" type="submit" onClick={formik.handleSubmit}>Add</Button>
               </Toolbar>
             </AppBar>{/*  */}
           </DialogTitle>
 
-          <DialogContent dividers={scroll === 'paper'}>
+          <DialogContent >
             <div
               id="scroll-dialog-description"
               ref={descriptionElementRef}
@@ -245,34 +239,9 @@ const Add = ({ onClick, active, refetch, setData }) => {
                   <TextEditor
                     setFieldValue={(val) => formik.setFieldValue("description", val)}
                     value={formik.values.description}
-
                   />
                 </Grid>
                 <Grid item>
-
-                  {/* <MobileDatePicker
-            label="Activation time"
-            value={dateOfBirth}
-            minDate={new Date()}
-            maxDate={new Date()}
-            format="yyyy/MM/dd"
-            onChange={(newValue) => {
-              setDateOfBirth(newValue)
-              //formik.handleChange(newValue)
-            }}
-            renderInput={(params) => 
-              <TextField 
-                id="date_of_birth"
-                name="date_of_birth"
-                margin="dense"
-                variant="standard"
-                value={dateOfBirth}
-                onChange={formik.handleChange}
-                error={formik.touched.date_of_birth && Boolean(formik.errors.date_of_birth)}
-                helperText={formik.touched.date_of_birth && formik.errors.date_of_birth}
-                {...params} 
-              />}
-          /> */}
                 </Grid>
               </Grid>
 
@@ -281,7 +250,6 @@ const Add = ({ onClick, active, refetch, setData }) => {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Cancel</Button>
-
           </DialogActions>
         </Dialog>
       </form>

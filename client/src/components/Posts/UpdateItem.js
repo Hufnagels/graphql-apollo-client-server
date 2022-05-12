@@ -1,6 +1,5 @@
 import React from 'react'
-import { Formik, useFormik } from "formik";
-import { ContentState } from "draft-js";
+import { useFormik } from "formik";
 import * as yup from 'yup';
 import _ from 'lodash';
 import { useSnackbar } from 'notistack';
@@ -16,13 +15,11 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Grid,
   TextField,
   Slide,
 } from '@mui/material';
-import MobileDatePicker from '@mui/lab/MobileDatePicker';
 import CloseIcon from '@mui/icons-material/Close';
 
 // Custom
@@ -33,9 +30,9 @@ import {
 import { GET_POST, UPDATE_POST } from "../../app/queries";
 import { TextEditor } from "../Texteditor/editor";
 
-const Transition = React.forwardRef(function Transition(props, ref) {
+/* const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} timeout={{ enter: 5, exit: 5, }} {...props} />;
-});
+}); */
 
 const validationSchema = yup.object({
   author: yup
@@ -78,10 +75,25 @@ const Edit = ({ onClick, active, refetch, setData }) => {
     {
       variables: { id },
       fetchPolicy: "network-only",
-    }
+    },
+
   );
 
-  const [updatePost, { data: updatedData }] = useMutation(UPDATE_POST);
+  const [updatePost] = useMutation(UPDATE_POST, {
+    onCompleted: ({ getPost }) => {
+      const variant = 'success'
+      enqueueSnackbar('Post updated successfully', { variant })
+      // navigate(-1)
+      // setOpen(false)
+      //onClick(false)
+      //formik.resetForm()
+    },
+    onError: (error) => {
+      console.log(error)
+      const variant = 'error'
+      enqueueSnackbar(error.message, { variant })
+    }
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -96,29 +108,26 @@ const Edit = ({ onClick, active, refetch, setData }) => {
       // console.log('values', values)
       const newData = _.omit(values, ['author', '__typename'])
 
-      updatePost({ variables: { id: id, input: newData } }).then((res) => {
-        // console.log(res)
-        //setData(prevState => [...prevState, res.data.updatePost])
-        const variant = 'success'
-        enqueueSnackbar('Post updated successfully', { variant })
-        navigate(-1)
-        setOpen(false)
-        //onClick(false)
-        formik.resetForm()
+      updatePost({ variables: { id: id, input: newData } })
+      // .then((res) => {
+      //   // console.log(res)
+      //   //setData(prevState => [...prevState, res.data.updatePost])
+      //   const variant = 'success'
+      //   enqueueSnackbar('Post updated successfully', { variant })
+      //   navigate(-1)
+      //   setOpen(false)
+      //   //onClick(false)
+      //   formik.resetForm()
 
-        //refetch();
-      }).catch(err => {
-        //console.log('createUser catch', JSON.stringify(err, null, 2))
+      //   //refetch();
+      // }).catch(err => {
+      //   //console.log('createUser catch', JSON.stringify(err, null, 2))
 
-        const variant = 'error'
-        enqueueSnackbar(err.message, { variant })
-      })
+      //   const variant = 'error'
+      //   enqueueSnackbar(err.message, { variant })
+      // })
     },
   })
-
-  const handleClickOpen = () => {
-    // setOpen(true);
-  };
 
   const handleClose = () => {
     setOpen(false);
@@ -154,6 +163,9 @@ const Edit = ({ onClick, active, refetch, setData }) => {
 
   return (
     <div>
+      {error && <pre>
+        {JSON.stringify(error, null, 2)}
+      </pre>}
       {data.getPost &&
         <form onSubmit={formik.handleSubmit}>
           <Dialog

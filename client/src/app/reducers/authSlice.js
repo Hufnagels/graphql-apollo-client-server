@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { PURGE } from "redux-persist";
+import { REACT_APP_LS_TOKEN_NAME } from '../config/config'
 
 let initialState = {
   user: null,
@@ -7,12 +8,13 @@ let initialState = {
   tokens: null
 }
 
+console.log('REACT_APP_LS_TOKEN_NAME', REACT_APP_LS_TOKEN_NAME)
 export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
     login(state, action) {
-      localStorage.setItem('token', action.payload.tokens.accessToken)
+      localStorage.setItem(REACT_APP_LS_TOKEN_NAME, action.payload.tokens.accessToken)
 
       return {
         ...state,
@@ -22,12 +24,19 @@ export const authSlice = createSlice({
       }
     },
     logout(state, action) {
-      localStorage.removeItem('token')
+      localStorage.removeItem(REACT_APP_LS_TOKEN_NAME)
       return {
         ...state,
         user: null,
         tokens: null,
         isLoggedIn: false,
+      }
+    },
+    refreshtoken(state, action) {
+      localStorage.setItem(REACT_APP_LS_TOKEN_NAME, action.payload.tokens.accessToken)
+      return {
+        ...state,
+        tokens: action.payload.tokens,
       }
     },
   },
@@ -38,6 +47,6 @@ export const authSlice = createSlice({
   }
 })
 
-export const { login, logout } = authSlice.actions;
+export const { login, logout, refreshtoken } = authSlice.actions;
 
 export default authSlice.reducer;

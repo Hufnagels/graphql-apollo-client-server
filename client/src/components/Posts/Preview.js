@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useParams, useNavigate } from "react-router-dom";
 import {
   useQuery,
-  useLazyQuery,
 } from "@apollo/client";
 
 // Material
@@ -25,7 +24,7 @@ const Preview = (props) => {
   const [post, setPost] = React.useState([])
   //console.log('Preview props', props, id);
 
-  const { data, loading, error, refetch } = useQuery(GET_POST, {
+  const { data, loading, error } = useQuery(GET_POST, {
     variables: { id: id }
   });
 
@@ -41,6 +40,9 @@ const Preview = (props) => {
   //return null
   return (
     <React.Fragment>
+      {error && <pre>
+        {JSON.stringify(error, null, 2)}
+      </pre>}
       <button onClick={() => navigate(-1)}>go back</button>
       {data &&
         <Paper
@@ -64,16 +66,17 @@ const Preview = (props) => {
               bottom: 0,
               right: 0,
               left: 0,
-              backgroundColor: '#aeaeae',
+
             }}
           />
           <Grid container>
-            <Grid item md={8}>
+            <Grid item md={12}>
               <Box
                 sx={{
                   position: 'relative',
                   p: { xs: 3, md: 6 },
                   pr: { md: 0 },
+                  backgroundColor: '#aeaeae',
                 }}
               >
                 <Typography component="h1" variant="h3" color="inherit" gutterBottom>
@@ -82,11 +85,25 @@ const Preview = (props) => {
                 <Typography component="h1" variant="h5" color="inherit" gutterBottom>
                   {post.subtitle}
                 </Typography>
-                <div dangerouslySetInnerHTML={{ __html: post.description }} />
-
-                {/* <Link variant="subtitle1" href="#">
-              {post.linkText}
-            </Link> */}
+              </Box>
+              <Box
+                sx={{
+                  position: 'relative',
+                  p: { xs: 3, md: 6 },
+                  pr: { md: 0 },
+                  backgroundColor: '#ffffff',
+                  '&>.post img': {
+                    width: '50% !important',
+                    border: '10px solid rgba(0,255,255)'
+                  }
+                }}
+              >
+                <div className="post"
+                  dangerouslySetInnerHTML={{ __html: post.description }}
+                  style={{
+                    
+                  }}
+                />
               </Box>
             </Grid>
           </Grid>

@@ -50,8 +50,8 @@ const ListIndexItem = (props) => {
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          <MenuItem onClick={handleClose}><Link to={"/app/maps/" + props.data._id} key={"mapkey_" + props.data._id}>Open</Link></MenuItem>
-          <MenuItem onClick={handleClose}><Link to={"/app/maps/preview/" + props.data._id} key={"mapkey_" + props.data._id}>Preview</Link></MenuItem>
+          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/" + props.data._id} key={"mapkey_" + props.data._id}>Open</Link></MenuItem>
+          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/preview/" + props.data._id} key={"mapkey_" + props.data._id}>Preview</Link></MenuItem>
           <Divider />
           <MenuItem onClick={handleClose}>Delete</MenuItem>
 

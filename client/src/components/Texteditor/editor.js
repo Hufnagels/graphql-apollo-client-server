@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { Editor } from "react-draft-wysiwyg";
-import { convertToRaw, ContentState, EditorState } from "draft-js";
-import draftToHtml from "draftjs-to-html";
-import htmlToDraft from "html-to-draftjs";
+import React, { useState } from 'react';
+import { Editor } from 'react-draft-wysiwyg';
+import { convertToRaw, ContentState, EditorState } from 'draft-js';
+import draftToHtml from 'draftjs-to-html';
+import htmlToDraft from 'html-to-draftjs';
 
-import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import "./editor.scss";
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import './editor.scss';
 
 
 
@@ -29,13 +29,13 @@ export const TextEditor = ({ value, setFieldValue }) => {
     setEditorState(editorState);
   };
   return (
-    <div>
+    <React.Fragment>
       <Editor
         editorState={editorState}
         wrapperClassName="custom-wrapper"
         editorClassName="custom-editor"
         onEditorStateChange={onEditorStateChange}
       />
-    </div>
+    </React.Fragment>
   );
 };

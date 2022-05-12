@@ -1,15 +1,13 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux'
 
 // Custom
 import HeaderResponsiveAppBar from '../../../components/Layout/AppBar'
 import Main from './Main'
 import StickyFooter from '../../../components/Layout/Footer'
-//import { authContext } from '../../../app/context/authContext'
 
 const MainLayout = () => {
-  //const { user } = useContext(authContext)
-  const { isLoggedIn, user } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
 
   const pages = [
     { name: 'Home', link: '/' },

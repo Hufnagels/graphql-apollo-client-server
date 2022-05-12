@@ -12,7 +12,7 @@ import MindmapListItem from "../../components/Mindmaps/ListItem";
 //POSTS
 import PostsListIndex from "../../components/Posts/ListIndex";
 import PostPreview from "../../components/Posts/Preview";
-import UpdatePost from "../../components/Posts/ListItem";
+import PostUpdate from "../../components/Posts/UpdateItem";
 //USERS
 import UsersListIndex from '../../components/Users/ListIndex2'
 import UsersListItem from "../../components/Users/ListItem";
@@ -62,7 +62,7 @@ const routes = (isLoggedIn) => [
         element: <Outlet />,
         children: [
           { index: true, element: <PostsListIndex /> },
-          { path: "/app/blogs/:id", element: <UpdatePost /> },
+          { path: "/app/blogs/:id", element: <PostUpdate /> },
           { path: "/app/blogs/:id/preview", element: <PostPreview /> },
         ],
       },

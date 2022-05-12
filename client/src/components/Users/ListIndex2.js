@@ -1,5 +1,5 @@
-import React, { memo } from 'react'
-import { useLazyQuery, } from "@apollo/client";
+import React from 'react'
+import { useLazyQuery,useMutation } from "@apollo/client";
 import { Link, useLocation } from "react-router-dom"
 import _ from "lodash"
 
@@ -19,6 +19,7 @@ import {
   CircularProgress,
   Paper,
   Stack,
+  IconButton,
 } from '@mui/material'
 import { tableCellClasses } from '@mui/material/TableCell';
 import { useTheme, styled } from '@mui/material/styles';
@@ -28,8 +29,7 @@ import PreviewOutlinedIcon from '@mui/icons-material/PreviewOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
 // Custom
-import ListIndexItem from './ListIndexItem';
-import { GET_USERS } from "../../app/queries";
+import { GET_USERS, DELETE_USER } from "../../app/queries";
 import Add from './Add';
 import SearchBar from '../Layout/SearchBar';
 
@@ -45,13 +45,12 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 
 const ListIndex2 = () => {
   const location = useLocation();
-  const theme = useTheme();
 
   const [title, setTitle] = React.useState(_.capitalize(location.pathname.slice(location.pathname.lastIndexOf("/") + 1, location.pathname.length)) + ' list')
   const [openDialog, setOpenDialog] = React.useState(false)
   const [search, setSearch] = React.useState(null)
 
-  const [users, setUsers] = React.useState([])
+  const [users, setUsers] = React.useState({ data: [] })
 
   const [page, setPage] = React.useState(1);
   const [totalpage, setTotalPage] = React.useState(1)
@@ -77,46 +76,47 @@ const ListIndex2 = () => {
       search,
       page: page,
       limit: perpage
+    },
+    onCompleted: ({ getUsers }) => {
+      console.log('getUsers', getUsers)
+      setUsers({
+        ...users,
+        data: getUsers.users
+      })
+      setTotalPage(getUsers.totalPages)
+      setCount(getUsers.count)
+      if (getUsers.users.length > 0)
+        setVisiblePN(true)
+      else
+        setVisiblePN(false)
+    },
+    onError: (error) => {
+      console.log(error)
     }
   })
 
-  React.useEffect(() => {
-    //console.log('ListIndex --> search useEffect #1', page, perpage, totalpage, data)
-    if (!data) return
-    if (!(typeof data.getUsers === 'undefined')) return
-    setUsers(data.getUsers.users)
-    setTotalPage(data.getUsers.totalPages)
-    setCount(data.getUsers.count)
-    if (data.getUsers.users.length > 0)
-      setVisiblePN(true)
-    else
-      setVisiblePN(false)
-  }, [data])
-
-  React.useEffect(() => {
-    //console.log('ListIndex --> search useEffect #2', page, perpage, totalpage, data)
-    //if (!page) return
-    fetchFilteredUsers({
+  const [deleteUser] = useMutation(DELETE_USER,{
+    onCompleted: ({ deleteUser }) => {
+      console.log('deleteUser', deleteUser)
+      fetchFilteredUsers()
+    },
+    onError: (error) => {
+      console.log(error)
+    }
+  })
+  const deleteItem = (idx) => {
+    console.log(idx)
+    deleteUser({
       variables: {
-        search,
-        page: page,
-        limit: perpage
-      }
-    }).then((res) => {
-      //console.log('res', res)
-      setUsers(res.data.getUsers.users)
-      setTotalPage(res.data.getUsers.totalPages)
-      setPage(res.data.getUsers.currentPage)
-      setCount(res.data.getUsers.count)
-    }).catch((err) => {
-      //console.log('err', err)
-    })
-    //if (!search) return
-
-  }, [search/*,  page, perpage, totalpage, users*/])
+        id: idx
+      }})
+  }
+  React.useEffect(() => {
+    fetchFilteredUsers()
+  },[data])
 
   if (loading) return <CircularProgress color="secondary" />
-
+//return null
   return (
     <React.Fragment>
       <Box style={{ padding: '0rem' }}>
@@ -130,21 +130,22 @@ const ListIndex2 = () => {
           perpage={perpage}
           setPerpage={setPerpage}
           totalpage={totalpage}
+          data={users}
           setData={setUsers}
           visiblePN={false}
           refetch={refetch}
           active={openDialog}
           setOpenDialog={setOpenDialog}
           addComponent={
-            <Add onClick={setOpenDialog} active={openDialog} refetch={refetch} setUsers={setUsers} />
+            <Add onClick={setOpenDialog} active={openDialog} refetch={refetch} users={users} setUsers={setUsers} />
           }
         />
         {error && <Alert severity="warning">{JSON.stringify(error, null, 2)}</Alert>}
-        {users && !error && <React.Fragment>
+        {users.data && !error && <React.Fragment>
           <TableContainer component={Paper} sx={{ maxHeight: 590 }}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table" stickyHeader>
               <TableHead>
-                <TableRow>
+                <TableRow key='headerrow'>
                   {/* <StyledTableCell align="left">Username</StyledTableCell> */}
                   <StyledTableCell align="left">Email</StyledTableCell>
                   <StyledTableCell align="left">Date</StyledTableCell>
@@ -154,7 +155,7 @@ const ListIndex2 = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {users.map((row) => (
+                {users.data && users.data.map((row) => (
                   <TableRow
                     key={row._id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -166,9 +167,9 @@ const ListIndex2 = () => {
                     <TableCell align="left">{row.lastName}</TableCell>
                     <TableCell align="right">
                       <Stack direction="row" spacing={1} style={{ justifyContent: 'flex-end' }}>
-                        <Link to={"/app/users/" + row._id} key={"edit_" + row._id}><EditOutlinedIcon fontSize="small" /></Link><Divider orientation="vertical" flexItem />
-                        <Link to={"/app/users/" + row._id} key={"preview_" + row._id}><PreviewOutlinedIcon fontSize="small" /></Link><Divider orientation="vertical" flexItem />
-                        <Link to={"/app/users/" + row._id} key={"delete_" + row._id}><DeleteOutlineOutlinedIcon fontSize="small" /></Link>
+                        <IconButton><Link to={"/app/users/" + row._id} key={"edit_" + row._id}><EditOutlinedIcon fontSize="small" /></Link></IconButton><Divider orientation="vertical" flexItem />
+                        <IconButton><Link to={"/app/users/" + row._id} key={"preview_" + row._id}><PreviewOutlinedIcon fontSize="small" /></Link></IconButton><Divider orientation="vertical" flexItem />
+                        <IconButton onClick={(e) => deleteItem(row._id)} key={"delete_" + row._id}><DeleteOutlineOutlinedIcon fontSize="small" /></IconButton>
                       </Stack>
                     </TableCell>
                   </TableRow>
@@ -176,7 +177,7 @@ const ListIndex2 = () => {
               </TableBody>
 
               <TableFooter>
-                <TableRow>
+                <TableRow key='footerrow'>
                   {/* <StyledTableCell align="left">Username</StyledTableCell> */}
                   <StyledTableCell align="left">Email</StyledTableCell>
                   <StyledTableCell align="left">Date</StyledTableCell>

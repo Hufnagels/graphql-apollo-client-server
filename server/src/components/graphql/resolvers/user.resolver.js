@@ -31,8 +31,7 @@ const UserResolver = {
             { lastName: { $regex: search, $options: 'i' } },
             //{ username: { $regex: search, $options: 'i' } },
             { email: { $regex: search, $options: 'i' } },
-          ],
-          sortBy: UPDATEDAT_DESC
+          ]
         };
       }
 
@@ -125,8 +124,17 @@ const UserResolver = {
     deleteUser: async (parent, args, { req }, context, info) => {
       await checkSignedIn(req, true)
       const { _id } = args
-      await User.findByIdAndDelete({ _id })
-      return true
+      User.findByIdAndDelete({_id}, function (err, docs) {
+        if (err){
+            console.log(err)
+            return false
+        }
+        else{
+            console.log("Deleted : ", docs);
+            return true
+        }
+      })
+      
     },
 
     updateUser: async (parent, args, { req }, context, info) => {

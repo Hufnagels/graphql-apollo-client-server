@@ -1,5 +1,5 @@
 import {
-  LOGIN_USER,
+  LOGIN_USER, REFRESH_TOKEN,
 } from './auth/auth.gql'
 
 import {
@@ -11,17 +11,22 @@ import {
 } from './posts/posts.gql'
 
 import {
-  GET_MAPS,
+  GET_MAPS, CREATE_MAP,
 } from './maps/maps.gql'
 
 import {
   GET_MINDMAPS, GET_MINDMAP, CREATE_MINDMAP,
 } from './mindmaps/mindmaps.gql'
 
+import {
+  GET_MESSAGES, POST_MESSAGE, SUBSCRIBE_TO_MESSAGES,
+} from './chat/chat.gql'
+
 export {
-  LOGIN_USER,
+  LOGIN_USER, REFRESH_TOKEN,
   GET_USERS, GET_USER, CREATE_USER, UPDATE_USER, DELETE_USER,
   GET_POSTS, GET_POST, CREATE_POST, UPDATE_POST,
-  GET_MAPS,
-  GET_MINDMAPS, GET_MINDMAP, CREATE_MINDMAP
+  GET_MAPS, CREATE_MAP,
+  GET_MINDMAPS, GET_MINDMAP, CREATE_MINDMAP,
+  GET_MESSAGES, POST_MESSAGE, SUBSCRIBE_TO_MESSAGES
 }

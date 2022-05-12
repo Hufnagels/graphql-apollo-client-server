@@ -3,7 +3,7 @@ import { useRoutes, } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import jwtDecode from 'jwt-decode';
 import { useSnackbar } from 'notistack';
-
+import { useMutation } from '@apollo/react-hooks';
 // Material
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -14,8 +14,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 
 // Custom
 import routes from './app/routes/routes'
-import { logout } from './app/reducers/authSlice'
-
+import { logout, refreshtoken } from './app/reducers/authSlice'
+import { REFRESH_TOKEN} from './app/queries/'
 
 const App = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -26,6 +26,18 @@ console.log('App js isLoggedIn, user, tokens',isLoggedIn, user, tokens)
   const page = useRoutes(routes(isLoggedIn));
   const dispatch = useDispatch()
 
+  const [refreshToken] = useMutation(REFRESH_TOKEN,{
+    
+    onCompleted: ({ refreshToken }) => {
+      console.log('tokens', refreshToken)
+      dispatch(refreshtoken(refreshToken));
+      setOpen(false);
+    },
+    onError: (error) => {
+      const variant = 'error'
+      enqueueSnackbar(error.message, { variant })
+    }
+  })
   const handleOpenDialog = () => {
     console.log('handleOpenDialog')
     setOpen(true);
@@ -36,9 +48,14 @@ console.log('App js isLoggedIn, user, tokens',isLoggedIn, user, tokens)
     dispatch(logout());
   };
   const handleStay = () => {
-    console.log('handleLogout')
-    setOpen(false);
-    dispatch(logout());
+    console.log('handleStay')
+    refreshToken({variables: {
+      input: {
+        "email": user.email,
+        "_id": user._id,
+      }
+    }},)
+    
   };
 
   //console.log('App user'/* , user, tokens */);
@@ -51,14 +68,6 @@ console.log('App js isLoggedIn, user, tokens',isLoggedIn, user, tokens)
       handleOpenDialog()
     }
   }
-
-
-  React.useLayoutEffect(() => {
-//console.log("App.js->useLayoutEffect"/* , user */);
-    if (!open) return
-    const variant = 'error'
-    enqueueSnackbar('Token expired', { variant })
-  }, [open]);
 
   return (
     <React.Fragment>
@@ -77,6 +86,7 @@ console.log('App js isLoggedIn, user, tokens',isLoggedIn, user, tokens)
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             Do you want to STAY or Sign Out?
+            {JSON.stringify(user,null,2)}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

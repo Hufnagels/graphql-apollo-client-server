@@ -1,156 +1,82 @@
 import React from "react";
 import {
-  useSubscription,
+  useLazyQuery,
   useMutation,
-  gql,
+  useSubscription,
 } from "@apollo/client";
 import { useDispatch, useSelector } from "react-redux";
+import { useSnackbar } from 'notistack';
+import { useFormik, } from 'formik';
+import * as yup from 'yup';
 
 // Material
 import {
   CssBaseline,
   Button,
   TextField,
-  Avatar,
-  IconButton,
-  InputBase,
-  Chip,
-  Box,
   Grid,
   Paper,
   Stack,
   Typography,
 } from '@mui/material'
-import { styled, useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 import DirectionsIcon from '@mui/icons-material/Directions';
 
-import useResizeObserver from '../../app/hooks/useResizeObserver.hook'
+// Custom
+import Messages from './Message'
+import { GET_MESSAGES, POST_MESSAGE, SUBSCRIBE_TO_MESSAGES } from '../../app/queries'
 
-
-const SUBSCRIBE_TO_MESSAGES = gql`
-  subscription OnMessageAdded {
-    messages {
-      id
-      user
-      content
-    }
-  }
-`;
-
-const QUERY_MESSAGES = gql`
-  query Messages {
-    messages {
-      id
-      user
-      content
-    }
-  }
-`;
-
-const POST_MESSAGE = gql`
-  mutation($user: String!, $content: String!) {
-    postMessage(user: $user, content: $content)
-  }
-`;
-
-const stringToColor = (string) => {
-  let hash = 0;
-  let i;
-
-  /* eslint-disable no-bitwise */
-  for (i = 0; i < string.length; i += 1) {
-    hash = string.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  let color = '#';
-
-  for (i = 0; i < 3; i += 1) {
-    const value = (hash >> (i * 8)) & 0xff;
-    color += `00${value.toString(16)}`.slice(-2);
-  }
-  /* eslint-enable no-bitwise */
-
-  return color;
-}
-const stringAvatar = (nameString) => {
-// console.log('stringAvatar nameString', nameString);
-  const fullName = nameString.split(' ');
-  const initials = fullName.shift().charAt(0) + fullName.pop().charAt(0);
-  return {
-    sx: {
-      bgcolor: stringToColor(nameString),
-    },
-    children: initials.toUpperCase() //`${name}` //`${name.split(' ')[0][0]}${name.split(' ')[1][0]}`,
-  };
-}
-const BackgroundLetterAvatars = (user) => {
-  //console.log('BackgroundLetterAvatars', user.user)
-  //return null
-  return (
-    <Avatar {...stringAvatar(user.user)} sx={{ fontSize: '.85rem', }} size="small"/>
-  );
-}
-
-const Messages = ({ user, data }) => {
-  if (!data) {
-    return null;
-  }
-  //console.log('Messages data', user, data)
-  return (
-    <React.Fragment>
-      {data.messages.map(({ id, user: messageUser, content }) => (
-        <div
-          key={id}
-          style={{
-            display: "flex",
-            justifyContent: "flex-start",
-            flexDirection: user === messageUser ? "row-reverse" : "row",
-            paddingBottom: "0.2rem",
-          }}
-        >
-          {user !== messageUser && (
-            
-            <BackgroundLetterAvatars user={messageUser} />
-          )}
-          <Chip
-            component="div"
-            variant={user === messageUser ? "outlined" : ""}
-            label={(
-              <Typography
-                variant="body"
-                component="div"
-                style={{ whiteSpace: 'normal', paddingTop: '6px', paddingBottom: '6px' }}
-              >{content}</Typography>
-            )}
-            sx={{ marginTop: '16px', maxWidth: '70%', height: 'auto !important', minHeight: '32px !important' }}
-          />
-        </div>
-      ))}
-    </React.Fragment>
-  );
-};
+const validationSchema = yup.object({
+  content: yup
+    .string('Enter your message')
+    .required('Message is required')
+    //.matches(/^[ A-Za-z0-9_@./#&+-]*$/),
+});
 
 const Chat = () => {
   const theme = useTheme();
   const chatWrapperRef = React.useRef(null)
   const chatMessageRef = React.useRef(null)
-  const dimensions = useResizeObserver(chatWrapperRef)
-  const [width, setWidth] = React.useState(100)
-  const [height, setHeight] = React.useState(100)
+  const { enqueueSnackbar } = useSnackbar();
 
   const { isLoggedIn, user, tokens } = useSelector((state) => state.auth);
 
-  // Message
+  // Messages
+  const [chatmessagesData, setChatmessagesData] = React.useState({ messages: [] })
+  const [postMessage] = useMutation(POST_MESSAGE);
   const [state, stateSet] = React.useState({
     user: user.lastName + ' ' + user.firstName,
-    content: "",
+    content: '',
   });
   const { data, loading } = useSubscription(SUBSCRIBE_TO_MESSAGES, {
-    onSubscriptionData: (e) => console.log(e),
+    onSubscriptionData: (e) => {
+      console.log('onSubscriptionData', e, e.subscriptionData.data.messages)
+      const messages = e.subscriptionData.data.messages
+      setChatmessagesData({
+        ...chatmessagesData,
+        messages
+      })
+    },
+    onError: (error) => {
+      const variant = 'error'
+      enqueueSnackbar(error.message, { variant })
+    }
   });
-  const [postMessage] = useMutation(POST_MESSAGE);
-
-  const onSend = () => {
+  const formik = useFormik({
+    initialValues: {
+      user: user.lastName + ' ' + user.firstName,
+      content: '',
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+console.log('onSubmit', values)
+      postMessage({
+        variables: values,
+      });
+      formik.resetForm()
+    },
+  })
+  /* const onSend = () => {
     if (state.content.length > 0) {
       postMessage({
         variables: state,
@@ -160,15 +86,7 @@ const Chat = () => {
       ...state,
       content: "",
     });
-  };
-
-  React.useEffect(() => {
-    console.log("Chat dimensions")
-    if (!dimensions) return;
-    setWidth(dimensions.width)
-    setHeight(dimensions.height)
-    console.log(dimensions)
-  }, [dimensions])
+  }; */
 
   React.useEffect(() => {
     if (!data) return
@@ -195,29 +113,57 @@ const Chat = () => {
                     direction="column"
                     style={{ padding: theme.spacing(1), width: '100%', height: 'calc(100vh - 155px)', overflowY: 'auto', }}
                   >
-                    <Messages user={state.user} data={data} />
+                    {!loading && <Messages user={state.user} data={chatmessagesData} />}
                   </Stack>
                 </Grid>
                 <Grid item xs={12}>
                   <Paper
-                    component="form"
-                    sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', backgroundColor: theme.palette.custom.light}}
-
+                    /* component="form" */
+                    sx={{ 
+                      p: '2px 4px', 
+                      backgroundColor: theme.palette.custom.light 
+                    }}
+                    /* onSubmit={() => onSend()} */
                   >
-                    {/* <TextField
-                      label="User"
+                    <form 
+                      onSubmit={formik.handleSubmit} 
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignContent: 'center',
+                        justifyContent: 'space-around',
+                        alignItems:'center',
+                      }}
+                    >
+                    <TextField
+                      
+                      autoFocus
+                      margin="dense"
+                      id="content"
+                      name="content"
+                      
+                      type="text"
+                      autoComplete="on"
                       variant="standard"
-                      value={state.user}
-                      onChange={(evt) =>
+                      value={formik.values.content}
+                      onChange={formik.handleChange} 
+                      /*onChange={(evt) =>
                         stateSet({
                           ...state,
-                          user: evt.target.value,
+                          content: evt.target.value,
                         })
-                      }
-                    /> */}
-                    <TextField
-                      sx={{ ml: 1, flex: 1, fontSize: '.85rem', }}
-                      placeholder="Type your message here"
+                      }*/
+                      error={formik.touched.content && Boolean(formik.errors.content)}
+                      helperText={formik.touched.content && formik.errors.content}
+
+                      sx={{ 
+                        ml: 1,
+                        mr:1, 
+                        //flex: 1,
+                        flexGrow:'1', 
+                        fontSize: '.85rem', 
+                      }}
+                      /* placeholder="Type your message here"
                       label="Message"
                       variant="standard"
                       value={state.content}
@@ -228,22 +174,46 @@ const Chat = () => {
                         })
                       }
                       onKeyUp={(event) => {
+                        // To prevent form submission
+                        event.preventDefault();
+                        // To prevent td onClick
+                        event.stopPropagation();
                         const key = event.key || event.keyCode;
                         if (key === 13) {
-                          onSend();
+                          //onSend();
+                          return;
                         }
                       }}
+                      onKeyPress={(event) => {
+
+                        const key = event.key || event.keyCode;
+                        if (key === 13) {
+                          //onSend();
+                          return;
+                        }
+                      }} */
                     />
-                    <IconButton color="primary" sx={{ p: '10px' }} onClick={() => onSend()} >
+                    <Button 
+                      type="submit" 
+                      sx={{
+                        color: theme.palette.custom.contrastText,
+                        mt: theme.spacing(.5), 
+                        mb: theme.spacing(.5), 
+                        backgroundColor: (theme) =>
+                          theme.palette.mode === 'light'
+                            ? theme.palette.info.light
+                            : theme.palette.info.dark,
+                      }}
+                    >
                       <DirectionsIcon />
-                    </IconButton>
+                    </Button>
+                    </form>
+                    
                   </Paper>
                 </Grid>
               </Grid>
             </Paper>
-
           </Grid>
-
         </Grid>
       </Paper>
     </React.Fragment>
