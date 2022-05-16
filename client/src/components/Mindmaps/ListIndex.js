@@ -13,19 +13,20 @@ import { useTheme } from '@mui/material/styles';
 
 // Custom
 import ListIndexItem from './ListIndexItem';
-import {GET_MINDMAPS} from "../../app/queries";
+import { GET_MINDMAPS } from "../../app/queries";
 import Add from './Add';
 import SearchBar from '../Layout/SearchBar';
+import { makeListTitleFromPath } from '../../app/functions/text'
 
 const ListIndex = () => {
   const location = useLocation();
-  
-  const theme = useTheme();
-  const [title, setTitle] = React.useState(_.capitalize(location.pathname.slice(location.pathname.lastIndexOf("/") + 1, location.pathname.length)) + ' list')
-  const [openDialog, setOpenDialog] = React.useState(false)
-  const [search,setSearch] = React.useState(null)
+  const [title, setTitle] = React.useState(makeListTitleFromPath(location.pathname) + ' list')
 
-  const [mindmaps,setMindmaps] = React.useState({data:[]})
+  const theme = useTheme();
+  const [openDialog, setOpenDialog] = React.useState(false)
+  const [search, setSearch] = React.useState(null)
+
+  const [mindmaps, setMindmaps] = React.useState({ data: [] })
 
   const [page, setPage] = React.useState(1);
   const [totalpage, setTotalPage] = React.useState(1)
@@ -35,15 +36,15 @@ const ListIndex = () => {
 
   const [
     fetchFilteredMindmaps,
-    {data, loading, error, refetch}
+    { data, loading, error, refetch }
   ] = useLazyQuery(GET_MINDMAPS, {
-    variables:{
+    variables: {
       search,
-      page:page,
-      limit:perpage
+      page: page,
+      limit: perpage
     },
     onCompleted: ({ getMindmaps }) => {
-      console.log('getMindmaps', getMindmaps)
+      // console.log('getMindmaps', getMindmaps)
       setMindmaps({
         ...mindmaps,
         data: getMindmaps.mindmaps
@@ -63,19 +64,19 @@ const ListIndex = () => {
 
   React.useEffect(() => {
     fetchFilteredMindmaps()
-  },[data])
+  }, [data])
 
   if (loading) return <CircularProgress color="secondary" />
 
   return (
     <React.Fragment>
-      <Box style={{padding:'0rem'}}>
+      <Box style={{ padding: '0rem' }}>
         <SearchBar
           title={title}
           fn={fetchFilteredMindmaps}
           search={search}
           setSearch={setSearch}
-          page={page} 
+          page={page}
           setPage={setPage}
           perpage={perpage}
           setPerpage={setPerpage}

@@ -50,7 +50,7 @@ const Chat = () => {
   });
   const { data, loading } = useSubscription(SUBSCRIBE_TO_MESSAGES, {
     onSubscriptionData: (e) => {
-      console.log('onSubscriptionData', e, e.subscriptionData.data.messages)
+      // console.log('onSubscriptionData', e, e.subscriptionData.data.messages)
       const messages = e.subscriptionData.data.messages
       setChatmessagesData({
         ...chatmessagesData,
@@ -69,7 +69,7 @@ const Chat = () => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-console.log('onSubmit', values)
+// console.log('onSubmit', values)
       postMessage({
         variables: values,
       });

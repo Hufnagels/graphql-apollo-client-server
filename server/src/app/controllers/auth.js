@@ -9,6 +9,23 @@ import {
 } from '../config/config.js'
 import User from '../../components/database/models/user.model.js'
 
+export const decodeToken = async (heaaderToken) => {
+  try {
+    const decodedToken = jwt.verify(heaaderToken, JWT_TOKEN_SECRET)
+    //console.log('decodeToken', decodedToken)
+    const { email, exp } = decodedToken
+    return {
+      email,
+      exp
+    }
+  } catch (e) {
+    //console.log('decodeToken error', e)
+    throw new AuthenticationError('You must be logged in', 'UNAUTHENTICATED')
+  }
+
+
+}
+
 export const issueTokens = async ({ id, email, }) => {
   const accessToken = await jwt.sign(
     {
@@ -37,14 +54,19 @@ export const issueTokens = async ({ id, email, }) => {
   }
 }
 
-export const checkSignedIn = async (req, requiredAuth = false) => {
-  console.log('auth.js', req.headers.authorization)
+export const checkSignedIn = async (req, requiredAuth = true) => {
+//console.log('auth.js req.headers.authorization:', req.headers.authorization)
   const authHeader = req.headers.authorization
   if (process.env.NODE_ENV !== 'production') console.log('auth.js checkSignedIn', authHeader)
   if (authHeader) {
     const heaaderToken = authHeader.split(' ')[1]
-    const decodedToken = await jwt.verify(heaaderToken, JWT_TOKEN_SECRET)
-    const authUser = await User.findOne({email: decodedToken.email})
+    const { email, exp } = await decodeToken(heaaderToken)
+
+    // if (Date.now() >= exp * 1000) {
+    //   throw new AuthenticationError('Authentication failed', 'AUTHENTICATION_ERROR')
+    // }
+
+    const authUser = await User.findOne({ email })
     //console.log('auth.js token:', heaaderToken, decodedToken, authUser)
     if (!authUser) throw new AuthenticationError('Authentication failed', 'AUTHENTICATION_ERROR')
     if (requiredAuth) return authUser
@@ -54,7 +76,7 @@ export const checkSignedIn = async (req, requiredAuth = false) => {
 
 export const checkUserExist = async (authHeader, requiredAuth = false) => {
   //const authHeader = req.headers.authorization
-  console.log('auth.js', authHeader)
+//console.log('auth.js', authHeader)
   if (process.env.NODE_ENV !== 'production') console.log('auth.js checkUserExist', authHeader)
   if (authHeader) {
     const heaaderToken = authHeader.split(' ')[1]

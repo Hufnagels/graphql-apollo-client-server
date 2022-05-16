@@ -32,7 +32,7 @@ const stringToColor = (string) => {
 }
 const stringAvatar = (nameString) => {
   const fullName = nameString.split(' ');
-  console.log('stringAvatar nameString', nameString, Array.isArray(fullName), fullName.length);
+  // console.log('stringAvatar nameString', nameString, Array.isArray(fullName), fullName.length);
 
   const initials = (Array.isArray(fullName) && fullName.length > 1)? fullName.shift().charAt(0) + fullName.pop().charAt(0) : fullName.shift().charAt(0)
   return {
@@ -43,15 +43,15 @@ const stringAvatar = (nameString) => {
   };
 }
 const BackgroundLetterAvatars = (user) => {
-  //console.log('BackgroundLetterAvatars', user.user)
-  //return null
+  // console.log('BackgroundLetterAvatars', user.user)
+  // return null
   return (
     <Avatar {...stringAvatar(user.user)} sx={{ fontSize: '.85rem', }} size="small" />
   );
 }
 
 const Messages = ({ user, data }) => {
-  console.log('Messages data', user, data.messages)
+  // console.log('Messages data', user, data.messages)
   const chatMessageRef = useRef(null)
   const theme = useTheme();
 

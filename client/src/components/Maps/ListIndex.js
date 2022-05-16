@@ -18,16 +18,18 @@ import { useTheme } from '@mui/material/styles';
 
 // Custom
 import ListIndexItem from './ListIndexItem';
-import SearchBar from '../Layout/SearchBar';
 import { GET_MAPS } from "../../app/queries";
 import Add from './Add';
+import SearchBar from '../Layout/SearchBar';
+import { makeListTitleFromPath } from '../../app/functions/text'
 
 const ListIndex = () => {
-  //console.log('ListIndex')
+  // console.log('ListIndex')
   const location = useLocation();
+  const [title, setTitle] = React.useState(makeListTitleFromPath(location.pathname) + ' list')
 
   const theme = useTheme();
-  const [title, setTitle] = React.useState(_.capitalize(location.pathname.slice(location.pathname.lastIndexOf("/") + 1, location.pathname.length)) + ' list')
+  
   const [openDialog, setOpenDialog] = React.useState(false)
   const [search, setSearch] = React.useState(null)
 
@@ -49,7 +51,7 @@ const ListIndex = () => {
       limit: perpage
     },
     onCompleted: ({ getMaps }) => {
-      console.log('getMaps', getMaps)
+      // console.log('getMaps', getMaps)
       setMaps({
         ...maps,
         data: getMaps.maps

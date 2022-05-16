@@ -3,6 +3,7 @@ import { useFormik, } from 'formik';
 import * as yup from 'yup';
 import _ from 'lodash';
 import { useSnackbar } from 'notistack';
+import { useLocation } from 'react-router-dom'
 
 // Material
 import {
@@ -21,7 +22,7 @@ import {
   useMutation
 } from "@apollo/client";
 import { CREATE_MAP } from "../../app/queries";
-
+import { makePageTitleFromPath } from '../../app/functions/text'
 
 const validationSchema = yup.object({
   owner: yup
@@ -40,7 +41,9 @@ const Add = ({ onClick, active, refetch, }) => {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const [dateOfBirth, setDateOfBirth] = React.useState(new Date())
+  const location = useLocation();
+  const [title, setTitle] = React.useState(makePageTitleFromPath(location.pathname))
+
   const [open, setOpen] = React.useState(active);
 
   const [createMap, { error }] = useMutation(CREATE_MAP, {
@@ -51,14 +54,16 @@ const Add = ({ onClick, active, refetch, }) => {
       //         data: createMap.user
       //       })
       const variant = 'success'
-      enqueueSnackbar('Map created successfully', { variant })
+      enqueueSnackbar(title + ' created successfully', { variant })
       onClick(false)
       setOpen(false)
       // console.log('createMap setUsers', users)
       refetch();
     },
     onError: (error) => {
-      console.log('CREATE_MAP error', error)
+      // console.log('CREATE_MAP error', error)
+      const variant = 'error'
+      enqueueSnackbar(error.message, { variant })
     }
   });
 
@@ -74,10 +79,6 @@ const Add = ({ onClick, active, refetch, }) => {
     },
   })
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
   const handleClose = () => {
     setOpen(false);
     onClick(false)
@@ -91,8 +92,8 @@ const Add = ({ onClick, active, refetch, }) => {
 
   return (
     <div>
-      {error && <pre>
-        {JSON.stringify(error, null, 2)}
+      {error && error.graphQLErrors && <pre>
+        {JSON.stringify(error.graphQLErrors.message, null, 2)}
       </pre>}
       <Dialog
         fullWidth
@@ -106,12 +107,12 @@ const Add = ({ onClick, active, refetch, }) => {
         }}
         aria-labelledby="draggable-dialog-title"
       >
-        <DialogTitle id="draggable-dialog-title">Add new map</DialogTitle>
+        <DialogTitle id="draggable-dialog-title">Add new {title}</DialogTitle>
 
         <form onSubmit={formik.handleSubmit}>
           <DialogContent>
             <DialogContentText>
-              Please, fill form below to add new map
+              Please, fill form below to add new {title}
             </DialogContentText>
             <TextField
               autoFocus

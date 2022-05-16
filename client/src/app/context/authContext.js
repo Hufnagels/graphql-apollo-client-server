@@ -1,11 +1,15 @@
-import React, { useReducer, createContext } from 'react';
+/* import React, { useReducer, createContext } from 'react';
 import jwtDecode from 'jwt-decode';
 import { useSelector, useDispatch } from 'react-redux'
 import { login, logout } from '../reducers/authSlice'
 
-const initialState = {
-  user: null,
-  tokens: null,
+let initialState = {
+  user: {},
+  isLoggedIn: false,
+  tokens: {
+    accessToken: '',
+    refreshToken: '',
+  }
 }
 
 if (localStorage.getItem('token')) {
@@ -71,4 +75,4 @@ console.log('AuthContext login', userData, tokens)
 
 export {
   authContext, AuthProvider
-}
+} */

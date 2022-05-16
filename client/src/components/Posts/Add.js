@@ -29,6 +29,7 @@ import {
 } from "@apollo/client";
 import { CREATE_POST } from "../../app/queries";
 import { TextEditor } from "../Texteditor/editor";
+import { makePageTitleFromPath } from '../../app/functions/text'
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} timeout={{ enter: 5, exit: 5, }} {...props} />;
@@ -65,23 +66,24 @@ const validationSchema = yup.object({
 const Add = ({ onClick, active, refetch }) => {
 
   const location = useLocation();
+  const [title, setTitle] = React.useState(makePageTitleFromPath(location.pathname))
   const { enqueueSnackbar } = useSnackbar();
   const [open, setOpen] = React.useState(active);
-  const [title, setTitle] = React.useState(_.capitalize(location.pathname.slice(location.pathname.lastIndexOf("/") + 1, location.pathname.length)))
 
-  const [createPost] = useMutation(CREATE_POST, {
+
+  const [createPost, { error }] = useMutation(CREATE_POST, {
     onCompleted: ({ createPost }) => {
-      console.log('CREATE_POST completed', createPost)
+      // console.log('CREATE_POST completed', createPost)
       const variant = 'success'
-      enqueueSnackbar('Post created successfully', { variant })
+      enqueueSnackbar(title + ' created successfully', { variant })
       onClick(false)
       setOpen(false)
-      // console.log('createUser setUsers', users)
       refetch();
     },
     onError: (error) => {
-      console.log('CREATE_POST error', error)
-      enqueueSnackbar(error, 'error')
+      // console.log('CREATE_POST error', error)
+      const variant = 'error'
+      enqueueSnackbar(error.message, { variant })
     }
   });
 
@@ -95,7 +97,7 @@ const Add = ({ onClick, active, refetch }) => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      console.log('CREATE_POST', values)
+      // console.log('CREATE_POST', values)
       createPost({ variables: { input: values } })
     },
   })
@@ -126,6 +128,9 @@ const Add = ({ onClick, active, refetch }) => {
 
   return (
     <div>
+      {error && error.graphQLErrors && <pre>
+        {JSON.stringify(error.graphQLErrors.message, null, 2)}
+      </pre>}
       <form onSubmit={formik.handleSubmit}>
         <Dialog
           fullScreen
@@ -151,7 +156,7 @@ const Add = ({ onClick, active, refetch }) => {
                 >
                   <CloseIcon />
                 </IconButton>
-                <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">{title + ': add new'}</Typography>
+                <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">Add new {title}</Typography>
                 <Button color="inherit" type="submit" onClick={formik.handleSubmit}>Add</Button>
               </Toolbar>
             </AppBar>{/*  */}

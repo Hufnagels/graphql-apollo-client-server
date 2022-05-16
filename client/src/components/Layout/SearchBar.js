@@ -66,7 +66,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const CustomizedSearch = (props) => {
-  //console.log('CustomizedSearch', props)
+  //  console.log('CustomizedSearch', props)
 
   const [searchString, setSearchString] = React.useState(props.search)
 

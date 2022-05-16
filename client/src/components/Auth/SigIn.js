@@ -1,4 +1,4 @@
-import React, { useContext, } from 'react';
+import React from 'react';
 import { useFormik, } from 'formik';
 import * as yup from 'yup';
 import { useSnackbar } from 'notistack';
@@ -56,8 +56,8 @@ const SignInSide = () => {
       }
     },
     onCompleted: ({ loginUser }) => {
-      console.log('loginUser', loginUser)
-      localStorage.setItem(REACT_APP_LS_TOKEN_NAME, loginUser.tokens.accessToken);
+      // console.log('loginUser', loginUser)
+      // localStorage.setItem(REACT_APP_LS_TOKEN_NAME, loginUser.tokens.accessToken);
       dispatch(login(loginUser))
       navigate('/app', { replace: true })
     },
@@ -93,15 +93,15 @@ const SignInSide = () => {
           variables: { input: values }
         },
       )/* .then((res) => {
-        console.log('loginUser promise', res.data.loginUser)
+        // console.log('loginUser promise', res.data.loginUser)
         //context.login(res.data.loginUser.user, res.data.loginUser.tokens)
         dispatch(login(res.data.loginUser))
         //const variant = 'success'
         //enqueueSnackbar('User created successfully', { variant })
         navigate('/')
-        //console.log('loginUser setUsers')
+        // console.log('loginUser setUsers')
       }).catch((err) => {
-        //console.log('loginUser catch err', err.message)
+        // console.log('loginUser catch err', err.message)
         const variant = 'error'
         enqueueSnackbar(err.message, { variant })
       }) */

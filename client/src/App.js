@@ -22,14 +22,13 @@ const App = () => {
   const [open, setOpen] = React.useState(false);
 
   const { isLoggedIn, user, tokens } = useSelector((state) => state.auth);
-console.log('App js isLoggedIn, user, tokens',isLoggedIn, user, tokens)
+// console.log('App js isLoggedIn, user, tokens',isLoggedIn, user, tokens)
   const page = useRoutes(routes(isLoggedIn));
   const dispatch = useDispatch()
 
   const [refreshToken] = useMutation(REFRESH_TOKEN,{
-    
     onCompleted: ({ refreshToken }) => {
-      console.log('tokens', refreshToken)
+      // console.log('tokens', refreshToken)
       dispatch(refreshtoken(refreshToken));
       setOpen(false);
     },
@@ -39,16 +38,16 @@ console.log('App js isLoggedIn, user, tokens',isLoggedIn, user, tokens)
     }
   })
   const handleOpenDialog = () => {
-    console.log('handleOpenDialog')
+    // console.log('handleOpenDialog')
     setOpen(true);
   };
   const handleLogout = () => {
-    console.log('handleLogout')
+    // console.log('handleLogout')
     setOpen(false);
     dispatch(logout());
   };
   const handleStay = () => {
-    console.log('handleStay')
+    // console.log('handleStay')
     refreshToken({variables: {
       input: {
         "email": user.email,
@@ -86,7 +85,6 @@ console.log('App js isLoggedIn, user, tokens',isLoggedIn, user, tokens)
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             Do you want to STAY or Sign Out?
-            {JSON.stringify(user,null,2)}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

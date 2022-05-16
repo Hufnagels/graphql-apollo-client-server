@@ -1,7 +1,6 @@
 import React from 'react'
-import { useLazyQuery,useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { Link, useLocation } from "react-router-dom"
-import _ from "lodash"
 
 // Material
 import {
@@ -22,7 +21,7 @@ import {
   IconButton,
 } from '@mui/material'
 import { tableCellClasses } from '@mui/material/TableCell';
-import { useTheme, styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import PreviewOutlinedIcon from '@mui/icons-material/PreviewOutlined';
@@ -32,6 +31,7 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import { GET_USERS, DELETE_USER } from "../../app/queries";
 import Add from './Add';
 import SearchBar from '../Layout/SearchBar';
+import { makeListTitleFromPath } from '../../app/functions/text'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -45,8 +45,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 
 const ListIndex2 = () => {
   const location = useLocation();
-
-  const [title, setTitle] = React.useState(_.capitalize(location.pathname.slice(location.pathname.lastIndexOf("/") + 1, location.pathname.length)) + ' list')
+  const [title, setTitle] = React.useState(makeListTitleFromPath(location.pathname) + ' list')
   const [openDialog, setOpenDialog] = React.useState(false)
   const [search, setSearch] = React.useState(null)
 
@@ -78,7 +77,7 @@ const ListIndex2 = () => {
       limit: perpage
     },
     onCompleted: ({ getUsers }) => {
-      console.log('getUsers', getUsers)
+      // ('getUsers', getUsers)
       setUsers({
         ...users,
         data: getUsers.users
@@ -95,9 +94,9 @@ const ListIndex2 = () => {
     }
   })
 
-  const [deleteUser] = useMutation(DELETE_USER,{
-    onCompleted: ({ deleteUser }) => {
-      console.log('deleteUser', deleteUser)
+  const [deleteUser] = useMutation(DELETE_USER, {
+    onCompleted: () => {
+      console.log('deleteUser')
       fetchFilteredUsers()
     },
     onError: (error) => {
@@ -109,14 +108,16 @@ const ListIndex2 = () => {
     deleteUser({
       variables: {
         id: idx
-      }})
+      }
+    })
   }
   React.useEffect(() => {
     fetchFilteredUsers()
-  },[data])
+    console.dir('Listindex2 useEffect data change', data)
+  }, [data])
 
   if (loading) return <CircularProgress color="secondary" />
-//return null
+  //return null
   return (
     <React.Fragment>
       <Box style={{ padding: '0rem' }}>

@@ -22,17 +22,17 @@ const Preview = (props) => {
 
   //const { post } = props;
   const [post, setPost] = React.useState([])
-  //console.log('Preview props', props, id);
+  //  console.log('Preview props', props, id);
 
   const { data, loading, error } = useQuery(GET_POST, {
     variables: { id: id }
   });
 
   React.useEffect(() => {
-    //console.log('PostsListIndex --> data useEffect')
+    //  console.log('PostsListIndex --> data useEffect')
     if (!data) return
     setPost(data.getPost)
-    //console.log(data)
+    //  console.log(data)
   }, [data])
 
   if (loading) return <CircularProgress color="secondary" />

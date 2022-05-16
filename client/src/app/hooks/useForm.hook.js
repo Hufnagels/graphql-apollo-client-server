@@ -5,7 +5,7 @@ export const useForm = (callback, initialState = {}) => {
 
   const onChange = (event) => {
     setValues({ ...values, [event.target.name]: event.target.value })
-    //console.log('useForm onChange: ', values)
+    // console.log('useForm onChange: ', values)
   }
 
   const onSubmit = (event) => {

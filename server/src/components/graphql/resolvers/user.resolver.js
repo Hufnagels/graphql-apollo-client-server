@@ -71,14 +71,14 @@ const UserResolver = {
   },
 
   Mutation: {
-    createUser: async (parent, { input: { firstName, lastName, date_of_birth, email, password } }, context) => {
+    createUser: async (parent, { input: { firstName, lastName, date_of_birth, email, password } }, { req }, context) => {
       // In this case, we'll pretend there is no data when
       // we're not logged in. Another option would be to
       // throw an error.
-      console.log('createUser context', context.user)
+      //console.log('createUser context', context.body, context.req, context.res)
       //if (!context.user) return null;
       //await registerUserValidator.validateAsync({ firstName, lastName, date_of_birth, email, password }, { abortEarly: false })
-
+      await checkSignedIn(req, true)
       // Check if user exists already
       const existingUser = await User.findOne({ email })
       if (existingUser) throw new ApolloError('User with this email is exist', 'USER_EXISTS_ERROR')
@@ -124,17 +124,17 @@ const UserResolver = {
     deleteUser: async (parent, args, { req }, context, info) => {
       await checkSignedIn(req, true)
       const { _id } = args
-      User.findByIdAndDelete({_id}, function (err, docs) {
-        if (err){
-            console.log(err)
-            return false
+      User.findByIdAndDelete({ _id }, function (err, docs) {
+        if (err) {
+          console.log(err)
+          return false
         }
-        else{
-            console.log("Deleted : ", docs);
-            return true
+        else {
+          console.log("Deleted : ", docs);
+          return true
         }
       })
-      
+
     },
 
     updateUser: async (parent, args, { req }, context, info) => {

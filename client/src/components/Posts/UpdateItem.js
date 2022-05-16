@@ -65,7 +65,7 @@ const validationSchema = yup.object({
 const Edit = ({ onClick, active, refetch, setData }) => {
   let { id } = useParams('id');
   const navigate = useNavigate();
-  //console.log('Edit', id);
+  //  console.log('Edit', id);
   const { enqueueSnackbar } = useSnackbar();
 
   const [open, setOpen] = React.useState(false);
@@ -89,7 +89,7 @@ const Edit = ({ onClick, active, refetch, setData }) => {
       //formik.resetForm()
     },
     onError: (error) => {
-      console.log(error)
+      // console.log(error)
       const variant = 'error'
       enqueueSnackbar(error.message, { variant })
     }

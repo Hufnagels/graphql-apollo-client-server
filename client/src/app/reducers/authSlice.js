@@ -8,7 +8,7 @@ let initialState = {
   tokens: null
 }
 
-console.log('REACT_APP_LS_TOKEN_NAME', REACT_APP_LS_TOKEN_NAME)
+// console.log('REACT_APP_LS_TOKEN_NAME', REACT_APP_LS_TOKEN_NAME)
 export const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -28,8 +28,8 @@ export const authSlice = createSlice({
       return {
         ...state,
         user: null,
-        tokens: null,
         isLoggedIn: false,
+        tokens: null
       }
     },
     refreshtoken(state, action) {
@@ -42,7 +42,7 @@ export const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(PURGE, (state) => {
-      login.removeAll(state);
+      logout.removeAll(state);
     });
   }
 })

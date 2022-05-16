@@ -16,17 +16,19 @@ import ListIndexItem from './ListIndexItem';
 import { GET_POSTS } from "../../app/queries";
 import PostAdd from './Add';
 import SearchBar from '../Layout/SearchBar';
+import { makeListTitleFromPath } from '../../app/functions/text'
 
 const ListIndex = () => {
-  //console.log('ListIndex'
+  // console.log('ListIndex'
   const location = useLocation();
-  
+  const [title, setTitle] = React.useState(makeListTitleFromPath(location.pathname) + ' list')
+
   const theme = useTheme();
-  const [title, setTitle] = React.useState(_.capitalize(location.pathname.slice(location.pathname.lastIndexOf("/") + 1, location.pathname.length)) + ' list')
+
   const [openDialog, setOpenDialog] = React.useState(false)
   const [search, setSearch] = React.useState(null)
 
-  const [posts, setPosts] = React.useState({data:[]})
+  const [posts, setPosts] = React.useState({ data: [] })
 
   const [page, setPage] = React.useState(1);
   const [totalpage, setTotalPage] = React.useState(1)
@@ -44,7 +46,7 @@ const ListIndex = () => {
       limit: perpage
     },
     onCompleted: ({ getPosts }) => {
-      console.log('getPosts', getPosts)
+      // console.log('getPosts', getPosts)
       //setPosts(getPosts.posts)
       setTotalPage(getPosts.totalPages)
       setPage(getPosts.currentPage)
@@ -60,13 +62,13 @@ const ListIndex = () => {
         setVisiblePN(false)
     },
     onError: (error) => {
-      console.log(error)
+      // console.log(error)
     }
   })
 
   React.useEffect(() => {
     fetchFilteredPosts()
-  },[data])
+  }, [data])
 
   // React.useEffect(() => {
   //   if (!data) return
@@ -79,7 +81,7 @@ const ListIndex = () => {
   // }, [data])
 
   // React.useEffect(() => {
-  //   //console.log('ListIndex --> search useEffect', page, perpage, totalpage, data)
+  //   // console.log('ListIndex --> search useEffect', page, perpage, totalpage, data)
   //   if (!page) return
   //   fetchFilteredPosts({
   //     variables: {
@@ -88,7 +90,7 @@ const ListIndex = () => {
   //       limit: perpage
   //     }
   //   }).then((res) => {
-  //     //console.log('res', res)
+  //     // console.log('res', res)
   //     setPosts(res.data.getPosts.posts)
   //     setTotalPage(res.data.getPosts.totalPages)
   //     setPage(res.data.getPosts.currentPage)

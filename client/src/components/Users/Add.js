@@ -3,6 +3,7 @@ import { useFormik, } from 'formik';
 import * as yup from 'yup';
 import _ from 'lodash';
 import { useSnackbar } from 'notistack';
+import { useLocation } from "react-router-dom"
 
 // Material
 import {
@@ -21,7 +22,7 @@ import {
   useMutation
 } from "@apollo/client";
 import { CREATE_USER } from "../../app/queries";
-
+import { makePageTitleFromPath } from '../../app/functions/text'
 
 const validationSchema = yup.object({
   firstName: yup
@@ -51,6 +52,9 @@ const validationSchema = yup.object({
 
 const Add = ({ onClick, active, refetch, users, setUsers }) => {
 
+  const location = useLocation();
+  const [title, setTitle] = React.useState(makePageTitleFromPath(location.pathname))
+
   const { enqueueSnackbar } = useSnackbar();
 
   const [dateOfBirth, setDateOfBirth] = React.useState(new Date())
@@ -58,20 +62,22 @@ const Add = ({ onClick, active, refetch, users, setUsers }) => {
 
   const [createUser, { error }] = useMutation(CREATE_USER, {
     onCompleted: ({ createUser }) => {
-      console.log('CREATE_USER completed', createUser.user)
+      // console.log('CREATE_USER completed', createUser.user)
       //       setUsers({
       //         ...users,
       //         data: createUser.user
       //       })
       const variant = 'success'
-      enqueueSnackbar('User created successfully', { variant })
+      enqueueSnackbar(title + ' created successfully', { variant })
       onClick(false)
       setOpen(false)
       // console.log('createUser setUsers', users)
       refetch();
     },
     onError: (error) => {
-      console.log('CREATE_USER error', error)
+      // console.log('CREATE_USER error', error)
+      const variant = 'error'
+      enqueueSnackbar(error.message, { variant })
     }
   });
 
@@ -110,8 +116,8 @@ const Add = ({ onClick, active, refetch, users, setUsers }) => {
 
   return (
     <div>
-      {error && <pre>
-        {JSON.stringify(error, null, 2)}
+      {error && error.graphQLErrors && <pre>
+        {JSON.stringify(error.graphQLErrors.message, null, 2)}
       </pre>}
       <Dialog
         fullWidth
@@ -125,28 +131,13 @@ const Add = ({ onClick, active, refetch, users, setUsers }) => {
         }}
         aria-labelledby="draggable-dialog-title"
       >
-        <DialogTitle id="draggable-dialog-title">Add new user</DialogTitle>
+        <DialogTitle id="draggable-dialog-title">Add new {title}</DialogTitle>
 
         <form onSubmit={formik.handleSubmit}>
           <DialogContent>
             <DialogContentText>
-              Please, fill form below to add new user
+              Please, fill form below to add new {title}
             </DialogContentText>
-            {/* <TextField
-              autoFocus
-              margin="dense"
-              id="username"
-              name="username"
-              label="Username"
-              type="text"
-              fullWidth
-              variant="standard"
-              value={formik.values.username}
-              onChange={formik.handleChange}
-              error={formik.touched.username && Boolean(formik.errors.username)}
-              helperText={formik.touched.username && formik.errors.username}
-            /> */}
-
             <TextField
               fullWidth
               autoFocus

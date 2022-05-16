@@ -12,18 +12,18 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 
 // Custom
-import { store, persistor } from '../store/store'
+import { store } from '../store/store'
 import { REACT_APP_LS_TOKEN_NAME } from '../config/config'
 
-console.log('apolloClient store', store.getState().auth.tokens)
+//console.info('apolloClient store, localStorage', store.getState(), REACT_APP_LS_TOKEN_NAME)
 
 const httpLink = new HttpLink({
   uri: `http://${process.env.REACT_APP_NODESERVER_BASEURL}/graphql`,
 })
 
 const authLink = setContext((_, { headers }) => {
-  const token = store.getState().auth.tokens.accessToken || localStorage.getItem(REACT_APP_LS_TOKEN_NAME) || ""
-  console.log('apolloClient authLink', token)
+  const token = !store.getState().auth.tokens ? false : (store.getState().auth.tokens.accessToken) //|| localStorage.getItem(REACT_APP_LS_TOKEN_NAME) || ""
+  console.info('apolloClient authLink', store.getState().auth, token)
   return {
     headers: {
       ...headers,
@@ -40,7 +40,7 @@ const wsLink = new GraphQLWsLink(createClient({
 
   },
   connectionParams: async () => {
-    const token = store.getState().auth.tokens.accessToken || localStorage.getItem(REACT_APP_LS_TOKEN_NAME) || ""
+    const token = !store.getState().auth.tokens ? '' : (store.getState().auth.tokens.accessToken || localStorage.getItem(REACT_APP_LS_TOKEN_NAME) || "")
     return {
       headers: {
         authToken: token
@@ -48,7 +48,7 @@ const wsLink = new GraphQLWsLink(createClient({
     }
   },
   connectionCallback: (error) => {
-    console.log('connectionCallback', error)
+    // console.log('connectionCallback', error)
   },
 }));
 
@@ -66,11 +66,11 @@ const splitLink = split(
 /*
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors)
-    graphQLErrors.forEach(({ message, locations, path }) => console.dir(
+    graphQLErrors.forEach(({ message, locations, path }) => console.info(
       `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
     ),
     )
-  if (networkError) console.dir('NetworkError', networkError)
+  if (networkError) console.info('NetworkError', networkError)
 }) */
 
 

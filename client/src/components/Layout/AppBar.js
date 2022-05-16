@@ -56,7 +56,7 @@ const HeaderResponsiveAppBar = (props) => {
 
 
   useEffect(() => {
-    //console.log("HeaderResponsiveAppBar.js->useEffect");
+    // console.log("HeaderResponsiveAppBar.js->useEffect");
   }, []);
 
   return (

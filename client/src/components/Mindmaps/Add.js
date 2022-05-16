@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import _ from 'lodash';
 import { useSnackbar } from 'notistack';
 import uuid from "react-uuid";
+import { useLocation } from "react-router-dom"
 
 // Material
 import {
@@ -21,6 +22,7 @@ import {
   useMutation
 } from "@apollo/client";
 import { CREATE_MINDMAP } from "../../app/queries";
+import { makePageTitleFromPath } from '../../app/functions/text'
 
 const validationSchema = yup.object({
   owner: yup
@@ -41,23 +43,22 @@ const Add = ({ onClick, active, refetch, setData }) => {
 
   const { enqueueSnackbar } = useSnackbar();
   const [open, setOpen] = React.useState(active);
+  const location = useLocation();
+  const [title, setTitle] = React.useState(makePageTitleFromPath(location.pathname))
 
   const [createMindmap, { error }] = useMutation(CREATE_MINDMAP, {
     onCompleted: ({ createMindmap }) => {
-      console.log('CREATE_MINDMAP completed', createMindmap)
-      //       setUsers({
-      //         ...users,
-      //         data: createMindmap.user
-      //       })
+      // console.log('CREATE_MINDMAP completed', createMindmap)
       const variant = 'success'
-      enqueueSnackbar('Mindmap created successfully', { variant })
+      enqueueSnackbar(title + ' created successfully', { variant })
       onClick(false)
       setOpen(false)
-      // console.log('createMindmap setUsers', users)
       refetch();
     },
     onError: (error) => {
-      console.log('CREATE_MINDMAP error', error)
+      // console.log('CREATE_MINDMAP error', error)
+      const variant = 'error'
+      enqueueSnackbar(error.message, { variant })
     }
   });
 
@@ -92,10 +93,6 @@ const Add = ({ onClick, active, refetch, setData }) => {
     },
   })
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
   const handleClose = () => {
     onClick(false)
     formik.resetForm()
@@ -108,8 +105,11 @@ const Add = ({ onClick, active, refetch, setData }) => {
 
   return (
     <div>
+      {error && error.graphQLErrors && <pre>
+        {JSON.stringify(error.graphQLErrors.message, null, 2)}
+      </pre>}
       <Dialog
-        fullWidth={'true'}
+        fullWidth
         maxWidth={'md'}
         keepMounted
         open={open}
@@ -120,13 +120,11 @@ const Add = ({ onClick, active, refetch, setData }) => {
         }}
         aria-labelledby="draggable-dialog-title"
       >
-        <DialogTitle id="draggable-dialog-title">Add new mindmap</DialogTitle>
+        <DialogTitle id="draggable-dialog-title">Add new {title}</DialogTitle>
 
         <form onSubmit={formik.handleSubmit}>
           <DialogContent>
-            <DialogContentText>
-              Please, fill form below to add new mindmap
-            </DialogContentText>
+            <DialogContentText>Please, fill form below to add new {title}</DialogContentText>
             <TextField
               autoFocus
               margin="dense"
