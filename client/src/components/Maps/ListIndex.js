@@ -29,7 +29,7 @@ const ListIndex = () => {
   const [title, setTitle] = React.useState(makeListTitleFromPath(location.pathname) + ' list')
 
   const theme = useTheme();
-  
+
   const [openDialog, setOpenDialog] = React.useState(false)
   const [search, setSearch] = React.useState(null)
 
@@ -72,10 +72,10 @@ const ListIndex = () => {
   //////////////////// TEST
   React.useEffect(() => {
     fetchFilteredMaps()
-  },[data])
+  }, [data])
   ////////////////////
 
-  if (loading) return <CircularProgress color="secondary" />
+  if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>
 
   return (
     <React.Fragment>

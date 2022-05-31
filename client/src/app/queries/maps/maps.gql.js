@@ -35,3 +35,9 @@ export const CREATE_MAP = gql`
     }
   }
 `;
+
+export const DELETE_MAP = gql`
+  mutation($id: ID!) {
+    deleteMMap(_id: $id)
+  }
+`

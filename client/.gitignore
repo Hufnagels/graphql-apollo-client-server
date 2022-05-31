@@ -11,6 +11,8 @@
 # production
 /build
 
+_*.js
+
 # misc
 _backup
 _backup/

@@ -99,6 +99,46 @@ const CustomTheme = createTheme({
         
       }
     },
+    // Toolbar styles
+    MuiToggleButtonGroup:{
+      styleOverrides: {
+        root: {
+          // padding:'0px !important',
+          // paddingLeft:'4px !important', 
+          // paddingRight:'4px !important',
+          // lineHeight: 0,
+          '& > button':{
+            //margin:' 2px 2px 0 2px !important'
+          }
+        }
+      },
+    },
+    MuiToggleButton:{
+      styleOverrides: {
+        root: {
+          //padding:'5px 10px !important', 
+          width:'2rem', 
+          height:'2rem',
+          
+        }
+      },
+    },
+    MuiSvgIcon: {
+      styleOverrides: {
+        root: {
+          fontSize: '1rem',
+        },
+        fontSizeSmall: {
+          fontSize: '0.75rem',
+        },
+        fontSizeMedium: {
+          fontSize: '1rem',
+        },
+        fontSizeLarge: {
+          fontSize: '1.5rem',
+        }
+      },
+    },
   }
 });
 

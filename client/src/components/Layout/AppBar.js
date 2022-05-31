@@ -114,16 +114,16 @@ const HeaderResponsiveAppBar = (props) => {
             {/* 
             Mobile menu
              */}
-            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' }, }}>
               <IconButton
-                size="large"
+                fontSize="large"
                 aria-label="account of current user"
                 aria-controls="menu-appbar"
                 aria-haspopup="true"
                 onClick={handleOpenNavMenu}
                 color="secondary"
               >
-                <MenuIcon />
+                <MenuIcon fontSize="large" />
               </IconButton>
               <Menu
                 id="menu-appbar"
@@ -141,6 +141,7 @@ const HeaderResponsiveAppBar = (props) => {
                 onClose={handleCloseNavMenu}
                 sx={{
                   display: { xs: 'block', md: 'none' },
+
                 }}
               >
                 {props.pages && props.pages.map((page, idx) => (
@@ -176,8 +177,9 @@ const HeaderResponsiveAppBar = (props) => {
 
             {props.settings && <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <IconButton onClick={handleOpenUserMenu} >
                   <MoreIcon
+                    fontSize="large"
                     sx={{
                       color: (theme) => theme.palette.mode === 'dark'
                         ? theme.palette.custom.light

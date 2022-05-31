@@ -28,6 +28,7 @@ type MindmapsResult {
   mindmaps: [Mindmap]
   currentPage: Int
   totalPages: Int
+  count: Int
 }
 
 # Queries section

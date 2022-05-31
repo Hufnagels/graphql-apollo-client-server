@@ -1,0 +1,93 @@
+scalar Date
+
+interface BoardError {
+  message: String!
+  path: String
+}
+
+type Board {
+  _id: ID!
+  owner: String
+  title: String
+  description: String
+  board: String
+  boardimage: String
+  editinghistory: BoardEditingHistory
+  createdAt: String
+  updatedAt: String
+}
+
+type BoardEditingHistory {
+  updated: String
+  editedBoard: String
+}
+
+#Subscription type for adding KONVA element (text, circle, rectangle, line, path)
+type Element {
+  id:String!      # updated element id
+  type: String!   # text, circle, rectangle, line, path
+  action: String! # Add/Remove
+  params: String! # json stringified object
+}
+
+# getWhiteboards
+type BoardsResult {
+  boards: [Board]
+  currentPage: Int
+  totalPages: Int
+  count: Int
+}
+
+# Queries section
+type Query {
+  getBoards(search: String, page: Int, limit: Int): BoardsResult #[Board]
+  getBoard(_id: ID!): Board
+  elements: [Element!]
+}
+
+# Mutation section
+type ReturnedBoardError implements BoardError {
+  message: String!
+  locations: [String]
+  path: String
+}
+
+# CreateBoard
+input CreateBoardInput {
+  owner: String!
+  title: String!
+  description: String
+  board: String
+  boardimage: String
+}
+
+type CreateBoardPayload {
+  board: Board
+  boardErrors: [ReturnedBoardError]
+}
+
+# updateBoard
+input UpdateBoardInput {
+  owner: String
+  title: String
+  description: String
+  board: String
+  boardimage: String
+  editinghistory: String
+}
+
+type UpdateBoardPayload {
+  board: Board
+  boardErrors: [ReturnedBoardError]
+}
+
+type Mutation {
+  createBoard(input: CreateBoardInput): CreateBoardPayload
+  updateBoard(_id: ID!,input: UpdateBoardInput!): Board #UpdateBoardPayload
+  deleteBoard(_id: ID!): String
+  postUpdatedElement(id:String!,type: String!,action: String!,params: String!): ID!
+}
+
+type Subscription {
+  elements: [Element!]
+}

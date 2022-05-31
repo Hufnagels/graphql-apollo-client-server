@@ -1,6 +1,11 @@
 import _ from 'lodash'
 import pluralize from 'pluralize'
 
+/**
+ * @functionName convertToSlug
+ * @param {Text} post title
+ * @output slug from post title
+ */
 export const convertToSlug = (Text) => {
   return Text
     .toLowerCase()
@@ -10,9 +15,9 @@ export const convertToSlug = (Text) => {
 }
 
 /**
- * 
+ * @functionName makePageTitleFromPath
  * @param {path} location.pathname
- * return singularized pathname 
+ * @output singularized pathname 
  */
 export const makePageTitleFromPath = (path, camelcase = false) => {
   const pageTitle = _.capitalize(path.slice(path.lastIndexOf("/") + 1, path.length))
@@ -21,9 +26,9 @@ export const makePageTitleFromPath = (path, camelcase = false) => {
 }
 
 /**
- * 
+ * @function makeListTitleFromPath
  * @param {path} location.pathname
- * return Camelcased pathname + text 'list'
+ * @oputput Camelcased pathname + text 'list'
  */
 export const makeListTitleFromPath = (path, camelcase = false) => {
   let listTitle = _.capitalize(path.slice(path.lastIndexOf("/") + 1, path.length))

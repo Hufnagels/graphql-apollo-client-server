@@ -60,3 +60,9 @@ export const CREATE_MINDMAP = gql`
     }
   }
 `;
+
+export const DELETE_MINDMAP = gql`
+  mutation($id: ID!) {
+    deleteMindmap(_id: $id)
+  }
+`

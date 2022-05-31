@@ -7,7 +7,6 @@ import { ApolloError, } from 'apollo-server-express'
 // import Joi from 'joi'
 
 import User from '../../database/models/user.model.js'
-
 import { issueTokens, checkSignedIn, getRefreshToken } from '../../../app/controllers/auth.js'
 // import { registerUserValidator, loginUserValidator } from '../validators/user.validator.js'
 // import { JWT_TOKEN_SECRET, JWT_TOKEN_EXPIRES_IN } from '../../../app/config/config.js'
@@ -71,6 +70,7 @@ const UserResolver = {
   },
 
   Mutation: {
+    // Protected routes
     createUser: async (parent, { input: { firstName, lastName, date_of_birth, email, password } }, { req }, context) => {
       // In this case, we'll pretend there is no data when
       // we're not logged in. Another option would be to
@@ -119,8 +119,6 @@ const UserResolver = {
         });
       });
     },
-
-    // Protected routes
     deleteUser: async (parent, args, { req }, context, info) => {
       await checkSignedIn(req, true)
       const { _id } = args
@@ -136,12 +134,11 @@ const UserResolver = {
       })
 
     },
-
     updateUser: async (parent, args, { req }, context, info) => {
+      await checkSignedIn(req, true)
       const { _id } = args
       const { firstName, lastName, date_of_birth } = args.input;
       // console.log('req', req)
-      await checkSignedIn(req, true)
       const user = await User.findByIdAndUpdate(
         _id,
         { firstName, lastName, date_of_birth },

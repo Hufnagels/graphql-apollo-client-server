@@ -2203,6 +2203,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-reconciler@~0.26.2":
+  version "0.26.7"
+  resolved "https://registry.yarnpkg.com/@types/react-reconciler/-/react-reconciler-0.26.7.tgz#0c4643f30821ae057e401b0d9037e03e8e9b2a36"
+  integrity sha512-mBDYl8x+oyPX/VBb3E638N0B7xG+SPk/EAMcVPeexqus/5aTpTphQi0curhhshOqRrc9t6OPoJfEUkbymse/lQ==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-redux@^7.1.20":
   version "7.1.23"
   resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-7.1.23.tgz#3c2bb1bcc698ae69d70735f33c5a8e95f41ac528"
@@ -6174,6 +6181,11 @@ klona@^2.0.4, klona@^2.0.5:
   resolved "https://registry.yarnpkg.com/klona/-/klona-2.0.5.tgz#d166574d90076395d9963aa7a928fabb8d76afbc"
   integrity sha512-pJiBpiXMbt7dkzXe8Ghj/u4FfXOOa98fPW+bihOJ4SjnoijweJrNThJfd3ifXpXhREjpoF2mZVH1GfS9LV3kHQ==
 
+konva@^8.3.8:
+  version "8.3.8"
+  resolved "https://registry.yarnpkg.com/konva/-/konva-8.3.8.tgz#c0e6f37f8831ff846e9bf33fb760c27f7e7eb292"
+  integrity sha512-Y6ckWvsZQEpD2r6catM/O2CKP+ajrP3ijalFZ6TZOwdbx+opb/tXDjGAt5OA2kNOyj8mZgl4ZKkqWRdg7HUKmA==
+
 language-subtag-registry@~0.3.2:
   version "0.3.21"
   resolved "https://registry.yarnpkg.com/language-subtag-registry/-/language-subtag-registry-0.3.21.tgz#04ac218bea46f04cb039084602c6da9e788dd45a"
@@ -7739,6 +7751,11 @@ react-fast-compare@^2.0.1:
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-2.0.4.tgz#e84b4d455b0fec113e0402c329352715196f81f9"
   integrity sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==
 
+react-image-file-resizer@^0.4.8:
+  version "0.4.8"
+  resolved "https://registry.yarnpkg.com/react-image-file-resizer/-/react-image-file-resizer-0.4.8.tgz#85f4ae4469fd2867d961568af660ef403d7a79af"
+  integrity sha512-Ue7CfKnSlsfJ//SKzxNMz8avDgDSpWQDOnTKOp/GNRFJv4dO9L5YGHNEnj40peWkXXAK2OK0eRIoXhOYpUzUTQ==
+
 react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
@@ -7748,6 +7765,32 @@ react-is@^17.0.1, react-is@^17.0.2:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
+
+react-konva-utils@0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/react-konva-utils/-/react-konva-utils-0.2.0.tgz#e79ed7776edd50f40c152d8d49d2693ff12e910b"
+  integrity sha512-xjxhmuZnRJthInyb5wLwdgtO5gQnUvCpEutMoFwQtnwL4s4JFNLTq+fjlmCGhP+TxiJXiztzwinptL+wxP16pg==
+  dependencies:
+    react-konva "^17.0.2-4"
+    use-image "^1.0.7"
+
+react-konva@^17.0.2-4, react-konva@^17.0.2-6:
+  version "17.0.2-6"
+  resolved "https://registry.yarnpkg.com/react-konva/-/react-konva-17.0.2-6.tgz#80b3fdebfd915878eafe554c191bec282cdda0de"
+  integrity sha512-cfRsBKxqAQ6gTBmyrKptKRWhHD+C068dvyqcZ4h8qzKbAacTXQtfLMSpOI+d+ptxSMvayIbbCdbsBmk3bWiClQ==
+  dependencies:
+    "@types/react-reconciler" "~0.26.2"
+    react-reconciler "~0.26.2"
+    scheduler "^0.20.2"
+
+react-reconciler@~0.26.2:
+  version "0.26.2"
+  resolved "https://registry.yarnpkg.com/react-reconciler/-/react-reconciler-0.26.2.tgz#bbad0e2d1309423f76cf3c3309ac6c96e05e9d91"
+  integrity sha512-nK6kgY28HwrMNwDnMui3dvm3rCFjZrcGiuwLc5COUipBK5hWHLOxMJhSnSomirqWwjPBJKV1QcbkI0VJr7Gl1Q==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    scheduler "^0.20.2"
 
 react-redux@^7.2.6:
   version "7.2.8"
@@ -9072,6 +9115,11 @@ uri-js@^4.2.2:
   integrity sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==
   dependencies:
     punycode "^2.1.0"
+
+use-image@^1.0.12, use-image@^1.0.7:
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/use-image/-/use-image-1.0.12.tgz#fe288ca0d24f873dd52b240857839f6b4d4787ff"
+  integrity sha512-h6tCbHSvZOyrAKGkj4LTAyOUcMtL6NFyQdmP1M2spuClZrmyPe6nfB/NaFu135a2KKUt+7oGeUdvCiHcMdJerw==
 
 use-sync-external-store@^1.0.0:
   version "1.1.0"

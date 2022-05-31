@@ -2,6 +2,7 @@ import _ from 'lodash'
 import { ApolloError, } from 'apollo-server-express'
 
 import Posts from '../../database/models/post.model.js'
+import { issueTokens, checkSignedIn, getRefreshToken } from '../../../app/controllers/auth.js'
 
 const PostResolver = {
   Query: {
@@ -55,8 +56,9 @@ const PostResolver = {
     },
   },
   Mutation: {
-    createPost: async (parent, args, context, info) => {
-      //console.log('add post args', args)
+    // Protected routes
+    createPost: async (parent, args, { req }, context, info) => {
+      await checkSignedIn(req, true)
       const { author, title, subtitle, description, titleimage } = args.input;
       let error = {}
       //console.log('create post', author, title, subtitle, description, titleimage)
@@ -73,51 +75,24 @@ const PostResolver = {
         post: res._doc,
       }
     },
-    deletePost: async (parent, args, context, info) => {
+    deletePost: async (parent, args, { req }, context, info) => {
+      await checkSignedIn(req, true)
       const { _id } = args
-      // deleteOne()
-      // deletePost res { acknowledged: true, deletedCount: 0 }
-      // deletePost post [ { acknowledged: true, deletedCount: 0 } ]
-      // findByIdAndDelete()
-      // deletePost res null
-      // deletePost post [ null ]
-      /**
-       * return object if _id exist
-       {
-        "data": {
-          "deletePost": {
-            "postErrors": null,
-            "post": true || false
-          }
+
+      Posts.findByIdAndDelete({ _id }, function (err, docs) {
+        if (err) {
+          console.log(err)
+          return false
         }
-      }
-      * return object if _id doesn't exists
-      {
-        "errors": [
-          {
-            "message": "The post with the given data \"{ _id: '62534e4c5b7ce8dd0b61ee021' }\" does not exist.",
-          }
-        ],
-        "data": {
-          "deletePost": null
-        }
-      }
-      */
-      const post = await Posts.findByIdAndDelete({ _id })
-        .then(res => {
-          //console.log('deletePost res', res)
-          if (res === null) return false
+        else {
+          console.log("Deleted : ", docs);
           return true
-        })
-        .catch(err => {
-          //console.log('err', JSON.stringify(err))
-          throw new ApolloError(`The post with the given data ${_.toString(err.stringValue)} does not exist.`)
-        })
-      //console.log('deletePost post', post)
-      return { post }
+        }
+      })
 
     },
-    updatePost: async (parent, args, context, info) => {
+    updatePost: async (parent, args, { req }, context, info) => {
+      await checkSignedIn(req, true)
       const { _id } = args
       const { title, subtitle, description, titleimage } = args.input;
       //console.log('updatePost args', args)

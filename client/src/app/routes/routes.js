@@ -18,8 +18,10 @@ import UsersListIndex from '../../components/Users/ListIndex2'
 import UsersListItem from "../../components/Users/ListItem";
 // import Profile from '../pages/backend/User/Profile'
 import Chat from "../../components/Chat/Chat"
+import BoardListIndex from "../../components/Whiteboard/ListIndex"
+import BoardListItem from "../../components/Whiteboard/ListItem2"
 
-///////ADMIN SECTION
+///////MAIN SECTION
 import MainLayout from "../../pages/frontend/Layout/MainLayout";
 import Home from "../../pages/frontend/Home";
 import Blog from "../../pages/frontend/Blog"
@@ -36,6 +38,8 @@ const routes = (isLoggedIn) => [
       {
         path: "/app/courses",
         element: <Courses />,
+        name: 'Courses',
+        description: '',
         children: [
           { index: true, element: <CoursesIndex /> },
           { path: "/app/courses/:id", element: <Course /> },
@@ -44,6 +48,8 @@ const routes = (isLoggedIn) => [
       {
         path: '/app/maps',
         element: <Outlet />,
+        name: 'Maps',
+        description: 'Leaflet maps',
         children: [
           { index: true, element: <MapsListIndex /> },
           //{ path: '/app/user/profile', element: <Profile /> },
@@ -52,14 +58,28 @@ const routes = (isLoggedIn) => [
       {
         path: '/app/mindmaps',
         element: <Outlet />,
+        name: 'Mindmaps',
+        description: 'D3.js mindmaps',
         children: [
           { index: true, element: <MindmapsListIndex /> },
           { path: '/app/mindmaps/:id', element: <MindmapListItem /> },
         ],
       },
       {
+        path: '/app/whiteboards',
+        element: <Outlet />,
+        name: 'Whiteoard',
+        description: 'Collaborative Whiteboard via subscription',
+        children: [
+          { index: true, element: <BoardListIndex /> },
+          { path: '/app/whiteboards/:id', element: <BoardListItem /> },
+        ],
+      },
+      {
         path: "/app/blogs",
         element: <Outlet />,
+        name: 'Blogs',
+        description: 'Blog posts',
         children: [
           { index: true, element: <PostsListIndex /> },
           { path: "/app/blogs/:id", element: <PostUpdate /> },
@@ -69,17 +89,26 @@ const routes = (isLoggedIn) => [
       {
         path: "/app/chat",
         element: <Chat />,
+        name: 'Chat',
+        description: 'Chat module',
 
       },
       {
         path: '/app/users',
         element: <Outlet />,
+        name: 'Users',
+        description: 'Users list',
         children: [
           { index: true, element: <UsersListIndex /> },
           { path: '/app/users/:id', element: <UsersListItem /> },
         ],
       },
-      { path: "*", element: <NoMatch /> },
+      {
+        path: "*",
+        element: <NoMatch />,
+        name: 'Nomatch',
+        description: '404',
+      },
       // https://stackoverflow.com/questions/62384395/protected-route-with-react-router-v6
       // {
       //   path: 'member',
@@ -95,18 +124,39 @@ const routes = (isLoggedIn) => [
     path: '/',
     element: <MainLayout />, //!isLoggedIn ? <MainLayout /> :null,
     children: [
-      { path: 'signin', element: <SignInSide /> },
-      { path: 'signup', element: <SignUp /> },
       {
-        path: 'blog', element: <Outlet />,
+        path: 'signin',
+        element: <SignInSide />,
+        name: 'SignIn',
+        description: 'SignIn page',
+      },
+      {
+        path: 'signup',
+        element: <SignUp />,
+        name: 'SignUp',
+        description: 'SignUp page - Registration',
+      },
+      {
+        path: 'blog',
+        element: <Outlet />,
         children: [
           { index: true, element: <BlogListIndex /> },
           { path: "/blog/:id", element: <BlogListItem /> },
         ],
       },
-      { path: '/', element: <Home /> }, //<Navigate to="/login" /> },
+      {
+        path: '/',
+        element: <Home />,
+        name: 'Home',
+        description: '',
+      }, //<Navigate to="/login" /> },
 
-      { path: "*", element: <NoMatch /> },
+      {
+        path: "*",
+        element: <NoMatch />,
+        name: 'NoMatch',
+        description: '404',
+      },
     ],
   },
 ];

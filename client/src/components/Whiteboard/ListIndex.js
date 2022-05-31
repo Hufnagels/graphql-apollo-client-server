@@ -13,7 +13,7 @@ import { useTheme } from '@mui/material/styles';
 
 // Custom
 import ListIndexItem from './ListIndexItem';
-import { GET_MINDMAPS } from "../../app/queries";
+import { GET_BOARDS } from "../../app/queries";
 import Add from './Add';
 import SearchBar from '../Layout/SearchBar';
 import { makeListTitleFromPath } from '../../app/functions/text'
@@ -26,7 +26,7 @@ const ListIndex = () => {
   const [openDialog, setOpenDialog] = React.useState(false)
   const [search, setSearch] = React.useState(null)
 
-  const [mindmaps, setMindmaps] = React.useState({ data: [] })
+  const [boards, setBoards] = React.useState({ data: [] })
 
   const [page, setPage] = React.useState(1);
   const [totalpage, setTotalPage] = React.useState(1)
@@ -35,23 +35,23 @@ const ListIndex = () => {
   const [visiblePN, setVisiblePN] = React.useState(false)
 
   const [
-    fetchFilteredMindmaps,
+    fetchFilteredBoards,
     { data, loading, error, refetch }
-  ] = useLazyQuery(GET_MINDMAPS, {
+  ] = useLazyQuery(GET_BOARDS, {
     variables: {
       search,
       page: page,
       limit: perpage
     },
-    onCompleted: ({ getMindmaps }) => {
-      // console.log('getMindmaps', getMindmaps)
-      setMindmaps({
-        ...mindmaps,
-        data: getMindmaps.mindmaps
+    onCompleted: ({ getBoards }) => {
+      console.log('getBoards', getBoards)
+      setBoards({
+        ...boards,
+        data: getBoards.boards
       })
-      setTotalPage(getMindmaps.totalPages)
-      setCount(getMindmaps.count)
-      if (getMindmaps.mindmaps.length > 0)
+      setTotalPage(getBoards.totalPages)
+      setCount(getBoards.count)
+      if (getBoards.boards.length > 0)
         setVisiblePN(true)
       else
         setVisiblePN(false)
@@ -63,7 +63,7 @@ const ListIndex = () => {
   })
 
   React.useEffect(() => {
-    fetchFilteredMindmaps()
+    fetchFilteredBoards()
   }, [data])
 
   if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>
@@ -73,7 +73,7 @@ const ListIndex = () => {
       <Box style={{ padding: '0rem' }}>
         <SearchBar
           title={title}
-          fn={fetchFilteredMindmaps}
+          fn={fetchFilteredBoards}
           search={search}
           setSearch={setSearch}
           page={page}
@@ -81,18 +81,18 @@ const ListIndex = () => {
           perpage={perpage}
           setPerpage={setPerpage}
           totalpage={totalpage}
-          setData={setMindmaps}
+          setData={setBoards}
           visiblePN={visiblePN}
           refetch={refetch}
           active={openDialog}
           setOpenDialog={setOpenDialog}
           addComponent={
-            <Add onClick={setOpenDialog} active={openDialog} refetch={refetch} setData={setMindmaps} />
+            <Add onClick={setOpenDialog} active={openDialog} refetch={refetch} setData={setBoards} />
           }
         />
         <Grid container spacing={{ sm: 1, md: 1 }} >
-          {mindmaps.data && mindmaps.data.map((mindmap, idx) => {
-            return <ListIndexItem data={mindmap} key={idx} />
+          {boards.data && boards.data.map((board, idx) => {
+            return <ListIndexItem data={board} key={idx} />
           })}
         </Grid>
       </Box>

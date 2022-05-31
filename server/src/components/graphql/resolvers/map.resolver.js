@@ -2,6 +2,7 @@ import _ from 'lodash'
 import { ApolloError, } from 'apollo-server-express'
 
 import Maps from '../../database/models/map.model.js'
+import { issueTokens, checkSignedIn, getRefreshToken } from '../../../app/controllers/auth.js'
 
 const MapResolver = {
   Query: {
@@ -51,10 +52,10 @@ const MapResolver = {
     },
   },
   Mutation: {
-    createMap: async (parent, args, context, info) => {
-      //console.log('add post args', args)
+    // Protected routes
+    createMap: async (parent, args, { req }, context, info) => {
+      await checkSignedIn(req, true)
       const { owner, title, description, originalMap, currentMap, mapimage } = args.input;
-      let error = {}
 
       const map = new Maps({
         owner,
@@ -65,23 +66,30 @@ const MapResolver = {
         mapimage
       })
 
-      return new Promise((resolve, reject) => {
-        map.save().then((map) => {
-          resolve(user);
-        }).catch((err) => {
-          reject(err);
-        });
-      });
+      const res = await map.save()
+      return {
+        map: res._doc,
+      }
 
     },
-    deleteMap: async (parent, args, context, info) => {
+    deleteMap: async (parent, args, { req }, context, info) => {
+      await checkSignedIn(req, true)
       const { _id } = args
-      await Maps.findByIdAndDelete({ _id })
-      return "OK"
+      Maps.findByIdAndDelete({ _id }, function (err, docs) {
+        if (err) {
+          console.log(err)
+          return false
+        }
+        else {
+          console.log("Deleted : ", docs);
+          return true
+        }
+      })
     },
-    updateMap: async (parent, args, context, info) => {
+    updateMap: async (parent, args, { req }, context, info) => {
+      await checkSignedIn(req, true)
       const { _id } = args
-      const { author, title, description, titleimage } = args.post;
+      const { title, description, currentMap, mapimage, editinghistory } = args.input;
 
       const map = await Maps.findByIdAndUpdate(
         _id,

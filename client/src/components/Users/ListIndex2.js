@@ -116,7 +116,7 @@ const ListIndex2 = () => {
     console.dir('Listindex2 useEffect data change', data)
   }, [data])
 
-  if (loading) return <CircularProgress color="secondary" />
+  if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>
   //return null
   return (
     <React.Fragment>

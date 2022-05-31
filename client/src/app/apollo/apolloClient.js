@@ -19,11 +19,12 @@ import { REACT_APP_LS_TOKEN_NAME } from '../config/config'
 
 const httpLink = new HttpLink({
   uri: `http://${process.env.REACT_APP_NODESERVER_BASEURL}/graphql`,
+  
 })
 
 const authLink = setContext((_, { headers }) => {
   const token = !store.getState().auth.tokens ? false : (store.getState().auth.tokens.accessToken) //|| localStorage.getItem(REACT_APP_LS_TOKEN_NAME) || ""
-  console.info('apolloClient authLink', store.getState().auth, token)
+console.info('apolloClient authLink', store.getState().auth, token)
   return {
     headers: {
       ...headers,
@@ -37,8 +38,8 @@ const wsLink = new GraphQLWsLink(createClient({
   options: {
     lazy: true,
     reconnect: true,
-
   },
+
   connectionParams: async () => {
     const token = !store.getState().auth.tokens ? '' : (store.getState().auth.tokens.accessToken || localStorage.getItem(REACT_APP_LS_TOKEN_NAME) || "")
     return {

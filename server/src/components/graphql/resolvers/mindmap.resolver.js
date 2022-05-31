@@ -2,6 +2,7 @@ import _ from 'lodash'
 import { ApolloError, } from 'apollo-server-express'
 
 import Mindmaps from '../../database/models/mindmap.model.js'
+import { issueTokens, checkSignedIn, getRefreshToken } from '../../../app/controllers/auth.js'
 
 const MindmapResolver = {
   Query: {
@@ -43,8 +44,9 @@ const MindmapResolver = {
     },
   },
   Mutation: {
-    createMindmap: async (parent, args, context, info) => {
-      //console.log('createMindmap args', args)
+    // Protected routes
+    createMindmap: async (parent, args, { req }, context, info) => {
+      await checkSignedIn(req, true)
       const { owner, title, description, originalMap, currentMap, mapimage } = args.input;
       let error = {}
 
@@ -57,21 +59,28 @@ const MindmapResolver = {
         mapimage
       })
 
-      return new Promise((resolve, reject) => {
-        mindmap.save().then((res) => {
-          resolve(mindmap);
-        }).catch((err) => {
-          reject(err);
-        });
-      });
+      const res = await mindmap.save()
+      return {
+        mindmap: res._doc,
+      }
 
     },
-    deleteMindmap: async (parent, args, context, info) => {
+    deleteMindmap: async (parent, args, { req }, context, info) => {
+      await checkSignedIn(req, true)
       const { _id } = args
-      await Mindmaps.findByIdAndDelete({ _id })
-      return "OK"
+      Mindmaps.findByIdAndDelete({ _id }, function (err, docs) {
+        if (err) {
+          console.log(err)
+          return false
+        }
+        else {
+          console.log("Deleted : ", docs);
+          return true
+        }
+      })
     },
-    updateMindmap: async (parent, args, context, info) => {
+    updateMindmap: async (parent, args, { req }, context, info) => {
+      await checkSignedIn(req, true)
       const { _id } = args
       const { title, description, currentMap, mapimage, editinghistory } = args.input;
 

@@ -15,18 +15,18 @@ import DialogTitle from '@mui/material/DialogTitle';
 // Custom
 import routes from './app/routes/routes'
 import { logout, refreshtoken } from './app/reducers/authSlice'
-import { REFRESH_TOKEN} from './app/queries/'
+import { REFRESH_TOKEN } from './app/queries/'
 
 const App = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [open, setOpen] = React.useState(false);
 
   const { isLoggedIn, user, tokens } = useSelector((state) => state.auth);
-// console.log('App js isLoggedIn, user, tokens',isLoggedIn, user, tokens)
+  // console.log('App js isLoggedIn, user, tokens',isLoggedIn, user, tokens)
   const page = useRoutes(routes(isLoggedIn));
   const dispatch = useDispatch()
 
-  const [refreshToken] = useMutation(REFRESH_TOKEN,{
+  const [refreshToken] = useMutation(REFRESH_TOKEN, {
     onCompleted: ({ refreshToken }) => {
       // console.log('tokens', refreshToken)
       dispatch(refreshtoken(refreshToken));
@@ -48,22 +48,23 @@ const App = () => {
   };
   const handleStay = () => {
     // console.log('handleStay')
-    refreshToken({variables: {
-      input: {
-        "email": user.email,
-        "_id": user._id,
+    refreshToken({
+      variables: {
+        input: {
+          "email": user.email,
+          "_id": user._id,
+        }
       }
-    }},)
-    
+    })
   };
 
   //console.log('App user'/* , user, tokens */);
 
   if (user && !open) {
     const decodedToken = jwtDecode((tokens.accessToken))
-//console.log('App user decodedToken', decodedToken, Date.now() - decodedToken.exp * 1000);
+    //console.log('App user decodedToken', decodedToken, Date.now() - decodedToken.exp * 1000);
     if (decodedToken.exp * 1000 < Date.now()) {
-//console.log('decodedToken expired')
+      //console.log('decodedToken expired')
       handleOpenDialog()
     }
   }
@@ -83,9 +84,7 @@ const App = () => {
       >
         <DialogTitle id="alert-dialog-title">{"Your session has been ended"}</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Do you want to STAY or Sign Out?
-          </DialogContentText>
+          <DialogContentText id="alert-dialog-description">Do you want to STAY or Sign Out?</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleStay}>Stay</Button>

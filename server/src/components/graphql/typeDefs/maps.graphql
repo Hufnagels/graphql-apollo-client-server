@@ -28,6 +28,7 @@ type MapsResult {
   maps: [Map]
   currentPage: Int
   totalPages: Int
+  count: Int
 }
 
 # Queries section

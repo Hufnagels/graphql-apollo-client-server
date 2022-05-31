@@ -98,7 +98,7 @@ const ListIndex = () => {
   //   if (!search) return
   // }, [search, page, perpage, totalpage])
 
-  if (loading) return <CircularProgress color="secondary" />
+  if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>
 
   return (
     <React.Fragment>

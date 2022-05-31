@@ -16,10 +16,12 @@ import storage from 'redux-persist/lib/storage'
 
 import authReducer from "../reducers/authSlice";
 import messageReducer from "../reducers/messageSlice";
+import boardReducer from "../reducers/boardSlice";
 
 const reducers = combineReducers({
   auth: authReducer,
   message: messageReducer,
+  board: boardReducer,
 });
 
 const persistConfig = {

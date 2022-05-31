@@ -11,9 +11,21 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-a {text-decoration: none;}
+
+a {
+  text-decoration: none;
+}
+
 /* .MuiPaper-root.MuiAppBar-root.MuiPaper-elevation4 {
   position: fixed !important;
   left: 0 !important;
   z-index: 1;
 } */
+
+.board {
+  //width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  height: calc(100vh - 160px);
+  border: 1px solid #000;
+}

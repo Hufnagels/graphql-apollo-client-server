@@ -43,14 +43,23 @@ const Chat = () => {
 
   // Messages
   const [chatmessagesData, setChatmessagesData] = React.useState({ messages: [] })
-  const [postMessage] = useMutation(POST_MESSAGE);
+  const [postMessage, { error }] = useMutation(POST_MESSAGE, {
+    onCompleted: ({ postMessage }) => {
+console.log('postMessage', postMessage)
+    },
+    onError: (error) => {
+      // console.log('CREATE_USER error', error)
+      const variant = 'error'
+      enqueueSnackbar(error.message, { variant })
+    }
+  });
   const [state, stateSet] = React.useState({
     user: user.lastName + ' ' + user.firstName,
     content: '',
   });
   const { data, loading } = useSubscription(SUBSCRIBE_TO_MESSAGES, {
     onSubscriptionData: (e) => {
-      // console.log('onSubscriptionData', e, e.subscriptionData.data.messages)
+console.log('onSubscriptionData', e, e.subscriptionData.data.messages)
       const messages = e.subscriptionData.data.messages
       setChatmessagesData({
         ...chatmessagesData,
@@ -62,6 +71,7 @@ const Chat = () => {
       enqueueSnackbar(error.message, { variant })
     }
   });
+
   const formik = useFormik({
     initialValues: {
       user: user.lastName + ' ' + user.firstName,
