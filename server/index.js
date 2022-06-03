@@ -13,19 +13,26 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
 
+// Custom
+import {PORT, ORIGIN} from './src/app/config/config.js'
 import homeRoutes from './src/app/routes/home.js'
 import db from './src/components/database/connection/mongoconnect.js'
 import resolvers from './src/components/graphql/resolvers.js'
 import typeDefs from './src/components/graphql/typeDefs.js'
 import { checkUserExist } from './src/app/controllers/auth.js'
 
-const PORT = process.env.PORT || 4002;
+const serverPort = PORT //process.env.PORT || 4002;
+const origin = ORIGIN
+const corsOptions = {
+  origin,
+  credentials: true // <-- REQUIRED backend setting
+};
 
 const serverStart = async () => {
   // Create an Express app and HTTP server; we will attach both the WebSocket
   // server and the ApolloServer to this HTTP server.
   const app = express();
-  app.use(cors());
+  app.use(cors(corsOptions));
 
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
@@ -123,9 +130,9 @@ const serverStart = async () => {
 
   apolloServer.applyMiddleware({ app });
 
-  httpServer.listen(PORT, () => {
+  httpServer.listen(serverPort, () => {
     if (process.env.NODE_ENV !== 'production') console.log(
-      `Server is now running on http://localhost:${PORT}${apolloServer.graphqlPath}`,
+      `Server is now running on http://localhost:${serverPort}${apolloServer.graphqlPath}`,
     );
   });
 }

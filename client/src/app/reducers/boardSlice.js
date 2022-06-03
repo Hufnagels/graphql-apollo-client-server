@@ -10,7 +10,7 @@ const boardSlice = createSlice({
   name: "whiteboard",
   initialState,
   reducers: {
-    loadBoard(state, action) {
+    loadBoard: (state, action) => {
       console.log('action.payload', action.payload)
       return {
         ...state,
@@ -18,14 +18,17 @@ const boardSlice = createSlice({
         creator: action.payload.creator,
       }
     },
-    saveBoard(state, action) {
+    saveBoard: (state, action) => {
 
     },
-    clearBoard(state, action) {
+    clearBoard: (state, action) => {
       return initialState
     },
     updateBoard: (state, action) => {
-      const newElement = action.payload.historyElement
+      console.log('updateBoard',action.payload)
+      return state
+      const newElement = action.payload
+      
       return {
         ...state,
         history: [

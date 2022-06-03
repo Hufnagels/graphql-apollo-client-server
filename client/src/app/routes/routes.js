@@ -72,7 +72,7 @@ const routes = (isLoggedIn) => [
         description: 'Collaborative Whiteboard via subscription',
         children: [
           { index: true, element: <BoardListIndex /> },
-          { path: '/app/whiteboards/:id', element: <BoardListItem /> },
+          { path: '/app/whiteboards/:boardid', element: <BoardListItem /> },
         ],
       },
       {

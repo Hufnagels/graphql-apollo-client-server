@@ -4,12 +4,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { useQuery, useMutation, useSubscription, } from '@apollo/client'
 import { useSnackbar } from 'notistack'
 import { Stage, Layer, Rect } from 'react-konva'
-import { v4 as uuidv4 } from 'uuid';
+//import { v4 as uuidv4 } from 'uuid';
+import uuid from "react-uuid";
 import _ from 'lodash'
 
-
+// Material
 import {
-  ButtonGroup,
   Button,
   Stack,
   Divider,
@@ -20,7 +20,6 @@ import {
 import Rectangle from "./shapes/rectangle";
 import Circ from "./shapes/circle";
 import Freehand from "./shapes/line";
-import { addTextNode } from "./text/_text";
 import Note from "./text/Note";
 import Img from "./images/image";
 import {
@@ -37,24 +36,23 @@ import {
   ToolbarItem,
   SVGwrapper,
 } from './Tools'
-import { ll, Il, rl, cl, nl } from './data'
+//import { ll, Il, rl, cl, nl } from './data'
 import { calculateAspectRatioFit } from '../../app/functions/image'
 import { formatBytes, getBase64ImageSize, getRandomInt } from '../../app/functions/math'
 import useResizeObserver from '../../app/hooks/useResizeObserver.hook'
+
+// GraphQL
 import { SUBSCRIBE_TO_BOARD, POST_UPDATED_ELEMENT, GET_BOARD, UPDATE_BOARD, } from "../../app/queries";
 import { loadBoard, updateBoard, clearBoard } from '../../app/reducers/boardSlice'
 
-
-
-
 const ListItem2 = () => {
   // Common
-  const { id } = useParams('id');
+  const { boardid } = useParams('boardid');
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { isLoggedIn, user, tokens } = useSelector((state) => state.auth);
   const dispatch = useDispatch()
-
+  // console.log(boardid)
 
   // Canvas setup
   const KonvaRef = React.useRef(null)
@@ -77,13 +75,9 @@ const ListItem2 = () => {
 
   // Drawing shapes
   const [lines, setLines] = React.useState([]);
-  // const [rectangles, setRectangles] = React.useState([]);
-  // const [circles, setCircles] = React.useState([]);
-  // const [notes, setNotes] = React.useState([]);
-  // const [images, setImages] = React.useState([]);
-
   const [shapes, setShapes] = React.useState([]);
 
+  // Refs
   const [, updateState] = React.useState();
   const stageRef = React.useRef(null);
   const layerRef = React.useRef(null);
@@ -91,18 +85,14 @@ const ListItem2 = () => {
 
   // Apollo
   const [boardInfo, setBoardInfo] = React.useState({})
-
+  let isLoading = true
   const { data, loading, error } = useQuery(GET_BOARD, {
-    variables: { id: id }
+    variables: { id: boardid }
   });
   const [updateBoard] = useMutation(UPDATE_BOARD, {
     onCompleted: ({ getBoard }) => {
       const variant = 'success'
       enqueueSnackbar('Board updated successfully', { variant })
-      // navigate(-1)
-      // setOpen(false)
-      //onClick(false)
-      //formik.resetForm()
     },
     onError: (error) => {
       // console.log(error)
@@ -112,7 +102,7 @@ const ListItem2 = () => {
   });
   const [postUpdatedElement, { error: postUpdatedElementError }] = useMutation(POST_UPDATED_ELEMENT, {
     onCompleted: ({ postUpdatedElement }) => {
-      console.log('postUpdatedElement', postUpdatedElement)
+      // console.log('postUpdatedElement id', postUpdatedElement)
     },
     onError: (error) => {
       // console.log('CREATE_USER error', error)
@@ -127,19 +117,41 @@ const ListItem2 = () => {
       // console.log('elements.length', elements.length)
       if (elements.length > 0) {
         const lastElement = elements[elements.length - 1]
-        const idx = lastElement.id
+        // console.log('onSubscriptionData lastElement', lastElement)
+        if(lastElement.boardid !== boardid) return
+        const idx = lastElement.elementid
         const updatedElement = JSON.parse(lastElement.params)
-        // console.log('lastElement updatedElement', updatedElement)
+        // console.log('lastElement updatedElement', lastElement, updatedElement)
         if (lastElement.action === 'update') {
-          updateItem(idx, updatedElement, shapes, setShapes, false)
-        }
-        if (lastElement.action === 'add') {
-          var index = shapes.findIndex(x => x.id === idx);
-          if (index === -1) {
+          if (!isExist(idx)) {
+            // console.log('not exist, so adding new shape via subscription')
             setShapes([
               ...shapes,
               updatedElement
             ])
+          } else {
+            // console.log('exist, so updating shape via subscription')
+            updateItem(idx, updatedElement, shapes, setShapes, false)
+          }
+        }
+        if (lastElement.action === 'add') {
+          if (!isExist(idx)) { //(lastID !== idx) {//(!isExist(idx)) {
+            console.log('adding new shape via subscription')
+            setShapes([
+              ...shapes,
+              updatedElement
+            ])
+          }
+        }
+        if (lastElement.action === 'remove') {
+          if (isExist(idx)) { //(lastID !== idx) {//(!isExist(idx)) {
+            console.log('remove shape via subscription')
+            const newShapes = shapes.filter((s) => s.id !== idx);
+            setShapes(newShapes);
+            // setShapes([
+            //   ...shapes,
+            //   updatedElement
+            // ])
           }
         }
       }
@@ -150,6 +162,7 @@ const ListItem2 = () => {
     }
   });
 
+
   React.useEffect(() => {
     //  console.log('PostsListIndex --> data useEffect')
     if (!data) return
@@ -157,48 +170,87 @@ const ListItem2 = () => {
     dispatch(loadBoard(data.getBoard))
     setShapes(JSON.parse(data.getBoard.board))
     // console.log('DATA:', data.getBoard)
-  }, [data])
 
+  }, [data])
   React.useEffect(() => {
     if (!dimensions) return;
     setWidth(dimensions.width)
     setHeight(dimensions.height)
   }, [dimensions])
 
-  // React.useEffect(() => {
-  //   const merged = _.union(rectangles, circles, lines, notes, images)
-  //   setShapes(merged)
-  //   //console.log('shaapeTools useEffect toolSetup', lineTools, shapeTools, shapes)
-  // }, [])
-
-  React.useEffect(() => {
-    console.log('UseEffect drawtype', drawtype);
-  }, [drawtype])
 
   React.useEffect(() => {
     //   console.log('useEffect: shapes', shapes)
     //   console.log('useEffect: rectangles', rectangles)
     //   console.log('useEffect: circles', circles)
-    console.log('useEffect: lines', lines)
+    // console.log('useEffect: lines', lines)
     //   console.log('useEffect: images', images)
     //   console.log('useEffect: notes', notes)
   }, [lines]);
+  React.useEffect(() => {
+    // console.log('useEffect: shapes', shapes)
+    //   console.log('useEffect: rectangles', rectangles)
+    //   console.log('useEffect: circles', circles)
+    // console.log('useEffect: lines', lines)
+    //   console.log('useEffect: images', images)
+    //   console.log('useEffect: notes', notes)
+    if (!data) return
 
-  const handleRemove = (updatedItem, state, setState) => {
-    const newTodos = state.filter((t) => t !== updatedItem);
-    setState(newTodos);
-  }
-  const handleUpdate = (updatedItem, state, setState) => {
-    const newTodos = [...state];
-    const res = state.filter((t, i) => t.id === updatedItem.id)
-    console.log('handleUpdate res', res)
-    newTodos[res.id] = updatedItem;
-    setState(newTodos);
-  }
+    const bd = JSON.parse(data.getBoard.board)
+    // console.log('useEffect data.getBoard.board', data.getBoard)
+    // console.log('useEffect bd.length', bd.length)
+    // console.log('useEffect shapes.length', shapes.length)
+    if (bd.length <= shapes.length) isLoading = false
+    // console.log('useEffect isLoading', isLoading)
+  }, [shapes]);
+
+  // React.useEffect(() => {
+  //   console.log('UseEffect drawtype', drawtype);
+  // }, [drawtype])
+  // React.useEffect(() => {
+  //   console.log('useEffect add eventlistener to stage')
+
+  //   stageRef.current.addEventListener('keydown', ev => {
+
+  //     console.log('Transformers', stageRef.current)
+  //     console.log('delete selectedId', selectedId)
+  //     ev.preventDefault()
+  //     return
+  //     if (ev.code === "Delete" || ev.code === 'Backspace') {
+
+  //       let index = shapes.findIndex(c => c.id === selectedId);
+  //       console.log('delete selectedId #2', selectedId)
+  //       console.log('delete shapes', shapes)
+  //       console.log('delete index', index)
+  //       console.log('delete shapes[index]', shapes[index])
+  //       /* 
+
+  //       if (index !== -1) {
+  //         shapes.splice(index, 1);
+  //         setShapes(shapes);
+  //       }
+  //       // index = rectangles.findIndex(r => r.id === selectedId);
+  //       // if (index !== -1) {
+  //       //   rectangles.splice(index, 1);
+  //       //   setRectangles(rectangles);
+  //       // }
+  //       // index = images.findIndex(r => r.id === selectedId);
+  //       // if (index !== -1) {
+  //       //   images.splice(index, 1);
+  //       //   setImages(images);
+  //       // }
+  //       forceUpdate(); */
+  //     }
+  //   }, false);
+
+  //   return () => {
+  //     dispatch(clearBoard())
+  //   }
+  // }, [stageRef.current])
 
   const addRectangle = (posx, posy) => {
     const rect = {
-      id: uuidv4(),
+      id: uuid(),
       type: drawtype,
       tool: drawtype,
       x: posx,
@@ -208,34 +260,37 @@ const ListItem2 = () => {
       fill: drawtype === 'FilledRect' ? color : 'transparent',
       stroke: color,
       strokeWidth: thickness,
-
-
       rotation: 0,
       scaleX: 1,
       scaleY: 1,
       //shadowBlur: drawtype === 'FilledRect' ? shadowBlur : 0,
     };
+    //lastID = rect.id
     //const rects = rectangles.concat([rect]);
     //setRectangles(rects);
     //shapes.concat([rect]);
-    setShapes([...shapes, rect]);
-    postUpdatedElement({
-      variables: {
-        id,
-        type: rect.type,
-        action: 'add',
-        params: JSON.stringify(rect),
-      }
-    })
+    if (!isExist(rect.id)) {
+      //setShapes([...shapes, rect]);
+      console.log('adding new rect to shape')
+      postUpdatedElement({
+        variables: {
+          boardid,
+          elementid: rect.id,
+          type: rect.type,
+          action: 'add',
+          params: JSON.stringify(rect),
+        }
+      })
+    }
+
     isDrawing.current = false
-    console.log('addRectangle shapes', shapes)
-    console.log('addRectangle isDrawing.current', isDrawing.current)
+    //console.log('addRectangle shapes', shapes)
+    //console.log('addRectangle isDrawing.current', isDrawing.current)
 
   };
-
   const addCircle = (posx, posy) => {
     const circ = {
-      id: uuidv4(),
+      id: uuid(),
       type: drawtype,
       tool: drawtype,
       x: posx,
@@ -245,33 +300,33 @@ const ListItem2 = () => {
       fill: drawtype === 'FilledCircle' ? color : 'transparent',
       stroke: color,
       strokeWidth: thickness,
-
-
       rotation: 0,
       //shadowBlur,
     };
     //const circs = circles.concat([circ]);
     //setCircles(circs);
-    setShapes([...shapes, circ]);
-    postUpdatedElement({
-      variables: {
-        id,
-        type: circ.type,
-        action: 'add',
-        params: JSON.stringify(circ),
-      }
-    })
+    if (!isExist(circ.id)) {
+      //setShapes([...shapes, circ]);
+      postUpdatedElement({
+        variables: {
+          boardid,
+          elementid: circ.id,
+          type: circ.type,
+          action: 'add',
+          params: JSON.stringify(circ),
+        }
+      })
+    }
+
     console.log(isDrawing.current)
   };
-
   const eraseLine = () => {
     // addLine(stageRef.current.getStage(), layerRef.current, true, "erase");
     // isDrawing.current = false
   };
-
   const addText = (posx, posy) => {
     const newNote = {
-      id: uuidv4(),
+      id: uuid(),
       type: 'Text',
       tool: 'Text',
       x: posx,
@@ -283,182 +338,23 @@ const ListItem2 = () => {
       fontSize: fontsize,
       rotation: 0,
     }
-    // setNotes([
-    //   ...notes,
-    //   newNote
-    // ])
-    setShapes([
-      ...shapes,
-      newNote
-    ])
-    postUpdatedElement({
-      variables: {
-        id,
-        type: newNote.type,
-        action: 'add',
-        params: JSON.stringify(newNote),
-      }
-    })
+
+    if (!isExist(newNote.id)) {
+      postUpdatedElement({
+        variables: {
+          boardid,
+          elementid: newNote.id,
+          type: newNote.type,
+          action: 'add',
+          params: JSON.stringify(newNote),
+        }
+      })
+    }
+
     // const id = addTextNode(stageRef.current.getStage(), layerRef.current, fontsize, color);
     // const shs = shapes.concat([id]);
     // setShapes(shs);
   };
-
-  const addImageFromFile = () => {
-    imageUploadRef.current.click();
-    setDrawtype('Image');
-  };
-
-  const uploadImage = ev => {
-    const file = ev.target.files[0];
-    const reader = new FileReader();
-
-    reader.addEventListener(
-      "load",
-      () => {
-        //console.log('reader.result', reader.result)
-        const img = new window.Image()
-        img.src = reader.result
-        img.addEventListener('load', () => {
-          //console.log('hallo')
-          var canvas = document.createElement('canvas')
-          //console.log('canvas', canvas)
-          const { width, height } = calculateAspectRatioFit(img.width, img.height, 300, 300)
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          const resizedImage = canvas.toDataURL('image/jpeg');
-          //console.log('resizedImage', resizedImage)
-          const newImage = {
-            id: uuidv4(),
-            x: 10,
-            y: 10,
-            type: drawtype,
-            tool: drawtype,
-            width: width,
-            height: height,
-            scaleX: 1,
-            scaleY: 1,
-            content: resizedImage,
-            rotation: 0,
-          }
-          setShapes([
-            ...shapes,
-            newImage
-          ])
-          postUpdatedElement({
-            variables: {
-              id,
-              type: newImage.type,
-              action: 'add',
-              params: JSON.stringify(newImage),
-            }
-          })
-          //console.log('imageUploadRef.current.value', imageUploadRef.current)
-          imageUploadRef.current.value = null;
-          forceUpdate();
-          canvas.remove()
-        }, false)
-
-      }, false);
-    if (file) {
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const undo = () => {
-    if (shapes.length === 0) return
-    const lastId = shapes[shapes.length - 1];
-    let index = shapes.findIndex(s => s.id === lastId.id);
-    // console.log('undo shapes', shapes)
-    // console.log('undo lastId', lastId.id)
-    // console.log('undo index', index)
-    // console.log('undo shapes[index]', shapes[index])
-    if (index !== -1) {
-      shapes.splice(index, 1);
-      setShapes(shapes);
-    }
-    // console.log('undo shapes', shapes)
-    // index = circles.findIndex(c => c.id === lastId.id);
-    // if (index !== -1) {
-    //   circles.splice(index, 1);
-    //   setCircles(circles);
-    // }
-    // index = rectangles.findIndex(r => r.id === lastId.id);
-    // if (index !== -1) {
-    //   rectangles.splice(index, 1);
-    //   setRectangles(rectangles);
-    // }
-    // index = images.findIndex(r => r.id === lastId.id);
-    // if (index !== Image - 1) {
-    //   images.splice(index, 1);
-    //   setImages(images);
-    // }
-    // index = lines.findIndex(c => c.id === lastId.id);
-    // if (index !== -1) {
-    //   lines.splice(index, 1);
-    //   setLines(lines);
-    // }
-    shapes.pop();
-    setShapes(shapes);
-    forceUpdate();
-  };
-
-  const downloadURI = (uri, name) => {
-    const link = document.createElement("a");
-    link.download = name;
-    link.href = uri;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-  const save = event => {
-    event.preventDefault();
-    const dataURL = stageRef.current.toDataURL({
-      mimeType: 'image/png',
-      quality: 0,
-      pixelRadio: 2,
-    })
-    //downloadURI(dataURL, "test");
-    const fileSizeInByte = formatBytes(getBase64ImageSize(dataURL), 1)
-    // console.log("save boardInfo", fileSizeInByte, boardInfo)
-
-    updateBoard({
-      variables: {
-        id: id,
-        input: {
-          owner: boardInfo.owner,
-          title: boardInfo.title,
-          description: boardInfo.description,
-          boardimage: dataURL,
-          board: JSON.stringify(shapes),
-          editinghistory: "",
-        }
-      }
-    })
-  }
-  const updateItem = (id, updatedItem, state, setState, send = true) => {
-    var index = state.findIndex(x => x.id === id);
-    // console.log('updated index, state', index, state)
-    if (index === -1) {
-      // console.log('updateItem Not in list', id, updatedItem)
-    } else {
-      // console.log('updateItem find in list', id, updatedItem)
-      const newState = [...state]
-      newState[index] = updatedItem
-      setState(newState);
-      if (send) postUpdatedElement({
-        variables: {
-          id,
-          type: updatedItem.type,
-          action: 'update',
-          params: JSON.stringify(updatedItem),
-        }
-      })
-
-    }
-  }
   const handleMouseDown = (e) => {
     // console.log('handleMouseDown drawtype', e.target, drawtype, e.target.attrs)
     // console.log('handleMouseDown lines', lines)
@@ -476,7 +372,7 @@ const ListItem2 = () => {
       setLines([
         // ...lines,
         {
-          id: uuidv4(),
+          id: uuid(),
           type: drawtype,
           tool: drawtype,
           stroke: color,
@@ -506,6 +402,10 @@ const ListItem2 = () => {
       // console.log('e.target.pointerPos', e.target.pointerPos)
       const { x, y } = e.target.pointerPos
       addText(x, y)
+    }
+    if ((drawtype === 'Image') && e.target.pointerPos) {
+      const { x, y } = e.target.pointerPos
+      addImageFromFile()
     }
   };
   const handleMouseMove = (e) => {
@@ -539,7 +439,8 @@ const ListItem2 = () => {
       ])
       postUpdatedElement({
         variables: {
-          id: newLine.id,
+          boardid,
+          elementid: newLine.id,
           type: newLine.type,
           action: 'add',
           params: JSON.stringify(newLine),
@@ -551,30 +452,189 @@ const ListItem2 = () => {
     forceUpdate()
     isDrawing.current = false;
   };
+  const addImageFromFile = () => {
+    imageUploadRef.current.click();
+  };
+  const uploadImage = ev => {
+    const file = ev.target.files[0];
+    const reader = new FileReader();
+
+    reader.addEventListener(
+      "load",
+      () => {
+        //console.log('reader.result', reader.result)
+        const img = new window.Image()
+        img.src = reader.result
+        img.addEventListener('load', () => {
+          //console.log('hallo')
+          var canvas = document.createElement('canvas')
+          //console.log('canvas', canvas)
+          const { width, height } = calculateAspectRatioFit(img.width, img.height, 300, 300)
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const resizedImage = canvas.toDataURL('image/jpeg');
+          //console.log('resizedImage', resizedImage)
+          const newImage = {
+            id: uuid(),
+            x: 10,
+            y: 10,
+            type: drawtype,
+            tool: drawtype,
+            width: width,
+            height: height,
+            scaleX: 1,
+            scaleY: 1,
+            content: resizedImage,
+            rotation: 0,
+          }
+          if (!isExist(newImage.id)) {
+            postUpdatedElement({
+              variables: {
+                boardid,
+                elementid: newImage.id,
+                type: newImage.type,
+                action: 'add',
+                params: JSON.stringify(newImage),
+              }
+            })
+          }
+
+          //console.log('imageUploadRef.current.value', imageUploadRef.current)
+          imageUploadRef.current.value = null;
+          forceUpdate();
+          canvas.remove()
+        }, false)
+
+      }, false);
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+  const undo = () => {
+    if (shapes.length === 0) return
+    const lastId = shapes[shapes.length - 1];
+    let index = shapes.findIndex(s => s.id === lastId.id);
+    console.log('undo shapes', shapes)
+    console.log('undo lastId', lastId.id)
+    console.log('undo index', index)
+    console.log('undo shapes[index]', shapes[index])
+    return
+    if (index !== -1) {
+      shapes.splice(index, 1);
+      setShapes(shapes);
+    }
+    // console.log('undo shapes', shapes)
+    // index = circles.findIndex(c => c.id === lastId.id);
+    // if (index !== -1) {
+    //   circles.splice(index, 1);
+    //   setCircles(circles);
+    // }
+    // index = rectangles.findIndex(r => r.id === lastId.id);
+    // if (index !== -1) {
+    //   rectangles.splice(index, 1);
+    //   setRectangles(rectangles);
+    // }
+    // index = images.findIndex(r => r.id === lastId.id);
+    // if (index !== Image - 1) {
+    //   images.splice(index, 1);
+    //   setImages(images);
+    // }
+    // index = lines.findIndex(c => c.id === lastId.id);
+    // if (index !== -1) {
+    //   lines.splice(index, 1);
+    //   setLines(lines);
+    // }
+    // shapes.pop();
+    // setShapes(shapes);
+    // postUpdatedElement({
+    //   variables: {
+    //     id:lastId,
+    //     type: updatedItem.type,
+    //     action: 'remove',
+    //     params: JSON.stringify(updatedItem),
+    //   }
+    // })
+    forceUpdate();
+  };
+  const redo = () => { }
+
+  const downloadURI = (uri, name) => {
+    const link = document.createElement("a");
+    link.download = name;
+    link.href = uri;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  const save = event => {
+    event.preventDefault();
+    const dataURL = stageRef.current.toDataURL({
+      mimeType: 'image/png',
+      quality: 0,
+      pixelRadio: 2,
+    })
+    //downloadURI(dataURL, "test");
+    const fileSizeInByte = formatBytes(getBase64ImageSize(dataURL), 1)
+    // console.log("save boardInfo", fileSizeInByte, boardInfo)
+
+    updateBoard({
+      variables: {
+        id: boardid,
+        input: {
+          owner: boardInfo.owner,
+          title: boardInfo.title,
+          description: boardInfo.description,
+          boardimage: dataURL,
+          board: JSON.stringify(shapes),
+          editinghistory: "",
+        }
+      }
+    })
+  }
+
+  // const handleRemove = (updatedItem, state, setState) => {
+  //   const newTodos = state.filter((t) => t !== updatedItem);
+  //   setState(newTodos);
+  // }
+  // const handleUpdate = (updatedItem, state, setState) => {
+  //   const newTodos = [...state];
+  //   const res = state.filter((t, i) => t.id === updatedItem.id)
+  //   console.log('handleUpdate res', res)
+  //   newTodos[res.id] = updatedItem;
+  //   setState(newTodos);
+  // }
+  const isExist = (idx) => {
+    const index = shapes.findIndex(x => x.id === idx);
+    if (index === -1) return false
+    return true
+  }
+  const updateItem = (id, updatedItem, state, setState, sendPostUpdste = true) => {
+    var index = state.findIndex(x => x.id === id);
+    // console.log('updated index, state', index, state)
+    if (index === -1) {
+      // console.log('updateItem Not in list', id, updatedItem)
+    } else {
+      console.log('updateItem find in list', updatedItem)
+      //dispatch(updateBoard(updatedItem))
+      const newState = [...state]
+      newState[index] = updatedItem
+      setState(newState);
+      if (sendPostUpdste) postUpdatedElement({
+        variables: {
+          boardid,
+          elementid: updatedItem.id,
+          type: updatedItem.type,
+          action: 'update',
+          params: JSON.stringify(updatedItem),
+        }
+      })
+
+    }
+  }
 
   const forceUpdate = React.useCallback(() => updateState({}), []);
-
-  document.addEventListener("keydown", ev => {
-    if (ev.code === "Delete" || ev.code === 'Backspace') {
-      let index = shapes.findIndex(c => c.id === selectedId);
-      if (index !== -1) {
-        shapes.splice(index, 1);
-        setShapes(shapes);
-      }
-      // index = rectangles.findIndex(r => r.id === selectedId);
-      // if (index !== -1) {
-      //   rectangles.splice(index, 1);
-      //   setRectangles(rectangles);
-      // }
-      // index = images.findIndex(r => r.id === selectedId);
-      // if (index !== -1) {
-      //   images.splice(index, 1);
-      //   setImages(images);
-      // }
-      forceUpdate();
-    }
-  });
-
 
   return (
     <React.Fragment>
@@ -663,17 +723,7 @@ const ListItem2 = () => {
           width={width}
           height={height}
           ref={stageRef}
-          /* onMouseDown={e => {
-            // deselect when clicked on empty area
-            const clickedOnEmpty = e.target === e.target.getStage();
-            if (clickedOnEmpty) {
-              selectShape(null);
-            }
-            console.log('Stage onmousedown', isDrawing.current)
-            if (!isDrawing.current) return
-            const pos = e.target.getStage().getPointerPosition();
-            setLines([...lines, { tool, points: [pos.x, pos.y] }]);
-          }} */
+
           onMouseDown={handleMouseDown}
           onMousemove={handleMouseMove}
           onMouseup={handleMouseUp}
@@ -696,7 +746,48 @@ const ListItem2 = () => {
               listening={false}
             />
           </Layer>
-          <Layer ref={layerRef}>
+          <Layer
+            ref={layerRef}
+            onAdd={(e) => {
+              //console.log('onAdd', e)
+              const type = e.child.constructor.name
+              const newElement = e.child.attrs
+
+              console.log('onAdd type', type)
+              // console.log('onAdd newElement', newElement)
+              // console.log('onAdd isExist', isExist(newElement.id))
+              console.log('onAdd isLoading', isLoading)
+              if (!isLoading) {
+                if (!isExist(newElement.id)) {
+                  setShapes([
+                    ...shapes,
+                    newElement
+                  ])
+                }
+              }
+              //console.log('onAdd shapes', shapes)
+
+              return
+
+
+              if (!isExist(newElement.id)) {
+                postUpdatedElement({
+                  variables: {
+                    boardid,
+                    elementid: newElement.id,
+                    type: newElement.type,
+                    action: 'add',
+                    params: JSON.stringify(newElement),
+                    boardid,
+                  }
+                })
+              }
+            }
+            }
+            onChange={(e) => {
+              console.log('onChange', e)
+            }}
+          >
 
             {shapes && shapes.map((image, i) => {
               if (image.type === 'Image')
@@ -721,11 +812,11 @@ const ListItem2 = () => {
                     onChange={(newAttrs) => {
                       // console.log('newAttrs', newAttrs);
                       // console.log('image', image);
-                      image.x = newAttrs.x
-                      image.y = newAttrs.y
+                      // image.x = newAttrs.x
+                      // image.y = newAttrs.y
                       // console.log('image2', image);
 
-                      updateItem(image.id, image, shapes, setShapes);
+                      updateItem(image.id, newAttrs, shapes, setShapes);
                       //handleUpdate(newAttrs, shapes, setShapes)
                       // console.log('imgs', newAttrs);
                       //setImages(imgs);
@@ -829,8 +920,8 @@ const ListItem2 = () => {
                     }} */
                     onChange={newAttrs => {
                       // console.log('line new attribute', newAttrs)
-                      const ls = lines.slice();
-                      ls[i] = newAttrs;
+                      // const ls = lines.slice();
+                      // ls[i] = newAttrs;
                       updateItem(line.id, newAttrs, shapes, setShapes);
                       //handleUpdate(newAttrs, shapes, setShapes)
                       // console.log('lines', ls);
@@ -851,6 +942,12 @@ const ListItem2 = () => {
                       selectShape(rect.id);
                       // console.log('Rect OnSelect')
                     }}
+
+                    updateItem={updateItem}
+                    shapes={shapes}
+                    setShapes={setShapes}
+                    isExist={isExist}
+
                     onChange={newAttrs => {
                       // console.log('Rect newAttrs', newAttrs)
                       // const rects = rectangles.slice();
@@ -873,6 +970,7 @@ const ListItem2 = () => {
                     onSelect={(e) => {
                       e.target.moveToTop()
                       selectShape(circle.id);
+                      console.log('selectShape', circle.id)
                     }}
                     onChange={newAttrs => {
                       // const circs = circles.slice();

@@ -22,6 +22,7 @@ import FormatSizeIcon from '@mui/icons-material/FormatSize'
 import AddPhotoAlternateOutlinedIcon from '@mui/icons-material/AddPhotoAlternateOutlined';
 import AutoFixNormalOutlinedIcon from '@mui/icons-material/AutoFixNormalOutlined';
 import RollerShadesClosedIcon from '@mui/icons-material/RollerShadesClosed';
+import PanToolOutlinedIcon from '@mui/icons-material/PanToolOutlined';
 
 export const ThicknessInput = styled(MuiInput)`
   width: 40px;
@@ -30,6 +31,7 @@ export const ThicknessInput = styled(MuiInput)`
 export const linetypeObject = ["Brush", "Eraser"]
 export const shapetypeObject = ["Rect", "FilledRect", "Circle", "FilledCircle", "Text", "Image"]
 export const drawtypeObject = [
+  { name: "Pointer", icon: <PanToolOutlinedIcon /> },
   { name: "Brush", icon: <BrushOutlinedIcon /> },
   { name: "Eraser", icon: <AutoFixNormalOutlinedIcon /> },
   { name: "Rect", icon: <ChatBubbleOutlineOutlinedIcon /> },

@@ -19,15 +19,19 @@ import { REACT_APP_LS_TOKEN_NAME } from '../config/config'
 
 const httpLink = new HttpLink({
   uri: `http://${process.env.REACT_APP_NODESERVER_BASEURL}/graphql`,
+  //credentials: 'include',
   
 })
 
 const authLink = setContext((_, { headers }) => {
   const token = !store.getState().auth.tokens ? false : (store.getState().auth.tokens.accessToken) //|| localStorage.getItem(REACT_APP_LS_TOKEN_NAME) || ""
-console.info('apolloClient authLink', store.getState().auth, token)
+console.info('apolloClient authLink', store.getState().auth, token, headers)
   return {
     headers: {
       ...headers,
+      // AccesControllAllowOrigin: "http://localhost:3000",
+      //   "Access-Control-Allow-Origin": "http://localhost:3000",
+      //   "Access-Control-Allow-Credentials" : true,
       authorization: token ? `Bearer ${token}` : "",
     }
   }
@@ -49,7 +53,7 @@ const wsLink = new GraphQLWsLink(createClient({
     }
   },
   connectionCallback: (error) => {
-    // console.log('connectionCallback', error)
+    console.log('connectionCallback', error)
   },
 }));
 

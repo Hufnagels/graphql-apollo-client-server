@@ -62,7 +62,7 @@ const BoardResolver = {
   Mutation: {
     // Protected routes
     createBoard: async (parent, args, { req }, context, info) => {
-      //await checkSignedIn(req, true)
+      await checkSignedIn(req, true)
       const { owner, title, description } = args.input;
       console.log('createBoard', args.input)
       const newBoard = new Boards({
@@ -92,7 +92,7 @@ const BoardResolver = {
       })
     },
     updateBoard: async (parent, args, { req }, context, info) => {
-      //await checkSignedIn(req, true)
+      await checkSignedIn(req, true)
       const { _id } = args
       const { owner, title, description, board, boardimage } = args.input;
 
@@ -104,12 +104,13 @@ const BoardResolver = {
       return map
     },
     // Subscription part of Mutation
-    postUpdatedElement: async (parent, { id, type, action, params }, { req }) => {
-// console.log('Whiteboard postUpdatedElement req.headers', req.headers)
+    postUpdatedElement: async (parent, { boardid, elementid, type, action, params }, { req }) => {
+      // console.log('Whiteboard postUpdatedElement req.headers', req.headers)
       await checkSignedIn(req, true)
       const idx = elements.length;
       elements.push({
-        id,
+        boardid,
+        elementid,
         type,
         action,
         params,
@@ -120,12 +121,12 @@ const BoardResolver = {
   },
   Subscription: {
     elements: {
-      subscribe: (parent, { req }, context) => {
-console.log('Subscription subscribe', parent, { req }, context)
-        const channel = 'Whiteboard_test'//Math.random().toString(36).slice(2, 15);
-        onElementAdded(() => pubsub.publish(channel, { elements }));
-        setTimeout(() => pubsub.publish(channel, { elements }), 0);
-        return pubsub.asyncIterator(channel);
+      subscribe: (parent, { req }, args, context) => {
+        //console.log('Subscription subscribe', parent, args, { req }, context)
+        const channel = Math.random().toString(36).slice(2, 15); // 'Whiteboard_test'//
+        onElementAdded(() => pubsub.publish(channel, { elements }))
+        setTimeout(() => pubsub.publish(channel, { elements }), 0)
+        return pubsub.asyncIterator(channel)
       },
     },
   },

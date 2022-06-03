@@ -6,7 +6,8 @@ import {
 export const SUBSCRIBE_TO_BOARD = gql`
   subscription OnElementAdded {
     elements {
-      id
+      boardid
+      elementid
       type
       action
       params
@@ -16,8 +17,20 @@ export const SUBSCRIBE_TO_BOARD = gql`
 
 // SUBSCRIPTION MUTATION
 export const POST_UPDATED_ELEMENT = gql`
-  mutation($id: String!, $type: String!, $action: String!, $params: String!) {
-    postUpdatedElement(id: $id, type: $type, action: $action, params: $params)
+  mutation(
+    $boardid: String!, 
+    $elementid: String!, 
+    $type: String!, 
+    $action: String!, 
+    $params: String!
+  ) {
+    postUpdatedElement(
+      boardid: $boardid, 
+      elementid: $elementid, 
+      type: $type, 
+      action: $action, 
+      params: $params
+    )
   }
 `;
 

@@ -13,7 +13,7 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login(state, action) {
+    login: (state, action) => {
       localStorage.setItem(REACT_APP_LS_TOKEN_NAME, action.payload.tokens.accessToken)
 
       return {
@@ -23,7 +23,7 @@ export const authSlice = createSlice({
         isLoggedIn: true,
       }
     },
-    logout(state, action) {
+    logout: (state, action) => {
       localStorage.removeItem(REACT_APP_LS_TOKEN_NAME)
       return {
         ...state,
@@ -32,7 +32,7 @@ export const authSlice = createSlice({
         tokens: null
       }
     },
-    refreshtoken(state, action) {
+    refreshtoken: (state, action) => {
       localStorage.setItem(REACT_APP_LS_TOKEN_NAME, action.payload.tokens.accessToken)
       return {
         ...state,

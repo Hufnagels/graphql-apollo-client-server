@@ -1,7 +1,7 @@
 import React from "react";
 import { Rect, Transformer } from "react-konva";
 
-const Rectangle = ({ shapeProps, isSelected, onSelect, onChange }) => {
+const Rectangle = ({ shapeProps, isSelected, onSelect, onChange, updateItem,shapes, setShapes,isExist }) => {
   const shapeRef = React.useRef();
   const trRef = React.useRef();
   React.useEffect(() => {
@@ -24,7 +24,10 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onChange }) => {
             ...shapeProps,
             x: e.target.x(),
             y: e.target.y(),
+            
           });
+          console.log('onDragEnd Rect', shapeProps)
+          //updateItem(shapeProps.id, shapeProps, shapes, setShapes)
         }}
         onTransformEnd={e => {
           // transformer is changing scale
@@ -44,6 +47,8 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onChange }) => {
             // scaleY,
             rotation
           });
+          console.log('onTransformEnd Rect', shapeProps)
+          //updateItem(shapeProps.id, shapeProps, shapes, setShapes)
         }}
       />
       {isSelected && <Transformer ref={trRef} />}

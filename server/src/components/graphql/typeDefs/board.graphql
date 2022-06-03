@@ -24,10 +24,11 @@ type BoardEditingHistory {
 
 #Subscription type for adding KONVA element (text, circle, rectangle, line, path)
 type Element {
-  id:String!      # updated element id
-  type: String!   # text, circle, rectangle, line, path
-  action: String! # Add/Remove
-  params: String! # json stringified object
+  boardid:String!     # boardid
+  elementid:String!   # konva element id
+  type: String!       # text, circle, rectangle, line, path
+  action: String!     # Add/Remove
+  params: String!     # json stringified object
 }
 
 # getWhiteboards
@@ -85,7 +86,7 @@ type Mutation {
   createBoard(input: CreateBoardInput): CreateBoardPayload
   updateBoard(_id: ID!,input: UpdateBoardInput!): Board #UpdateBoardPayload
   deleteBoard(_id: ID!): String
-  postUpdatedElement(id:String!,type: String!,action: String!,params: String!): ID!
+  postUpdatedElement(boardid:String!,elementid:String!,type: String!,action: String!,params: String!): ID!
 }
 
 type Subscription {

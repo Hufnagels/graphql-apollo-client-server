@@ -11,4 +11,5 @@ export const {
   JWT_REFRESHTOKEN_SECRET,
   JWT_REFRESHTOKEN_EXPIRES_IN,
   PORT,
+  ORIGIN,
 } = process.env

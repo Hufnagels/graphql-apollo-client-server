@@ -34,6 +34,8 @@ const Img = ({ shapeProps, isSelected, onSelect, onChange, imageUrl }) => {
           const node = shapeRef.current;
           const scaleX = node.scaleX();
           const scaleY = node.scaleY();
+          node.scaleX(1);
+          node.scaleY(1);
           onChange({
             ...shapeProps,
             x: node.x(),

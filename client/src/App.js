@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import jwtDecode from 'jwt-decode';
 import { useSnackbar } from 'notistack';
 import { useMutation } from '@apollo/react-hooks';
+
 // Material
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -87,8 +88,8 @@ const App = () => {
           <DialogContentText id="alert-dialog-description">Do you want to STAY or Sign Out?</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleStay}>Stay</Button>
-          <Button onClick={handleLogout} autoFocus>Sign out</Button>
+          <Button onClick={handleStay} autoFocus>Stay</Button>
+          <Button onClick={handleLogout} >Sign out</Button>
         </DialogActions>
       </Dialog>
     </React.Fragment>
