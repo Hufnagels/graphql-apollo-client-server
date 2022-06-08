@@ -52,7 +52,7 @@ const ListIndex = () => {
       setVisiblePN(true)
     else
       setVisiblePN(false)
-  }, [data])
+  }, [])
 
   React.useEffect(() => {
     //console.log('ListIndex --> search useEffect', page, perpage, totalpage, data)

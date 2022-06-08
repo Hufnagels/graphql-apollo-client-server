@@ -11,7 +11,7 @@ const boardSlice = createSlice({
   initialState,
   reducers: {
     loadBoard: (state, action) => {
-      console.log('action.payload', action.payload)
+      //console.log('action.payload', action.payload)
       return {
         ...state,
         board: action.payload.board,
@@ -25,7 +25,7 @@ const boardSlice = createSlice({
       return initialState
     },
     updateBoard: (state, action) => {
-      console.log('updateBoard',action.payload)
+      // console.log('updateBoard',action.payload)
       return state
       const newElement = action.payload
       

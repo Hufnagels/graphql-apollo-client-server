@@ -14,7 +14,7 @@ import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
 
 // Custom
-import {PORT, ORIGIN} from './src/app/config/config.js'
+import { PORT, ORIGIN } from './src/app/config/config.js'
 import homeRoutes from './src/app/routes/home.js'
 import db from './src/components/database/connection/mongoconnect.js'
 import resolvers from './src/components/graphql/resolvers.js'
@@ -32,7 +32,8 @@ const serverStart = async () => {
   // Create an Express app and HTTP server; we will attach both the WebSocket
   // server and the ApolloServer to this HTTP server.
   const app = express();
-  app.use(cors(corsOptions));
+  //app.use(cors(corsOptions));
+  app.use(cors())
 
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
@@ -56,9 +57,10 @@ const serverStart = async () => {
   const apolloServer = new ApolloServer({
     schema,
     csrfPrevention: true,
-    // cors: {
-    //   origin: ["http://localhost:3000"]
-    // },
+    cors: {
+      origin: ["http://localhost:3000", "http://192.168.1.125:3000"],
+      credentials: true
+    },
     plugins: [
       // Proper shutdown for the HTTP server.
       ApolloServerPluginDrainHttpServer({ httpServer }),
@@ -112,7 +114,8 @@ const serverStart = async () => {
       const token = req.headers.authorization || ''
       const user = null //await checkUserExist(token, false);
       //console.log('context user', user)
-
+      res.header('Access-Control-Allow-Origin', '*')
+      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
       // Add the user to the context
       return { req, res };
     },//({ req, res }),

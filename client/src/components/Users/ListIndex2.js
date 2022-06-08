@@ -114,7 +114,7 @@ const ListIndex2 = () => {
   React.useEffect(() => {
     fetchFilteredUsers()
     console.dir('Listindex2 useEffect data change', data)
-  }, [data])
+  }, [])
 
   if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>
   //return null

@@ -18,9 +18,9 @@ _backup
 _backup/
 .DS_Store
 .env
-.env.development.local
+.env.development
+.env.production
 .env.test.local
-.env.production.local
 
 npm-debug.log*
 yarn-debug.log*

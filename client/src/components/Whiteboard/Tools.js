@@ -47,8 +47,8 @@ export const colorObject = [
   "#FFFFFF",
   "#4287f5",
   "#f542f5",
-  "#42f5da",
-  "#69f542",
+  "#357a38",
+  "#00695f",
   "#df4b26",
   "#f5e042",
   "#f59342",
@@ -63,16 +63,20 @@ export const fontsizeObject = [
 
 export const DrawTypeButton = ({ onClick, drawtypeObject, active }) => {
   const [alignment, setAlignment] = React.useState(active);
+  //console.log('DrawTypeButton', active)
   const handleAlignment = (event, newAlignment) => {
     onClick(newAlignment);
     setAlignment(newAlignment);
   };
+  React.useEffect(() => {
+    handleAlignment(null, active)
+  },[active])
   return (
     <ToggleButtonGroup
       value={alignment}
       exclusive
       onChange={handleAlignment}
-      aria-label="text alignment"
+      aria-label="Drawtype buttons"
     >
       {drawtypeObject.map((obj, i) => (
         <ToggleButton

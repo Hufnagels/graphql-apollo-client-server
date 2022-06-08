@@ -7,6 +7,7 @@ export const GET_MINDMAPS = gql`
     getMindmaps(search: $search, page: $page, limit: $limit) {
       mindmaps {
         _id
+        owner
         title
         description
         originalMap
@@ -16,6 +17,8 @@ export const GET_MINDMAPS = gql`
           editedMap
           updated
         }
+        createdAt
+        updatedAt
       }
       currentPage
       totalPages
@@ -27,6 +30,7 @@ export const GET_MINDMAP = gql`
   query GetMindmap($id: ID!) {
     getMindmap(_id: $id) {
       _id
+      owner
       title
       description
       originalMap
@@ -36,6 +40,8 @@ export const GET_MINDMAP = gql`
         editedMap
         updated
       }
+      createdAt
+      updatedAt
     }
   }
 `
@@ -51,6 +57,8 @@ export const CREATE_MINDMAP = gql`
         originalMap
         currentMap
         mapimage
+        createdAt
+        updatedAt
       }
       mindmapErrors {
         message

@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { useLazyQuery, } from "@apollo/client";
+import { useQuery, useLazyQuery, } from "@apollo/client";
 import { useLocation } from "react-router-dom"
 import _ from "lodash"
 
@@ -43,8 +43,9 @@ const ListIndex = () => {
       page: page,
       limit: perpage
     },
+//    fetchPolicy: "no-cache",
     onCompleted: ({ getBoards }) => {
-      console.log('getBoards', getBoards)
+console.log('getBoards', getBoards)
       setBoards({
         ...boards,
         data: getBoards.boards
@@ -64,7 +65,13 @@ const ListIndex = () => {
 
   React.useEffect(() => {
     fetchFilteredBoards()
-  }, [data])
+  }, [])
+
+  React.useEffect(() => {
+    return () => {
+      setBoards({ data: [] })
+    }
+  }, [])
 
   if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>
 
@@ -91,7 +98,7 @@ const ListIndex = () => {
           }
         />
         <Grid container spacing={{ sm: 1, md: 1 }} >
-          {boards.data && boards.data.map((board, idx) => {
+          {boards.data?.map((board, idx) => {
             return <ListIndexItem data={board} key={idx} />
           })}
         </Grid>

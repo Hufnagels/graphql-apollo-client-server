@@ -55,6 +55,7 @@ const SignInSide = () => {
         "password": '',
       }
     },
+    errorPolicy: 'all',
     onCompleted: ({ loginUser }) => {
       // console.log('loginUser', loginUser)
       // localStorage.setItem(REACT_APP_LS_TOKEN_NAME, loginUser.tokens.accessToken);
@@ -120,6 +121,7 @@ const SignInSide = () => {
   return (
     <Grid container component="main" sx={{ height: '100vh' }}>
       <CssBaseline />
+      {error && JSON.stringify(error, null,2)}
       <Grid
         item
         xs={false}

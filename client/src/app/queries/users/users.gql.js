@@ -48,6 +48,8 @@ export const CREATE_USER = gql`
         email
         password
         token
+        createdAt
+        updatedAt
       }
       tokens {
         accessToken

@@ -9,17 +9,29 @@ import {
   CardHeader,
   CardMedia,
   CardContent,
+  CardActions,
   IconButton,
   Menu,
   MenuItem,
   Divider,
   Skeleton,
+  Typography,
 } from '@mui/material'
 import { red } from '@mui/material/colors';
+import { useTheme } from '@mui/material/styles';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import FileOpenOutlinedIcon from '@mui/icons-material/FileOpenOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+
+// Custom
+import { formatTimeToCurrentTimeZone } from '../../app/functions/time'
+import { stringToColor } from '../../app/functions/color'
 
 const ListIndexItem = (props) => {
   // console.log(props)
+  const theme = useTheme();
+  const [data, setData] = React.useState(props.data)
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -34,15 +46,23 @@ const ListIndexItem = (props) => {
       <Card variant="outlined" >
         <CardHeader
           avatar={
-            <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe" alt={props.data.title}>{props.data.title.charAt(0)}</Avatar>
+            <Avatar
+            sx={{ bgcolor: stringToColor(data.author) }}
+            aria-label="recipe"
+            alt={data.author}
+            variant="square"
+
+          >
+            {data.author.charAt(0)}
+          </Avatar>
           }
           action={
             <IconButton aria-label="settings" onClick={handleClick}>
               <MoreVertIcon />
             </IconButton>
           }
-          title={props.data.title}
-          subheader="September 14, 2016"
+          title={data.title}
+          subheader={formatTimeToCurrentTimeZone(data.createdAt, 'hu-HU')}
         />
         <Menu
           id="simple-menu"
@@ -50,25 +70,44 @@ const ListIndexItem = (props) => {
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/" + props.data._id} key={"mapkey_" + props.data._id}>Open</Link></MenuItem>
-          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/" + props.data._id + "/preview"} key={"mapkey_" + props.data._id}>Preview</Link></MenuItem>
+          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/" + data._id} key={"mapkey_" + data._id}>Open</Link></MenuItem>
+          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/" + data._id + "/preview"} key={"mapkey_" + data._id}>Preview</Link></MenuItem>
           <Divider />
           <MenuItem onClick={handleClose}>Delete</MenuItem>
 
         </Menu>
-        {props.data.titleimage ?
+        {data.titleimage ?
           <CardMedia
             component="img"
             height="140"
-            image={props.data.titleimage}
+            image={data.titleimage}
             alt="green iguana"
           />
           :
           <Skeleton variant="rectangular" height={140} />
         }
-        <CardContent>
-          <pre>{JSON.stringify(props.data, null, 2)}</pre>
+        <CardContent >
+          <Typography variant="body2" component="div">
+            {data.subtitle}
+          </Typography>
         </CardContent>
+        <Divider />
+        <CardActions
+          disableSpacing
+          style={{
+            backgroundColor: theme.palette.custom.light,
+          }}
+        >
+          <IconButton aria-label="open data">
+            <FileOpenOutlinedIcon />
+          </IconButton>
+          <IconButton aria-label="preview board">
+            <VisibilityOutlinedIcon />
+          </IconButton>
+          <IconButton aria-label="delete board">
+            <DeleteOutlineOutlinedIcon />
+          </IconButton>
+        </CardActions>
       </Card>
     </Grid>
   )

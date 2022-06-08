@@ -16,6 +16,8 @@ export const GET_MAPS = gql`
           editedMap
           updated
         }
+        createdAt
+        updatedAt
       }
       currentPage
       totalPages
@@ -31,6 +33,8 @@ export const CREATE_MAP = gql`
         owner
         title
         description
+        createdAt
+        updatedAt
       }
     }
   }

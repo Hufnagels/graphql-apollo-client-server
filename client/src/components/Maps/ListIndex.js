@@ -72,7 +72,7 @@ const ListIndex = () => {
   //////////////////// TEST
   React.useEffect(() => {
     fetchFilteredMaps()
-  }, [data])
+  }, [])
   ////////////////////
 
   if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>

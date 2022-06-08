@@ -93,6 +93,7 @@ const BoardResolver = {
     },
     updateBoard: async (parent, args, { req }, context, info) => {
       await checkSignedIn(req, true)
+      console.log('Whiteboard updateBoard after checkSignedIn')
       const { _id } = args
       const { owner, title, description, board, boardimage } = args.input;
 
@@ -105,8 +106,9 @@ const BoardResolver = {
     },
     // Subscription part of Mutation
     postUpdatedElement: async (parent, { boardid, elementid, type, action, params }, { req }) => {
-      // console.log('Whiteboard postUpdatedElement req.headers', req.headers)
+      //console.log('Whiteboard postUpdatedElement req.headers', req.headers)
       await checkSignedIn(req, true)
+      console.log('Whiteboard postUpdatedElement after checkSignedIn')
       const idx = elements.length;
       elements.push({
         boardid,

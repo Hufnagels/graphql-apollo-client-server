@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useQuery, useMutation, useSubscription, } from '@apollo/client'
 import { useSnackbar } from 'notistack'
 import { Stage, Layer, Rect } from 'react-konva'
-//import { v4 as uuidv4 } from 'uuid';
+import { isMobile } from 'react-device-detect'
 import uuid from "react-uuid";
 import _ from 'lodash'
 
@@ -15,6 +15,10 @@ import {
   Divider,
   CircularProgress,
 } from '@mui/material'
+import IconButton from '@mui/material/IconButton';
+import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
+import UndoOutlinedIcon from '@mui/icons-material/UndoOutlined';
+import RedoOutlinedIcon from '@mui/icons-material/RedoOutlined';
 
 // Custom
 import Rectangle from "./shapes/rectangle";
@@ -36,7 +40,7 @@ import {
   ToolbarItem,
   SVGwrapper,
 } from './Tools'
-//import { ll, Il, rl, cl, nl } from './data'
+
 import { calculateAspectRatioFit } from '../../app/functions/image'
 import { formatBytes, getBase64ImageSize, getRandomInt } from '../../app/functions/math'
 import useResizeObserver from '../../app/hooks/useResizeObserver.hook'
@@ -59,6 +63,13 @@ const ListItem2 = () => {
   const dimensions = useResizeObserver(KonvaRef);
   const [width, setWidth] = useState(100)
   const [height, setHeight] = useState(100)
+  const KonvaRefStyle = {
+    // border: '1px dashed green',
+    marginTop: '8px',
+    width: '100%',
+    backgroundColor: { xs: "secondary.light", sm: "#0000ff" },
+    boxShadow: 'rgba(0,0,0,0.1) 0px 0px 10px 2px'
+  };
 
   // Drawing preferences
   const [thickness, setThickness] = useState(10);
@@ -89,13 +100,12 @@ const ListItem2 = () => {
   const { data, loading, error } = useQuery(GET_BOARD, {
     variables: { id: boardid }
   });
-  const [updateBoard] = useMutation(UPDATE_BOARD, {
-    onCompleted: ({ getBoard }) => {
+  const [updateBoard] = useMutation(UPDATE_BOARD, { 
+    onCompleted: ({updateBoard}) => {
       const variant = 'success'
       enqueueSnackbar('Board updated successfully', { variant })
     },
     onError: (error) => {
-      // console.log(error)
       const variant = 'error'
       enqueueSnackbar(error.message, { variant })
     }
@@ -105,7 +115,6 @@ const ListItem2 = () => {
       // console.log('postUpdatedElement id', postUpdatedElement)
     },
     onError: (error) => {
-      // console.log('CREATE_USER error', error)
       const variant = 'error'
       enqueueSnackbar(error.message, { variant })
     }
@@ -118,7 +127,7 @@ const ListItem2 = () => {
       if (elements.length > 0) {
         const lastElement = elements[elements.length - 1]
         // console.log('onSubscriptionData lastElement', lastElement)
-        if(lastElement.boardid !== boardid) return
+        if (lastElement.boardid !== boardid) return
         const idx = lastElement.elementid
         const updatedElement = JSON.parse(lastElement.params)
         // console.log('lastElement updatedElement', lastElement, updatedElement)
@@ -148,10 +157,6 @@ const ListItem2 = () => {
             console.log('remove shape via subscription')
             const newShapes = shapes.filter((s) => s.id !== idx);
             setShapes(newShapes);
-            // setShapes([
-            //   ...shapes,
-            //   updatedElement
-            // ])
           }
         }
       }
@@ -165,88 +170,48 @@ const ListItem2 = () => {
 
   React.useEffect(() => {
     //  console.log('PostsListIndex --> data useEffect')
+    /**
+     * TODO
+     * check state by _id/id
+     * if exist, load from state
+     */
     if (!data) return
     setBoardInfo(data.getBoard)
     dispatch(loadBoard(data.getBoard))
-    setShapes(JSON.parse(data.getBoard.board))
+    if (data.getBoard.board) setShapes(JSON.parse(data.getBoard.board))
     // console.log('DATA:', data.getBoard)
-
+    return () => {
+      //dispatch(clearBoard())
+      //setShapes([])
+    }
   }, [data])
+
   React.useEffect(() => {
     if (!dimensions) return;
     setWidth(dimensions.width)
     setHeight(dimensions.height)
   }, [dimensions])
 
-
+  // const [size, setSize] = useState([0, 0]);
+  // React.useLayoutEffect(() => {
+  //   function updateSize() {
+  //     setSize([window.innerWidth, window.innerHeight]);
+  //     console.log('useLayoutEffect', window.innerWidth, window.innerHeight);
+  //   }
+  //   window.addEventListener('resize', updateSize);
+  //   updateSize();
+  //   return () => window.removeEventListener('resize', updateSize);
+  // }, []);
   React.useEffect(() => {
-    //   console.log('useEffect: shapes', shapes)
-    //   console.log('useEffect: rectangles', rectangles)
-    //   console.log('useEffect: circles', circles)
-    // console.log('useEffect: lines', lines)
-    //   console.log('useEffect: images', images)
-    //   console.log('useEffect: notes', notes)
   }, [lines]);
   React.useEffect(() => {
-    // console.log('useEffect: shapes', shapes)
-    //   console.log('useEffect: rectangles', rectangles)
-    //   console.log('useEffect: circles', circles)
-    // console.log('useEffect: lines', lines)
-    //   console.log('useEffect: images', images)
-    //   console.log('useEffect: notes', notes)
     if (!data) return
 
     const bd = JSON.parse(data.getBoard.board)
-    // console.log('useEffect data.getBoard.board', data.getBoard)
-    // console.log('useEffect bd.length', bd.length)
-    // console.log('useEffect shapes.length', shapes.length)
+    if (!bd) return
     if (bd.length <= shapes.length) isLoading = false
-    // console.log('useEffect isLoading', isLoading)
+
   }, [shapes]);
-
-  // React.useEffect(() => {
-  //   console.log('UseEffect drawtype', drawtype);
-  // }, [drawtype])
-  // React.useEffect(() => {
-  //   console.log('useEffect add eventlistener to stage')
-
-  //   stageRef.current.addEventListener('keydown', ev => {
-
-  //     console.log('Transformers', stageRef.current)
-  //     console.log('delete selectedId', selectedId)
-  //     ev.preventDefault()
-  //     return
-  //     if (ev.code === "Delete" || ev.code === 'Backspace') {
-
-  //       let index = shapes.findIndex(c => c.id === selectedId);
-  //       console.log('delete selectedId #2', selectedId)
-  //       console.log('delete shapes', shapes)
-  //       console.log('delete index', index)
-  //       console.log('delete shapes[index]', shapes[index])
-  //       /* 
-
-  //       if (index !== -1) {
-  //         shapes.splice(index, 1);
-  //         setShapes(shapes);
-  //       }
-  //       // index = rectangles.findIndex(r => r.id === selectedId);
-  //       // if (index !== -1) {
-  //       //   rectangles.splice(index, 1);
-  //       //   setRectangles(rectangles);
-  //       // }
-  //       // index = images.findIndex(r => r.id === selectedId);
-  //       // if (index !== -1) {
-  //       //   images.splice(index, 1);
-  //       //   setImages(images);
-  //       // }
-  //       forceUpdate(); */
-  //     }
-  //   }, false);
-
-  //   return () => {
-  //     dispatch(clearBoard())
-  //   }
-  // }, [stageRef.current])
 
   const addRectangle = (posx, posy) => {
     const rect = {
@@ -331,8 +296,9 @@ const ListItem2 = () => {
       tool: 'Text',
       x: posx,
       y: posy,
-      width: 200,
-      height: 70,
+      width: 100,
+      padding: 10,
+      //height: 70,
       text: "Add text",
       fill: color,
       fontSize: fontsize,
@@ -358,7 +324,7 @@ const ListItem2 = () => {
   const handleMouseDown = (e) => {
     // console.log('handleMouseDown drawtype', e.target, drawtype, e.target.attrs)
     // console.log('handleMouseDown lines', lines)
-    //if (!e.target.pointerPos) setDrawtype(null)
+    if (!e.target.pointerPos) setDrawtype('Pointer')
     if (!e.target.pointerPos) isDrawing.current = false
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
@@ -606,6 +572,8 @@ const ListItem2 = () => {
   //   setState(newTodos);
   // }
   const isExist = (idx) => {
+    if (!shapes) return false
+    // console.log('isExist', idx, shapes)
     const index = shapes.findIndex(x => x.id === idx);
     if (index === -1) return false
     return true
@@ -616,7 +584,7 @@ const ListItem2 = () => {
     if (index === -1) {
       // console.log('updateItem Not in list', id, updatedItem)
     } else {
-      console.log('updateItem find in list', updatedItem)
+      // console.log('updateItem find in list', updatedItem)
       //dispatch(updateBoard(updatedItem))
       const newState = [...state]
       newState[index] = updatedItem
@@ -639,72 +607,71 @@ const ListItem2 = () => {
   return (
     <React.Fragment>
       <Stack
-        direction={{ xs: 'column', sm: 'column', md: 'row', lg: 'row' }}
+        direction={{ xs: 'column', sm: 'column', md: 'column', lg: 'row' }}
         justifyContent="center"
         alignItems="center"
         spacing='1'
-        divider={<Divider orientation="vertical" flexItem />}
+        //divider={<Divider orientation="vertical" flexItem />}
         style={{
           //border: '1px dashed green',
           width: '100%',
         }}
       >
-        <ToolbarItem>
-          <DrawTypeButton
-            onClick={setDrawtype}
-            drawtypeObject={drawtypeObject}
-            active={drawtype}
-          />
+        <Stack
+          direction="row"
+          justifyContent="center"
+          alignItems="center"
+          spacing='1'
+        >
+          <ToolbarItem>
+            <IconButton aria-label="save" onClick={save}>
+              <SaveAltOutlinedIcon />
+            </IconButton>
+            <IconButton aria-label="save" onClick={undo}>
+              <UndoOutlinedIcon />
+            </IconButton>
+            <IconButton aria-label="save" onClick={redo}>
+              <RedoOutlinedIcon />
+            </IconButton>
+          </ToolbarItem>
+          <ToolbarItem>
+            <DrawTypeButton
+              onClick={setDrawtype}
+              drawtypeObject={drawtypeObject}
+              active={drawtype}
+            />
+          </ToolbarItem>
+          <ToolbarItem>
+            <FontSizeButton
+              onClick={setFontsize}
+              fontsizeObject={fontsizeObject}
+              active={fontsize}
+            />
+          </ToolbarItem>
+        </Stack>
+        <Stack direction="row">
+          <ToolbarItem>
+            <ColorButton
+              onClick={setColor}
+              active={color}
+              colorObject={colorObject}
+            />
 
-        </ToolbarItem>
-        <ToolbarItem>
-          <FontSizeButton
-            onClick={setFontsize}
-            fontsizeObject={fontsizeObject}
-            active={fontsize}
+          </ToolbarItem>
+          <ToolbarItem>
+            <ThicknessSlider
+              onClick={setThickness}
+              value={thickness}
+              active={thickness}
+            />
+          </ToolbarItem>
+          <input
+            style={{ display: "none" }}
+            type="file"
+            ref={imageUploadRef}
+            onChange={e => uploadImage(e)}
           />
-        </ToolbarItem>
-        <ToolbarItem>
-          <ColorButton
-            onClick={setColor}
-            active={color}
-            colorObject={colorObject}
-          />
-
-        </ToolbarItem>
-        <ToolbarItem>
-          <ThicknessSlider
-            onClick={setThickness}
-            value={thickness}
-            active={thickness}
-          />
-        </ToolbarItem>
-        <input
-          style={{ display: "none" }}
-          type="file"
-          ref={imageUploadRef}
-          onChange={e => uploadImage(e)}
-        />
-      </Stack>
-      <Stack
-        direction={{ xs: 'column', sm: 'column', md: 'row', lg: 'row' }}
-        justifyContent="center"
-        alignItems="center"
-        spacing='1'
-        divider={<Divider orientation="vertical" flexItem />}
-        style={{
-          //border: '1px dashed green',
-          width: '100%',
-        }}
-      >
-        <Button variant="secondary" onClick={addRectangle}>Rectangle</Button>
-        <Button variant="secondary" onClick={addCircle}>Circle</Button>
-        <Button variant="secondary" onClick={() => setDrawtype('Brush')}>Line</Button>
-        <Button variant="secondary" onClick={eraseLine}>Erase</Button>
-        <Button variant="secondary" onClick={addText}>Text</Button>
-        <Button variant="secondary" onClick={addImageFromFile}>Image</Button>
-        <Button variant="secondary" onClick={undo}>Undo</Button>
-        <Button variant="secondary" onClick={save}>Save</Button>
+        </Stack>
       </Stack>
 
       <Stack
@@ -714,9 +681,22 @@ const ListItem2 = () => {
         spacing='1'
         ref={KonvaRef}
         style={{
-          border: '1px dashed green',
-          width: '100%',
-          height: 'calc(100vh - 190px',
+          ...KonvaRefStyle,
+          //height: 'calc(100vh - 193px)', //(document.body.clientHeight - 100) + 'px', // md
+          width: 'calc(100vw - 50)',
+        }}
+        sx={{
+          height: isMobile ? {
+            xs: 'calc(100vh - 207px)',
+            sm: 'calc(100vh - 207px)',
+            md: 'calc(100vh - 207px)',
+            lg: 'calc(100vh - 177px)'
+          } : {
+            xs: 'calc(100vh - 197px)',
+            sm: 'calc(100vh - 197px)',
+            md: 'calc(100vh - 197px)',
+            lg: 'calc(100vh - 157px)'
+          },
         }}
       >
         <Stage
@@ -731,7 +711,7 @@ const ListItem2 = () => {
           onTouchStart={handleMouseDown}
           onTouchEnd={handleMouseUp}
           style={{
-            border: '1px dashed red',
+            // border: '1px dashed red',
             width: '100%',
             height: '100%',
           }}
@@ -742,7 +722,7 @@ const ListItem2 = () => {
               y={0}
               width={width}
               height={height}
-              fill="#fff"
+              fill="rgba(200,200,200,0.1)"
               listening={false}
             />
           </Layer>
@@ -753,10 +733,6 @@ const ListItem2 = () => {
               const type = e.child.constructor.name
               const newElement = e.child.attrs
 
-              console.log('onAdd type', type)
-              // console.log('onAdd newElement', newElement)
-              // console.log('onAdd isExist', isExist(newElement.id))
-              console.log('onAdd isLoading', isLoading)
               if (!isLoading) {
                 if (!isExist(newElement.id)) {
                   setShapes([

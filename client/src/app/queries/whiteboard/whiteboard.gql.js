@@ -72,6 +72,8 @@ export const GET_BOARD = gql`
         editedBoard
         updated
       }
+      createdAt
+      updatedAt
     }
   }
 `

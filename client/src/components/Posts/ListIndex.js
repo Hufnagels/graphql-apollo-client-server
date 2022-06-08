@@ -68,7 +68,7 @@ const ListIndex = () => {
 
   React.useEffect(() => {
     fetchFilteredPosts()
-  }, [data])
+  }, [])
 
   // React.useEffect(() => {
   //   if (!data) return

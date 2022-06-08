@@ -13,6 +13,8 @@ export const GET_POSTS = gql`
         subtitle
         description
         titleimage
+        createdAt
+        updatedAt
       }
       currentPage
       totalPages
@@ -28,6 +30,8 @@ export const GET_POST = gql`
       subtitle
       description
       titleimage
+      createdAt
+      updatedAt
     }
   }
 `

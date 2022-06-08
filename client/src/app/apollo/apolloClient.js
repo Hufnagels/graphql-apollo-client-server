@@ -3,34 +3,43 @@ import {
   ApolloClient,
   InMemoryCache,
   HttpLink,
+  from,
+  split,
 } from '@apollo/client';
+// import { withClientState } from 'apollo-link-state';
+import { onError } from "@apollo/client/link/error";
 import { setContext } from '@apollo/client/link/context'
-import { ApolloProvider } from '@apollo/react-hooks'
-import { split, } from '@apollo/client';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
+import { ApolloProvider } from '@apollo/react-hooks'
 
 // Custom
 import { store } from '../store/store'
-import { REACT_APP_LS_TOKEN_NAME } from '../config/config'
+import { REACT_APP_LS_TOKEN_NAME, REACT_APP_API_URL } from '../config/config'
 
-//console.info('apolloClient store, localStorage', store.getState(), REACT_APP_LS_TOKEN_NAME)
+if (process.env.NODE_ENV !== 'production') {
+  // console.log('apolloClient NODE_ENV', process.env.NODE_ENV)
+  // console.log('apolloClient REACT_APP_API_URL', process.env.REACT_APP_API_URL)
+}
+
 
 const httpLink = new HttpLink({
-  uri: `http://${process.env.REACT_APP_NODESERVER_BASEURL}/graphql`,
+  uri: `http://${process.env.REACT_APP_API_URL}/graphql`,
   //credentials: 'include',
-  
+
 })
 
 const authLink = setContext((_, { headers }) => {
   const token = !store.getState().auth.tokens ? false : (store.getState().auth.tokens.accessToken) //|| localStorage.getItem(REACT_APP_LS_TOKEN_NAME) || ""
-console.info('apolloClient authLink', store.getState().auth, token, headers)
+  // console.info('apolloClient authLink STORE', store.getState().auth)
+  // console.info('apolloClient authLink TOKEN',token)
+  // console.info('apolloClient authLink HEADERS', headers)
   return {
     headers: {
       ...headers,
       // AccesControllAllowOrigin: "http://localhost:3000",
-      //   "Access-Control-Allow-Origin": "http://localhost:3000",
+        // "Access-Control-Allow-Origin": "http://localhost:3000",
       //   "Access-Control-Allow-Credentials" : true,
       authorization: token ? `Bearer ${token}` : "",
     }
@@ -38,7 +47,7 @@ console.info('apolloClient authLink', store.getState().auth, token, headers)
 })
 
 const wsLink = new GraphQLWsLink(createClient({
-  url: `ws://${process.env.REACT_APP_NODESERVER_BASEURL}/subscriptions`,
+  url: `ws://${process.env.REACT_APP_API_URL}/subscriptions`,
   options: {
     lazy: true,
     reconnect: true,
@@ -68,25 +77,52 @@ const splitLink = split(
   wsLink,
   authLink.concat(httpLink),
 );
-/*
+/**/
 const errorLink = onError(({ graphQLErrors, networkError }) => {
-  if (graphQLErrors)
-    graphQLErrors.forEach(({ message, locations, path }) => console.info(
-      `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-    ),
-    )
-  if (networkError) console.info('NetworkError', networkError)
-}) */
+  if (graphQLErrors){
+    if (process.env.NODE_ENV !== 'production')
+      graphQLErrors.forEach(({ message, locations, path }) =>
+        console.log(
+          `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+        ),
+      );
+  
+    return graphQLErrors
+  }
 
+  if (networkError) {
+    if (process.env.NODE_ENV !== 'production') 
+      console.log(`[Network error]: ${networkError}`)
+  }
+});
 
-
+const defaultOptions = {
+  watchQuery: {
+    fetchPolicy: 'no-cache',
+    errorPolicy: 'none',
+  },
+  query: {
+    fetchPolicy: 'no-cache',
+    errorPolicy: 'none',
+  },
+  mutate: {
+    errorPolicy: 'all',
+  },
+}
+const cache = new InMemoryCache();
+// const stateLink = withClientState({ cache, });
 
 const client = new ApolloClient({
-  //uri: process.env.REACT_APP_NODESERVER_BASEURL,
-  link: splitLink, //tokenLink.concat(splitLink), //from([httpLink, authLink, errorLink]),
-  cache: new InMemoryCache(),
-  connectToDevTools: true
+  link: splitLink, //from([errorLink, splitLink]), //splitLink, //tokenLink.concat(splitLink), //from([httpLink, authLink, errorLink]),
+  cache,
+  connectToDevTools: true,
+  // defaultOptions,
+  headers: { 
+    'Access-Control-Allow-Origin':'localhost, 192.168.1.125',
+  }
 });
+
+// client.onResetStore(stateLink.writeDefaults);
 
 const CustomApolloProvider = ({ children }) => {
   return (

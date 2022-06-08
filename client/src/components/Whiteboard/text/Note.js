@@ -10,14 +10,14 @@ const Note = ({
   onTextChange,
   onTextClick
 }) => {
-// console.log('Note shapeProps', 
-//   shapeProps,
-//   onClick,
-//   onTextResize,
-//   onTextChange,
+  // console.log('Note shapeProps', 
+  // shapeProps,
+  //   onClick,
+  //   onTextResize,
+  //   onTextChange,
 
-//   onTextClick
-// )
+  //   onTextClick
+  // )
 
   const textRef = useRef(null);
   const trRef = useRef(null);
@@ -26,12 +26,17 @@ const Note = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
 
+  const MIN_WIDTH = 50;
+
   React.useEffect(() => {
     if (isSelected) {
       // we need to attach transformer manually
       trRef.current.setNode(textRef.current);
       trRef.current.getLayer().batchDraw();
       trRef.current.moveToTop()
+      trRef.current.enabledAnchors(['middle-left', 'middle-right'])
+
+      console.log('trRef', trRef.current)
     }
   }, [isSelected]);
 
@@ -85,8 +90,7 @@ const Note = ({
     textarea.style.top = areaPosition.y + 'px';
     textarea.style.left = areaPosition.x + 'px';
     textarea.style.width = textNode.width() - textNode.padding() * 2 + 'px';
-    textarea.style.height =
-      textNode.height() - textNode.padding() * 2 + 5 + 'px';
+    textarea.style.height = textNode.height() - textNode.padding() * 2 + 5 + 'px';
     textarea.style.fontSize = textNode.fontSize() + 'px';
     textarea.style.border = 'none';
     textarea.style.padding = '0px';
@@ -221,16 +225,30 @@ const Note = ({
           const scaleX = node.scaleX();
           const scaleY = node.scaleY();
           const rotation = node.rotation()
-console.log('node',node)
-
-          
+          const fs = node.fontSize()
+          // console.log('fs',fs)
+          console.log('node shapeProps',shapeProps)
+          console.log('e', e)
+          e.target.setAttrs({
+            ...shapeProps,
+            width: Math.max(e.target.width() * e.target.scaleX(), MIN_WIDTH),
+            scaleX: 1,
+            scaleY: 1,
+          });
+          // onResize({
+          //   ...shapeProps,
+          //   scaleX: 1,
+          //   scaleY: 1,
+          //   fontSize:fs,
+          // })
         }}
         onTransformEnd={e => {
           // transformer is changing scale
-          const node = textRef.current;
-          const scaleX = node.scaleX();
-          const scaleY = node.scaleY();
+          const node = textRef.current
+          const scaleX = node.scaleX()
+          const scaleY = node.scaleY()
           const rotation = node.rotation()
+
           node.scaleX(1);
           node.scaleY(1);
           onResize({
@@ -238,8 +256,9 @@ console.log('node',node)
             x: node.x(),
             y: node.y(),
             width: node.width() * scaleX,
-            height: node.height() * scaleY,
-            scaleX: 1,
+            //height: node.height() * scaleY,
+            // scaleX: 1,
+            // scaleY: 1,
             // scaleX,
             // scaleY,
             rotation
