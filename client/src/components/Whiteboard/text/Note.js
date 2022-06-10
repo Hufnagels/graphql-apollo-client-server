@@ -36,7 +36,7 @@ const Note = ({
       trRef.current.moveToTop()
       trRef.current.enabledAnchors(['middle-left', 'middle-right'])
 
-      console.log('trRef', trRef.current)
+      // console.log('trRef', trRef.current)
     }
   }, [isSelected]);
 
@@ -227,8 +227,8 @@ const Note = ({
           const rotation = node.rotation()
           const fs = node.fontSize()
           // console.log('fs',fs)
-          console.log('node shapeProps',shapeProps)
-          console.log('e', e)
+          // console.log('node shapeProps',shapeProps)
+          // console.log('e', e)
           e.target.setAttrs({
             ...shapeProps,
             width: Math.max(e.target.width() * e.target.scaleX(), MIN_WIDTH),

@@ -63,13 +63,13 @@ const validationSchema = yup.object({
     .transform((_, val) => val === String(val) ? val : null),
 });
 
-const Add = ({ onClick, active, refetch }) => {
+const Add = ({ onClick, active, refetch, data, setData }) => {
 
   const location = useLocation();
   const [title, setTitle] = React.useState(makePageTitleFromPath(location.pathname))
   const { enqueueSnackbar } = useSnackbar();
-  const [open, setOpen] = React.useState(active);
-
+  const [open, setOpen] = React.useState(false);
+  const descriptionElementRef = React.useRef(null);
 
   const [createPost, { error }] = useMutation(CREATE_POST, {
     onCompleted: ({ createPost }) => {
@@ -102,18 +102,17 @@ const Add = ({ onClick, active, refetch }) => {
     },
   })
 
-  /* const handleClickOpen = () => {
-    setOpen(true);
-  }; */
-
   const handleClose = () => {
     onClick(false)
     formik.resetForm()
     setOpen(false);
   };
 
-  const descriptionElementRef = React.useRef(null);
   React.useEffect(() => {
+    setOpen(active)
+  }, [active])
+
+  React.useLayoutEffect(() => {
     if (open) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
@@ -121,10 +120,6 @@ const Add = ({ onClick, active, refetch }) => {
       }
     }
   }, [open]);
-
-  React.useEffect(() => {
-    setOpen(active)
-  }, [active])
 
   return (
     <div>
@@ -239,7 +234,7 @@ const Add = ({ onClick, active, refetch }) => {
                     helperText={formik.touched.subtitle && formik.errors.subtitle}
                   />
                 </Grid>
-                <Grid item xs={12} md={12} lg={12} sx={{ paddingBottom: '2rem' }}>
+                <Grid item xs={10} md={10} lg={10} sx={{ paddingBottom: '2rem' }}>
                   <Typography variant="body2" component="div">formik values == {JSON.stringify(formik.values)}</Typography>
                   <TextEditor
                     setFieldValue={(val) => formik.setFieldValue("description", val)}

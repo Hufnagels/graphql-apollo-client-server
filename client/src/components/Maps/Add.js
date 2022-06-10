@@ -37,18 +37,16 @@ const validationSchema = yup.object({
 
 });
 
-const Add = ({ onClick, active, refetch, }) => {
+const Add = ({ onClick, active, refetch, data, setData}) => {
 
   const { enqueueSnackbar } = useSnackbar();
-
+  const [open, setOpen] = React.useState(active);
   const location = useLocation();
   const [title, setTitle] = React.useState(makePageTitleFromPath(location.pathname))
 
-  const [open, setOpen] = React.useState(active);
-
   const [createMap, { error }] = useMutation(CREATE_MAP, {
     onCompleted: ({ createMap }) => {
-      console.log('CREATE_MAP completed', createMap.user)
+      console.log('CREATE_MAP completed', createMap)
       //       setUsers({
       //         ...users,
       //         data: createMap.user
@@ -57,7 +55,6 @@ const Add = ({ onClick, active, refetch, }) => {
       enqueueSnackbar(title + ' created successfully', { variant })
       onClick(false)
       setOpen(false)
-      // console.log('createMap setUsers', users)
       refetch();
     },
     onError: (error) => {
@@ -69,12 +66,17 @@ const Add = ({ onClick, active, refetch, }) => {
 
   const formik = useFormik({
     initialValues: {
-      "owner": '',
+      "owner": 'varkonyi',
       "title": '',
       "description": '',
+      "originalMap": '',
+      "currentMap": '',
+      "mapimage": '',
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
+      //const newData = _.merge(values, emptyMapRecord)
+      console.log('values', values)
       createMap({ variables: { input: values } })
     },
   })

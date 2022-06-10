@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { useLazyQuery, } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { useLocation } from "react-router-dom"
 import _ from "lodash"
 
@@ -13,7 +13,7 @@ import { useTheme } from '@mui/material/styles';
 
 // Custom
 import ListIndexItem from './ListIndexItem';
-import { GET_USERS } from "../../app/queries";
+import { GET_USERS, DELETE_USER } from "../../app/queries";
 import Add from './Add';
 import SearchBar from '../Layout/SearchBar';
 
@@ -44,6 +44,28 @@ const ListIndex = () => {
     }
   })
 
+  const [deleteUser] = useMutation(DELETE_USER, {
+    onCompleted: () => {
+      console.log('deleteUser')
+      //fetchFilteredBoards()
+      refetchQuery()
+    },
+    onError: (error) => {
+      console.log(error)
+    }
+  })
+  const deleteItem = (idx) => {
+    console.log(idx)
+    deleteUser({
+      variables: {
+        id: idx
+      }
+    })
+  }
+  const refetchQuery = () => {
+    console.log('Whiteboard refetchQuery')
+    refetch()
+  }
   React.useEffect(() => {
     if (!data) return
     setUsers(data.getUsers.users)
@@ -88,18 +110,19 @@ const ListIndex = () => {
           perpage={perpage}
           setPerpage={setPerpage}
           totalpage={totalpage}
+          data={users}
           setData={setUsers}
           visiblePN={visiblePN}
-          refetch={refetch}
+          refetch={refetchQuery}
           active={openDialog}
           setOpenDialog={setOpenDialog}
           addComponent={
-            <Add onClick={setOpenDialog} active={openDialog} refetch={refetch} setMaps={setUsers} />
+            <Add onClick={setOpenDialog} active={openDialog} refetch={refetchQuery} data={users} setData={setUsers} />
           }
         />
         <Grid container spacing={{ sm: 1, md: 1 }} >
           {users && users.map((user, idx) => {
-            return <ListIndexItem data={user} key={idx} title={user.username} />
+            return <ListIndexItem data={user} key={user._id} title={user.username} delete={deleteItem}/>
           })}
         </Grid>
       </Box>

@@ -7,6 +7,7 @@ export const GET_MAPS = gql`
     getMaps(search: $search, page: $page, limit: $limit) {
       maps {
         _id
+        owner
         title
         description
         originalMap
@@ -21,6 +22,7 @@ export const GET_MAPS = gql`
       }
       currentPage
       totalPages
+      count
     }
   }
 `;
@@ -33,8 +35,9 @@ export const CREATE_MAP = gql`
         owner
         title
         description
-        createdAt
-        updatedAt
+        originalMap
+        currentMap
+        mapimage
       }
     }
   }
@@ -42,6 +45,6 @@ export const CREATE_MAP = gql`
 
 export const DELETE_MAP = gql`
   mutation($id: ID!) {
-    deleteMMap(_id: $id)
+    deleteMap(_id: $id)
   }
 `

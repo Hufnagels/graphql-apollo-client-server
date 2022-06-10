@@ -105,27 +105,11 @@ const Edit = ({ onClick, active, refetch, setData }) => {
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      // console.log('values', values)
-      const newData = _.omit(values, ['author', '__typename'])
+//console.log('values', values)
+      const newData = _.omit(values, ['author', '__typename', 'createdAt', 'updatedAt'])
 
       updatePost({ variables: { id: id, input: newData } })
-      // .then((res) => {
-      //   // console.log(res)
-      //   //setData(prevState => [...prevState, res.data.updatePost])
-      //   const variant = 'success'
-      //   enqueueSnackbar('Post updated successfully', { variant })
-      //   navigate(-1)
-      //   setOpen(false)
-      //   //onClick(false)
-      //   formik.resetForm()
-
-      //   //refetch();
-      // }).catch(err => {
-      //   //console.log('createUser catch', JSON.stringify(err, null, 2))
-
-      //   const variant = 'error'
-      //   enqueueSnackbar(err.message, { variant })
-      // })
+      
     },
   })
 
@@ -276,7 +260,7 @@ const Edit = ({ onClick, active, refetch, setData }) => {
                       helperText={formik.touched.subtitle && formik.errors.subtitle}
                     />
                   </Grid>
-                  <Grid item xs={12} md={12} lg={12} sx={{ paddingBottom: '2rem' }}>
+                  <Grid item xs={11} md={11} lg={11} sx={{ paddingBottom: '2rem' }}>
                     <Typography variant="body2" component="div">formik values == {JSON.stringify(formik.values)}</Typography>
                     <TextEditor
                       setFieldValue={(val) => formik.setFieldValue("description", val)}

@@ -1,7 +1,8 @@
 import React, { memo } from 'react'
-import { useLazyQuery, } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { useLocation } from "react-router-dom"
 import _ from "lodash"
+import { useSnackbar } from 'notistack';
 
 // Material
 import {
@@ -13,20 +14,21 @@ import { useTheme } from '@mui/material/styles';
 
 // Custom
 import ListIndexItem from './ListIndexItem';
-import { GET_MINDMAPS } from "../../app/queries";
+import { GET_MINDMAPS, DELETE_MINDMAP } from "../../app/queries";
 import Add from './Add';
 import SearchBar from '../Layout/SearchBar';
 import { makeListTitleFromPath } from '../../app/functions/text'
 
 const ListIndex = () => {
   const location = useLocation();
+  const { enqueueSnackbar } = useSnackbar();
   const [title, setTitle] = React.useState(makeListTitleFromPath(location.pathname) + ' list')
 
   const theme = useTheme();
   const [openDialog, setOpenDialog] = React.useState(false)
   const [search, setSearch] = React.useState(null)
 
-  const [mindmaps, setMindmaps] = React.useState({ data: [] })
+  const [mindmaps, setMindmaps] = React.useState([])
 
   const [page, setPage] = React.useState(1);
   const [totalpage, setTotalPage] = React.useState(1)
@@ -34,37 +36,62 @@ const ListIndex = () => {
   const [count, setCount] = React.useState(0)
   const [visiblePN, setVisiblePN] = React.useState(false)
 
-  const [
-    fetchFilteredMindmaps,
-    { data, loading, error, refetch }
-  ] = useLazyQuery(GET_MINDMAPS, {
-    variables: {
-      search,
-      page: page,
-      limit: perpage
-    },
-    onCompleted: ({ getMindmaps }) => {
-      // console.log('getMindmaps', getMindmaps)
-      setMindmaps({
-        ...mindmaps,
-        data: getMindmaps.mindmaps
-      })
-      setTotalPage(getMindmaps.totalPages)
-      setCount(getMindmaps.count)
-      if (getMindmaps.mindmaps.length > 0)
-        setVisiblePN(true)
-      else
-        setVisiblePN(false)
+  //const [ fetchFilteredMindmaps, { data, loading, error, refetch } ] = useLazyQuery(
+  const { data, loading, error, refetch } = useQuery(
+    GET_MINDMAPS, 
+    {
+      variables: {
+        search,
+        page: page,
+        limit: perpage
+      },
+      onCompleted: ({ getMindmaps }) => {
+        console.log('getMindmaps', getMindmaps)
+        const newData = getMindmaps.mindmaps
+        setMindmaps(newData)
+        setTotalPage(getMindmaps.totalPages)
+        setCount(getMindmaps.count)
+        if (getMindmaps.mindmaps.length > 0)
+          setVisiblePN(true)
+        else
+          setVisiblePN(false)
+      },
+      onError: (error) => {
+        const variant = 'error'
+        //enqueueSnackbar(error.message, { variant })
+      }
+    }
+  )
+
+  const [deleteMindmap] = useMutation(DELETE_MINDMAP, {
+    onCompleted: () => {
+      console.log('deleteMindmap')
+      //fetchFilteredBoards()
+      refetchQuery()
     },
     onError: (error) => {
-      const variant = 'error'
-      //enqueueSnackbar(error.message, { variant })
+      console.log(error)
     }
   })
-
+  const deleteItem = (idx) => {
+    console.log(idx)
+    deleteMindmap({
+      variables: {
+        id: idx
+      }
+    })
+  }
+  const refetchQuery = () => {
+    console.log('deleteMindmap refetchQuery')
+    refetch()
+  }
   React.useEffect(() => {
-    fetchFilteredMindmaps()
-  }, [])
+    if (!data) return
+    setMindmaps(data.getMindmaps?.mindmaps)
+    return () => {
+      //setBoards({data: []})
+    }
+  }, [data])
 
   if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>
 
@@ -73,7 +100,7 @@ const ListIndex = () => {
       <Box style={{ padding: '0rem' }}>
         <SearchBar
           title={title}
-          fn={fetchFilteredMindmaps}
+          //fn={fetchFilteredMindmaps}
           search={search}
           setSearch={setSearch}
           page={page}
@@ -81,18 +108,19 @@ const ListIndex = () => {
           perpage={perpage}
           setPerpage={setPerpage}
           totalpage={totalpage}
+          data={mindmaps}
           setData={setMindmaps}
           visiblePN={visiblePN}
-          refetch={refetch}
+          refetch={refetchQuery}
           active={openDialog}
           setOpenDialog={setOpenDialog}
           addComponent={
-            <Add onClick={setOpenDialog} active={openDialog} refetch={refetch} setData={setMindmaps} />
+            <Add onClick={setOpenDialog} active={openDialog} refetch={refetchQuery} data={mindmaps} setData={setMindmaps} />
           }
         />
         <Grid container spacing={{ sm: 1, md: 1 }} >
-          {mindmaps.data && mindmaps.data.map((mindmap, idx) => {
-            return <ListIndexItem data={mindmap} key={idx} />
+          {mindmaps && mindmaps.map((mindmap, idx) => {
+            return <ListIndexItem data={mindmap} key={mindmap._id} delete={deleteItem} />
           })}
         </Grid>
       </Box>

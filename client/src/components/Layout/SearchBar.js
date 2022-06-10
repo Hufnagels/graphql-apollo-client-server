@@ -223,7 +223,7 @@ const SearchBar = (props) => {
             }
 
             <CustomizedSearch
-              fn={props.fn}
+              //fn={props.fn}
               search={props.search}
               setSearch={props.setSearch}
               page={props.page}

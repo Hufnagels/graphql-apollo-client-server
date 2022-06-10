@@ -13,3 +13,8 @@ export const {
   PORT,
   ORIGIN,
 } = process.env
+
+
+/**
+ * mongodb+srv://pisti:<password>@gqlwb01.zodzq.mongodb.net/?retryWrites=true&w=majority
+ */

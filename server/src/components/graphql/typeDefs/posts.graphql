@@ -72,5 +72,5 @@ type DeletePostPayload {
 type Mutation {
   createPost(input: PostInputCreate): CreatePostPayload
   updatePost(_id: ID!, input: PostInputUpdate!): UpdatePostPayload
-  deletePost(_id: ID!): DeletePostPayload
+  deletePost(_id: ID!): String
 }

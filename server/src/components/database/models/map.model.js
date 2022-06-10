@@ -7,8 +7,8 @@ const mapSchema = new Schema(
     owner: { type: String, required: true },
     title: { type: String, required: true },
     description: { type: String, required: true, default: '' },
-    originalMap: { type: String, required: true },
-    currentMap: { type: String, required: true },
+    originalMap: { type: String, default: '' },
+    currentMap: { type: String, default: '' },
     mapimage: { type: String, default: '' },
     editinghistory: [new Schema({
       updated: { type: Date, default: Date.now, required: true },

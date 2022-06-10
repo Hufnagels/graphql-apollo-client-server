@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardMedia,
   CardContent,
+  CardActions,
   IconButton,
   Menu,
   MenuItem,
@@ -16,11 +17,21 @@ import {
   Skeleton,
 } from '@mui/material'
 import { red } from '@mui/material/colors';
+import { useTheme } from '@mui/material/styles';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+
+// Custom
+import { formatTimeToCurrentTimeZone } from '../../app/functions/time'
+import { stringToColor } from '../../app/functions/color'
 
 const ListIndexItem = (props) => {
 
+  const theme = useTheme();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [data, serData] = React.useState(props.data)
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -34,15 +45,23 @@ const ListIndexItem = (props) => {
       <Card variant="outlined" >
         <CardHeader
           avatar={
-            <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe" alt={props.title}>{props.title.charAt(0)}</Avatar>
+            <Avatar
+            sx={{ bgcolor: stringToColor(data.owner) }}
+            aria-label="recipe"
+            alt={data.owner}
+            variant="square"
+
+          >
+            {data.owner.charAt(0)}
+          </Avatar>
           }
           action={
-            <IconButton aria-label="settings">
-              <MoreVertIcon onClick={handleClick} />
+            <IconButton aria-label="settings" onClick={handleClick}>
+              <MoreVertIcon />
             </IconButton>
           }
-          title={props.data.title}
-          subheader="September 14, 2016"
+          title={data.title}
+          subheader={formatTimeToCurrentTimeZone(data.createdAt, 'hu-HU')}
         />
         <Menu
           id="simple-menu"
@@ -69,6 +88,25 @@ const ListIndexItem = (props) => {
         <CardContent>
           <pre>{JSON.stringify(props.data, null, 2)}</pre>
         </CardContent>
+        <Divider />
+        <CardActions
+          disableSpacing
+          style={{
+            backgroundColor: theme.palette.custom.light,
+          }}
+        >
+          <Link to={window.location.pathname + "/" + data._id} key={"mindmap_key_" + data._id}>
+            <IconButton aria-label="open data">
+              <ModeEditOutlineOutlinedIcon />
+            </IconButton>
+          </Link>
+          <IconButton aria-label="preview mindmap">
+            <VisibilityOutlinedIcon />
+          </IconButton>
+          <IconButton aria-label="delete mindmap" onClick={() => props.delete(data._id)}>
+            <DeleteOutlineOutlinedIcon />
+          </IconButton>
+        </CardActions>
       </Card>
     </Grid>
   )

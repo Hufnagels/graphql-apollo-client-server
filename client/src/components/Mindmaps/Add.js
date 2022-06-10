@@ -39,7 +39,7 @@ const validationSchema = yup.object({
     .string('Enter description')
 });
 
-const Add = ({ onClick, active, refetch, setData }) => {
+const Add = ({ onClick, active, refetch, data, setData }) => {
 
   const { enqueueSnackbar } = useSnackbar();
   const [open, setOpen] = React.useState(active);

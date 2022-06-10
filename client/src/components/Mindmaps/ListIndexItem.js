@@ -20,7 +20,7 @@ import {
 import { red } from '@mui/material/colors';
 import { useTheme } from '@mui/material/styles';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import FileOpenOutlinedIcon from '@mui/icons-material/FileOpenOutlined';
+import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
@@ -29,7 +29,7 @@ import { formatTimeToCurrentTimeZone } from '../../app/functions/time'
 import { stringToColor } from '../../app/functions/color'
 
 const ListIndexItem = (props) => {
-  console.log('ListIndexItem',props)
+  //console.log('ListIndexItem',props)
   const theme = useTheme();
   const [data, serData] = React.useState(props.data)
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -70,10 +70,10 @@ const ListIndexItem = (props) => {
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/" + data._id} key={"mapkey_" + data._id}>Open</Link></MenuItem>
-          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/preview/" + data._id} key={"mapkey_" + data._id}>Preview</Link></MenuItem>
+          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/" + data._id} key={"mindmap_o_key_" + data._id}>Open</Link></MenuItem>
+          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/preview/" + data._id} key={"mindmap_p_key_" + data._id}>Preview</Link></MenuItem>
           <Divider />
-          <MenuItem onClick={handleClose}>Delete</MenuItem>
+          <MenuItem onClick={() => props.delete(data._id)}>Delete</MenuItem>
 
         </Menu>
         {data.mapimage ?
@@ -98,13 +98,15 @@ const ListIndexItem = (props) => {
             backgroundColor: theme.palette.custom.light,
           }}
         >
-          <IconButton aria-label="open data">
-            <FileOpenOutlinedIcon />
-          </IconButton>
-          <IconButton aria-label="preview board">
+          <Link to={window.location.pathname + "/" + data._id} key={"mindmap_key_" + data._id}>
+            <IconButton aria-label="open data">
+              <ModeEditOutlineOutlinedIcon />
+            </IconButton>
+          </Link>
+          <IconButton aria-label="preview mindmap">
             <VisibilityOutlinedIcon />
           </IconButton>
-          <IconButton aria-label="delete board">
+          <IconButton aria-label="delete mindmap" onClick={() => props.delete(data._id)}>
             <DeleteOutlineOutlinedIcon />
           </IconButton>
         </CardActions>

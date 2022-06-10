@@ -20,7 +20,7 @@ import {
 import { red } from '@mui/material/colors';
 import { useTheme } from '@mui/material/styles';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import FileOpenOutlinedIcon from '@mui/icons-material/FileOpenOutlined';
+import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
@@ -47,14 +47,14 @@ const ListIndexItem = (props) => {
         <CardHeader
           avatar={
             <Avatar
-            sx={{ bgcolor: stringToColor(data.author) }}
-            aria-label="recipe"
-            alt={data.author}
-            variant="square"
+              sx={{ bgcolor: stringToColor(data.author) }}
+              aria-label="recipe"
+              alt={data.author}
+              variant="square"
 
-          >
-            {data.author.charAt(0)}
-          </Avatar>
+            >
+              {data.author.charAt(0)}
+            </Avatar>
           }
           action={
             <IconButton aria-label="settings" onClick={handleClick}>
@@ -70,10 +70,10 @@ const ListIndexItem = (props) => {
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/" + data._id} key={"mapkey_" + data._id}>Open</Link></MenuItem>
-          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/" + data._id + "/preview"} key={"mapkey_" + data._id}>Preview</Link></MenuItem>
+          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/" + data._id} key={"post_open_key_" + data._id}>Open</Link></MenuItem>
+          <MenuItem onClick={handleClose}><Link to={window.location.pathname + "/" + data._id + "/preview"} key={"post_preview_key_" + data._id}>Preview</Link></MenuItem>
           <Divider />
-          <MenuItem onClick={handleClose}>Delete</MenuItem>
+          <MenuItem onClick={() => props.delete(data._id)}>Delete</MenuItem>
 
         </Menu>
         {data.titleimage ?
@@ -98,13 +98,18 @@ const ListIndexItem = (props) => {
             backgroundColor: theme.palette.custom.light,
           }}
         >
-          <IconButton aria-label="open data">
-            <FileOpenOutlinedIcon />
-          </IconButton>
-          <IconButton aria-label="preview board">
-            <VisibilityOutlinedIcon />
-          </IconButton>
-          <IconButton aria-label="delete board">
+          <Link to={window.location.pathname + "/" + data._id} key={"post_o_key_" + data._id}>
+            <IconButton aria-label="open data">
+              <ModeEditOutlineOutlinedIcon />
+            </IconButton>
+          </Link>
+          <Link to={window.location.pathname + "/" + data._id + "/preview"} key={"post_p_key_" + data._id}>
+            <IconButton aria-label="preview post" >
+              <VisibilityOutlinedIcon />
+            </IconButton>
+          </Link>
+
+          <IconButton aria-label="delete post" onClick={() => props.delete(data._id)}>
             <DeleteOutlineOutlinedIcon />
           </IconButton>
         </CardActions>

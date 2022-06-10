@@ -74,7 +74,7 @@ type UpdateMindmapPayload {
 }
 
 type Mutation {
-  createMindmap(input: MindmapInputCreate): CreateMindmapPayload
+  createMindmap(input: MindmapInputCreate): Mindmap #CreateMindmapPayload
   updateMindmap(_id: ID!, input: MindmapInputUpdate!): UpdateMindmapPayload
   deleteMindmap(_id: ID!): String
 }

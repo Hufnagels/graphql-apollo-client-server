@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { ApolloError, } from 'apollo-server-express'
+import { ApolloError, UserInputError} from 'apollo-server-express'
 
 import Maps from '../../database/models/map.model.js'
 import { issueTokens, checkSignedIn, getRefreshToken } from '../../../app/controllers/auth.js'
@@ -55,6 +55,9 @@ const MapResolver = {
     // Protected routes
     createMap: async (parent, args, { req }, context, info) => {
       await checkSignedIn(req, true)
+      console.log('createMap args', args.input)
+      //console.log('createMap context', context.user)
+      
       const { owner, title, description, originalMap, currentMap, mapimage } = args.input;
 
       const map = new Maps({
@@ -65,7 +68,7 @@ const MapResolver = {
         currentMap,
         mapimage
       })
-
+      //throw new UserInputError('Teszt')
       const res = await map.save()
       return {
         map: res._doc,

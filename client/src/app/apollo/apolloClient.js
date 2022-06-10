@@ -99,15 +99,15 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 const defaultOptions = {
   watchQuery: {
     fetchPolicy: 'no-cache',
-    errorPolicy: 'none',
+    // errorPolicy: 'none',
   },
   query: {
     fetchPolicy: 'no-cache',
-    errorPolicy: 'none',
+    // errorPolicy: 'none',
   },
-  mutate: {
-    errorPolicy: 'all',
-  },
+  // mutate: {
+    // errorPolicy: 'all',
+  // },
 }
 const cache = new InMemoryCache();
 // const stateLink = withClientState({ cache, });
@@ -116,10 +116,10 @@ const client = new ApolloClient({
   link: splitLink, //from([errorLink, splitLink]), //splitLink, //tokenLink.concat(splitLink), //from([httpLink, authLink, errorLink]),
   cache,
   connectToDevTools: true,
-  // defaultOptions,
-  headers: { 
-    'Access-Control-Allow-Origin':'localhost, 192.168.1.125',
-  }
+  //defaultOptions,
+  // headers: { 
+  //   'Access-Control-Allow-Origin':'localhost, 192.168.1.125',
+  // }
 });
 
 // client.onResetStore(stateLink.writeDefaults);

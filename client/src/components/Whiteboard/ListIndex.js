@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { useQuery, useLazyQuery, } from "@apollo/client";
+import { useLazyQuery, useQuery, useMutation } from "@apollo/client";
 import { useLocation } from "react-router-dom"
 import _ from "lodash"
 
@@ -8,12 +8,13 @@ import {
   Box,
   Grid,
   CircularProgress,
+  Alert,
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles';
 
 // Custom
 import ListIndexItem from './ListIndexItem';
-import { GET_BOARDS } from "../../app/queries";
+import { GET_BOARDS, DELETE_BOARD } from "../../app/queries";
 import Add from './Add';
 import SearchBar from '../Layout/SearchBar';
 import { makeListTitleFromPath } from '../../app/functions/text'
@@ -26,7 +27,7 @@ const ListIndex = () => {
   const [openDialog, setOpenDialog] = React.useState(false)
   const [search, setSearch] = React.useState(null)
 
-  const [boards, setBoards] = React.useState({ data: [] })
+  const [boards, setBoards] = React.useState([])
 
   const [page, setPage] = React.useState(1);
   const [totalpage, setTotalPage] = React.useState(1)
@@ -34,44 +35,66 @@ const ListIndex = () => {
   const [count, setCount] = React.useState(0)
   const [visiblePN, setVisiblePN] = React.useState(false)
 
-  const [
-    fetchFilteredBoards,
-    { data, loading, error, refetch }
-  ] = useLazyQuery(GET_BOARDS, {
-    variables: {
-      search,
-      page: page,
-      limit: perpage
-    },
-//    fetchPolicy: "no-cache",
-    onCompleted: ({ getBoards }) => {
-console.log('getBoards', getBoards)
-      setBoards({
-        ...boards,
-        data: getBoards.boards
-      })
-      setTotalPage(getBoards.totalPages)
-      setCount(getBoards.count)
-      if (getBoards.boards.length > 0)
-        setVisiblePN(true)
-      else
-        setVisiblePN(false)
+  //const [fetchFilteredBoards, { data, loading, error, refetch }] = useLazyQuery(
+  const { data, loading, error, refetch } = useQuery(
+    GET_BOARDS,
+    {
+      variables: {
+        search,
+        page: page,
+        limit: perpage
+      },
+      onCompleted: ({ getBoards }) => {
+        console.log('getBoards', getBoards)
+        const newData = getBoards.boards
+        // setBoards({
+        //   //...boards,
+        //   data: getBoards.boards
+        // })
+        setBoards(newData)
+          
+        setTotalPage(getBoards.totalPages)
+        setCount(getBoards.count)
+        if (getBoards.boards.length > 0)
+          setVisiblePN(true)
+        else
+          setVisiblePN(false)
+      },
+      onError: (error) => {
+        const variant = 'error'
+        //enqueueSnackbar(error.message, { variant })
+      }
+    }
+  )
+  const [deleteBoard] = useMutation(DELETE_BOARD, {
+    onCompleted: () => {
+      console.log('deleteBoard')
+      //fetchFilteredBoards()
+      refetchQuery()
     },
     onError: (error) => {
-      const variant = 'error'
-      //enqueueSnackbar(error.message, { variant })
+      console.log(error)
     }
   })
-
+  const deleteItem = (idx) => {
+    console.log(idx)
+    deleteBoard({
+      variables: {
+        id: idx
+      }
+    })
+  }
+  const refetchQuery = () => {
+    console.log('Whiteboard refetchQuery')
+    refetch()
+  }
   React.useEffect(() => {
-    fetchFilteredBoards()
-  }, [])
-
-  React.useEffect(() => {
+    if (!data) return
+    setBoards(data.getBoards?.boards)
     return () => {
-      setBoards({ data: [] })
+      //setBoards({data: []})
     }
-  }, [])
+  }, [data])
 
   if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>
 
@@ -80,7 +103,7 @@ console.log('getBoards', getBoards)
       <Box style={{ padding: '0rem' }}>
         <SearchBar
           title={title}
-          fn={fetchFilteredBoards}
+          //fn={fetchFilteredBoards}
           search={search}
           setSearch={setSearch}
           page={page}
@@ -88,18 +111,20 @@ console.log('getBoards', getBoards)
           perpage={perpage}
           setPerpage={setPerpage}
           totalpage={totalpage}
+          data={boards}
           setData={setBoards}
           visiblePN={visiblePN}
-          refetch={refetch}
+          refetch={refetchQuery}
           active={openDialog}
           setOpenDialog={setOpenDialog}
           addComponent={
-            <Add onClick={setOpenDialog} active={openDialog} refetch={refetch} setData={setBoards} />
+            <Add onClick={setOpenDialog} active={openDialog} refetch={refetchQuery} data={boards} setData={setBoards} />
           }
         />
         <Grid container spacing={{ sm: 1, md: 1 }} >
-          {boards.data?.map((board, idx) => {
-            return <ListIndexItem data={board} key={idx} />
+          {error && <Alert severity="warning">{JSON.stringify(error, null, 2)}</Alert>}
+          {boards && boards.map((board, idx) => {
+            return <ListIndexItem data={board} key={board._id} delete={deleteItem}/>
           })}
         </Grid>
       </Box>

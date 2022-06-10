@@ -22,6 +22,7 @@ export const GET_MINDMAPS = gql`
       }
       currentPage
       totalPages
+      count
     }
   }
 `;
@@ -57,8 +58,6 @@ export const CREATE_MINDMAP = gql`
         originalMap
         currentMap
         mapimage
-        createdAt
-        updatedAt
       }
       mindmapErrors {
         message

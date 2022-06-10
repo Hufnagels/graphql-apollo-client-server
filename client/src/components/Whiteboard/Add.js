@@ -20,7 +20,7 @@ import {
 import {
   useMutation
 } from "@apollo/client";
-import { CREATE_BOARD } from "../../app/queries";
+import { CREATE_BOARD, GET_BOARDS } from "../../app/queries";
 import { makePageTitleFromPath } from '../../app/functions/text'
 
 const validationSchema = yup.object({
@@ -36,7 +36,7 @@ const validationSchema = yup.object({
     .string('Enter description'),
 });
 
-const Add = ({ onClick, active, refetch, setData }) => {
+const Add = ({ onClick, active, refetch, data, setData }) => {
 
   const { enqueueSnackbar } = useSnackbar();
   const [open, setOpen] = React.useState(active);
@@ -44,10 +44,12 @@ const Add = ({ onClick, active, refetch, setData }) => {
   const [title, setTitle] = React.useState(makePageTitleFromPath(location.pathname))
 
   const [createBoard, { error }] = useMutation(CREATE_BOARD, {
+    //refetchQueries: [{ query: GET_BOARDS }],
     onCompleted: ({ createBoard }) => {
-      // console.log('CREATE_MINDMAP completed', createMindmap)
+      console.log('createBoard completed', createBoard)
       const variant = 'success'
       enqueueSnackbar(title + ' created successfully', { variant })
+
       onClick(false)
       setOpen(false)
       refetch();
@@ -58,7 +60,6 @@ const Add = ({ onClick, active, refetch, setData }) => {
       enqueueSnackbar(error.message, { variant })
     }
   });
-
 
   const emptyBoardData = {
     board: '[]',

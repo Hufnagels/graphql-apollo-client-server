@@ -62,11 +62,7 @@ const Add = ({ onClick, active, refetch, users, setUsers }) => {
 
   const [createUser, { error }] = useMutation(CREATE_USER, {
     onCompleted: ({ createUser }) => {
-      // console.log('CREATE_USER completed', createUser.user)
-      //       setUsers({
-      //         ...users,
-      //         data: createUser.user
-      //       })
+
       const variant = 'success'
       enqueueSnackbar(title + ' created successfully', { variant })
       onClick(false)

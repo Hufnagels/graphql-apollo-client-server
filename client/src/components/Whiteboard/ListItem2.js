@@ -715,6 +715,9 @@ const ListItem2 = () => {
             width: '100%',
             height: '100%',
           }}
+          onClick={(e) => {
+            console.log('Stage click', e.target)
+          }}
         >
           <Layer>
             <Rect
@@ -763,6 +766,7 @@ const ListItem2 = () => {
             onChange={(e) => {
               console.log('onChange', e)
             }}
+            
           >
 
             {shapes && shapes.map((image, i) => {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useLazyQuery, useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { Link, useLocation } from "react-router-dom"
 
 // Material
@@ -49,7 +49,7 @@ const ListIndex2 = () => {
   const [openDialog, setOpenDialog] = React.useState(false)
   const [search, setSearch] = React.useState(null)
 
-  const [users, setUsers] = React.useState({ data: [] })
+  const [users, setUsers] = React.useState([])
 
   const [page, setPage] = React.useState(1);
   const [totalpage, setTotalPage] = React.useState(1)
@@ -66,38 +66,40 @@ const ListIndex2 = () => {
     setPerpage(+event.target.value);
     setPage(1);
   };
-
-  const [
-    fetchFilteredUsers,
-    { data, loading, error, refetch }
-  ] = useLazyQuery(GET_USERS, {
-    variables: {
-      search,
-      page: page,
-      limit: perpage
-    },
-    onCompleted: ({ getUsers }) => {
-      // ('getUsers', getUsers)
-      setUsers({
-        ...users,
-        data: getUsers.users
-      })
-      setTotalPage(getUsers.totalPages)
-      setCount(getUsers.count)
-      if (getUsers.users.length > 0)
-        setVisiblePN(true)
-      else
-        setVisiblePN(false)
-    },
-    onError: (error) => {
-      console.log(error)
+  const { data, loading, error, refetch } = useQuery(
+  //const [fetchFilteredUsers, { data, loading, error, refetch }] = useLazyQuery(
+    GET_USERS,
+    {
+      variables: {
+        search,
+        page: page,
+        limit: perpage
+      },
+      onCompleted: ({ getUsers }) => {
+        // ('getUsers', getUsers)
+        const newData = getUsers.users
+        // setUsers({
+        //   ...users,
+        //   data: getUsers.users
+        // })
+        setUsers(newData)
+        setTotalPage(getUsers.totalPages)
+        setCount(getUsers.count)
+        if (getUsers.users.length > 0)
+          setVisiblePN(true)
+        else
+          setVisiblePN(false)
+      },
+      onError: (error) => {
+        console.log(error)
+      }
     }
-  })
+  )
 
   const [deleteUser] = useMutation(DELETE_USER, {
     onCompleted: () => {
       console.log('deleteUser')
-      fetchFilteredUsers()
+      refetchQuery()
     },
     onError: (error) => {
       console.log(error)
@@ -111,10 +113,17 @@ const ListIndex2 = () => {
       }
     })
   }
+  const refetchQuery = () => {
+    console.log('Users refetchQuery')
+    refetch()
+  }
   React.useEffect(() => {
-    fetchFilteredUsers()
-    console.dir('Listindex2 useEffect data change', data)
-  }, [])
+    if (!data) return
+    setUsers(data.getUsers?.users)
+    return () => {
+      //setBoards({data: []})
+    }
+  }, [data])
 
   if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>
   //return null
@@ -123,7 +132,7 @@ const ListIndex2 = () => {
       <Box style={{ padding: '0rem' }}>
         <SearchBar
           title={title}
-          fn={fetchFilteredUsers}
+          //fn={{}/* fetchFilteredUsers */}
           search={search}
           setSearch={setSearch}
           page={page}
@@ -134,15 +143,15 @@ const ListIndex2 = () => {
           data={users}
           setData={setUsers}
           visiblePN={false}
-          refetch={refetch}
+          refetch={refetchQuery}
           active={openDialog}
           setOpenDialog={setOpenDialog}
           addComponent={
-            <Add onClick={setOpenDialog} active={openDialog} refetch={refetch} users={users} setUsers={setUsers} />
+            <Add onClick={setOpenDialog} active={openDialog} refetch={refetchQuery} data={users} setData={setUsers} />
           }
         />
         {error && <Alert severity="warning">{JSON.stringify(error, null, 2)}</Alert>}
-        {users.data && !error && <React.Fragment>
+        {users && !error && <React.Fragment>
           <TableContainer component={Paper} sx={{ maxHeight: 590 }}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table" stickyHeader>
               <TableHead>
@@ -156,7 +165,7 @@ const ListIndex2 = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {users.data && users.data.map((row) => (
+                {users && users.map((row) => (
                   <TableRow
                     key={row._id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
