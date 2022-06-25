@@ -3,7 +3,6 @@ import { useFormik, } from 'formik';
 import * as yup from 'yup';
 import _ from 'lodash';
 import { useSnackbar } from 'notistack';
-import uuid from "react-uuid";
 import { useLocation } from "react-router-dom"
 
 // Material
@@ -18,10 +17,8 @@ import {
 } from '@mui/material';
 
 // Custom
-import {
-  useMutation
-} from "@apollo/client";
-import { CREATE_MINDMAP } from "../../app/queries";
+import { useMutation } from "@apollo/client";
+import { UPDATE_BOARD, } from "../../app/queries";
 import { makePageTitleFromPath } from '../../app/functions/text'
 
 const validationSchema = yup.object({
@@ -32,64 +29,68 @@ const validationSchema = yup.object({
     .required('Required'),
   title: yup
     .string('Enter title')
-    .min(2, 'Too Short!')
-    .max(50, 'Too Long!')
     .required('Required'),
   description: yup
-    .string('Enter description')
+    .string('Enter description'),
 });
 
-const Add = (props) => {
+const Update = (props) => { // { onClick, active, refetch, data, setData/* , updateBoard */ }
 
   const { enqueueSnackbar } = useSnackbar();
   const [open, setOpen] = React.useState(props.active);
   const location = useLocation();
-  const [title, setTitle] = React.useState(makePageTitleFromPath(location.pathname))
+  const [title, setTitle] = React.useState('')
 
-  const [createMindmap, { error }] = useMutation(CREATE_MINDMAP, {
-    onCompleted: ({ createMindmap }) => {
-      // console.log('CREATE_MINDMAP completed', createMindmap)
-      const variant = 'success'
-      enqueueSnackbar(title + ' created successfully', { variant })
-      props.onClick(false)
-      setOpen(false)
-      props.refetch();
-    },
-    onError: (error) => {
-      // console.log('CREATE_MINDMAP error', error)
-      const variant = 'error'
-      enqueueSnackbar(error.message, { variant })
-    }
-  });
+  // const [updateBoard, { error }] = useMutation(UPDATE_BOARD, {
 
-  const emptyMap = {
-    id: uuid(),
-    type: "root",
-    name: "first",
-    x: 10,
-    y: 140,
-    direction: 1,
-    width: 180,
-    height: 100,
-    background: "#FFFFFF",
-    children: []
-  }
-  const emptyMapRecord = {
-    originalMap: JSON.stringify(emptyMap),
-    currentMap: JSON.stringify(emptyMap),
-    mapimage: null,
-  }
+  //   onCompleted: ({ updateBoard }) => {
+  //     console.log('UpdateItem updateBoard completed', updateBoard)
+  //     const variant = 'success'
+  //     enqueueSnackbar(' created successfully', { variant })
+
+  //     onClick(false)
+  //     setOpen(false)
+  //     refetch();
+  //   },
+  //   onError: (error) => {
+  //     // console.log('CREATE_MINDMAP error', error)
+  //     const variant = 'error'
+  //     enqueueSnackbar(error.message, { variant })
+  //   }
+  // });
+  React.useEffect(() => {
+    if (props.data === null) return
+    console.log('UpdateItem data for update', props.data)
+    _.merge(formik.initialValues, props.data)
+
+    setTitle(props.data.title)
+  }, [props.data])
+
   const formik = useFormik({
     initialValues: {
-      owner: props.owner,
-      title: 'New Empty map',
-      description: 'New Empty map',
+      title: '',
+      description: '',
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-
-      const newData = _.merge(values, emptyMapRecord)
-      createMindmap({ variables: { input: newData } })
+      const id = values._id
+      values = _.omit(values, ['__typename', 'updatedAt', 'createdAt', '_id'])
+      //const newData = _.merge(data, values)
+      console.log('UpdateItem values in formik onSubmit ', values)
+      handleClose()
+      props.updateBoard({
+        variables: {
+          id: id,
+          input: {
+            owner: values.owner,
+            title: values.title,
+            description: values.description,
+            boardimage: values.boardimage,
+            board: values.board,
+            editinghistory: "",
+          }
+        }
+      })
     },
   })
 
@@ -105,10 +106,8 @@ const Add = (props) => {
 
   return (
     <div>
-      {error && error.graphQLErrors && <pre>
-        {JSON.stringify(error.graphQLErrors.message, null, 2)}
-      </pre>}
-      <Dialog
+
+      {props.data && <Dialog
         fullWidth
         maxWidth={'md'}
         keepMounted
@@ -118,33 +117,19 @@ const Add = (props) => {
             handleClose();
           }
         }}
-        aria-labelledby="draggable-dialog-title"
+        aria-labelledby="update-dialog-title"
       >
-        <DialogTitle id="draggable-dialog-title">Add new {title}</DialogTitle>
+        <DialogTitle id="update-dialog-title">Update <strong>{title}</strong> (ID: {props.data._id}) </DialogTitle>
 
         <form onSubmit={formik.handleSubmit}>
           <DialogContent>
-            <DialogContentText>Please, fill form below to add new {title}</DialogContentText>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="owner"
-              name="owner"
-              label="Creator"
-              type="text"
-              fullWidth
-              variant="standard"
-              value={formik.values.owner}
-              onChange={formik.handleChange}
-              error={formik.touched.owner && Boolean(formik.errors.owner)}
-              helperText={formik.touched.owner && formik.errors.owner}
-            />
+            <DialogContentText>Please, fill form below </DialogContentText>
             <TextField
               autoFocus
               margin="dense"
               id="title"
               name="title"
-              label="Title"
+              label="Updated title"
               type="text"
               fullWidth
               variant="standard"
@@ -158,7 +143,7 @@ const Add = (props) => {
               margin="dense"
               id="description"
               name="description"
-              label="Description"
+              label="Updated description"
               type="text"
               fullWidth
               variant="standard"
@@ -171,12 +156,12 @@ const Add = (props) => {
           </DialogContent>
           <DialogActions>
             <Button autoFocus onClick={handleClose}>Cancel</Button>
-            <Button type="submit">Add</Button>
+            <Button type="submit">Update</Button>
           </DialogActions>
         </form>
-      </Dialog>
+      </Dialog>}
     </div>
   )
 }
 
-export default Add
+export default Update

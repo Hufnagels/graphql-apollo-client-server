@@ -46,11 +46,11 @@ import { formatBytes, getBase64ImageSize, getRandomInt } from '../../app/functio
 import useResizeObserver from '../../app/hooks/useResizeObserver.hook'
 
 // GraphQL
-import { SUBSCRIBE_TO_BOARD, POST_UPDATED_ELEMENT, GET_BOARD, UPDATE_BOARD, } from "../../app/queries";
+import { SUBSCRIBE_TO_BOARD, POST_UPDATED_ELEMENT, GET_BOARD, UPDATE_BOARD, UPLOAD_SINGLE_FILE, UPLOAD_MULTIPLE_FILES } from "../../app/queries";
 import { loadBoard, updateBoard, clearBoard } from '../../app/reducers/boardSlice'
 
 const ListItem2 = () => {
-  // Common
+
   const { boardid } = useParams('boardid');
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
@@ -100,8 +100,8 @@ const ListItem2 = () => {
   const { data, loading, error } = useQuery(GET_BOARD, {
     variables: { id: boardid }
   });
-  const [updateBoard] = useMutation(UPDATE_BOARD, { 
-    onCompleted: ({updateBoard}) => {
+  const [updateBoard] = useMutation(UPDATE_BOARD, {
+    onCompleted: ({ updateBoard }) => {
       const variant = 'success'
       enqueueSnackbar('Board updated successfully', { variant })
     },
@@ -166,7 +166,15 @@ const ListItem2 = () => {
       enqueueSnackbar(error.message, { variant })
     }
   });
-
+  const [uploadFile] = useMutation(UPLOAD_SINGLE_FILE, {
+    onCompleted: (data) => {
+      console.log('uploadFile', data)
+    },
+    onError: (error) => {
+      const variant = 'error'
+      enqueueSnackbar(error.message, { variant })
+    }
+  })
 
   React.useEffect(() => {
     //  console.log('PostsListIndex --> data useEffect')
@@ -188,6 +196,8 @@ const ListItem2 = () => {
 
   React.useEffect(() => {
     if (!dimensions) return;
+    console.log('screen.height', window.screen.height, dimensions.height)
+    console.log('screen.width', window.screen.width, dimensions.width)
     setWidth(dimensions.width)
     setHeight(dimensions.height)
   }, [dimensions])
@@ -423,6 +433,10 @@ const ListItem2 = () => {
   };
   const uploadImage = ev => {
     const file = ev.target.files[0];
+    // console.log('uploadImage', file)
+    // uploadFile({ variables: { file, description: 'Valami2' } })
+    // imageUploadRef.current.value = null;
+    // return
     const reader = new FileReader();
 
     reader.addEventListener(
@@ -606,8 +620,7 @@ const ListItem2 = () => {
 
   return (
     <React.Fragment>
-      <Stack
-        direction={{ xs: 'column', sm: 'column', md: 'column', lg: 'row' }}
+      <Stack direction={{ xs: 'column', sm: 'column', md: 'column', lg: 'row' }}
         justifyContent="center"
         alignItems="center"
         spacing='1'
@@ -617,8 +630,7 @@ const ListItem2 = () => {
           width: '100%',
         }}
       >
-        <Stack
-          direction="row"
+        <Stack direction="row"
           justifyContent="center"
           alignItems="center"
           spacing='1'
@@ -669,7 +681,7 @@ const ListItem2 = () => {
             style={{ display: "none" }}
             type="file"
             ref={imageUploadRef}
-            onChange={e => uploadImage(e)}
+            onChange={uploadImage}
           />
         </Stack>
       </Stack>
@@ -683,14 +695,19 @@ const ListItem2 = () => {
         style={{
           ...KonvaRefStyle,
           //height: 'calc(100vh - 193px)', //(document.body.clientHeight - 100) + 'px', // md
-          width: 'calc(100vw - 50)',
+          /**
+           * if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(navigator.userAgent)) {
+              return "tablet";
+              }
+           */
+          width: 'calc(100vw - 60)',
         }}
         sx={{
           height: isMobile ? {
-            xs: 'calc(100vh - 207px)',
-            sm: 'calc(100vh - 207px)',
-            md: 'calc(100vh - 207px)',
-            lg: 'calc(100vh - 177px)'
+            xs: 'calc(100vh - 227px)',
+            sm: 'calc(100vh - 227px)',
+            md: 'calc(100vh - 227px)',
+            lg: 'calc(100vh - 187px)'
           } : {
             xs: 'calc(100vh - 197px)',
             sm: 'calc(100vh - 197px)',
@@ -703,7 +720,7 @@ const ListItem2 = () => {
           width={width}
           height={height}
           ref={stageRef}
-
+          pixelRatio={1}
           onMouseDown={handleMouseDown}
           onMousemove={handleMouseMove}
           onMouseup={handleMouseUp}
@@ -716,6 +733,9 @@ const ListItem2 = () => {
             height: '100%',
           }}
           onClick={(e) => {
+            console.log('Stage click', e.target)
+          }}
+          onTap={(e) => {
             console.log('Stage click', e.target)
           }}
         >
@@ -766,7 +786,7 @@ const ListItem2 = () => {
             onChange={(e) => {
               console.log('onChange', e)
             }}
-            
+
           >
 
             {shapes && shapes.map((image, i) => {

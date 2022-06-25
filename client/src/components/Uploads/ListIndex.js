@@ -16,9 +16,9 @@ import { useTheme } from '@mui/material/styles';
 
 // Custom
 import ListIndexItem from './ListIndexItem';
-import { GET_BOARDS, DELETE_BOARD, UPDATE_BOARD } from "../../app/queries";
+import { GET_FILES, DELETE_FILE, UPDATE_BOARD } from "../../app/queries";
 import Add from './Add';
-import Update from './UpdateItem'
+
 import SearchBar from '../Layout/SearchBar';
 import { makeListTitleFromPath } from '../../app/functions/text'
 
@@ -34,7 +34,7 @@ const ListIndex = () => {
   const [updateData, setUpdateData] = React.useState(null)
   const [search, setSearch] = React.useState(null)
 
-  const [boards, setBoards] = React.useState([])
+  const [files, setFiles] = React.useState([])
 
   const [page, setPage] = React.useState(1);
   const [totalpage, setTotalPage] = React.useState(1)
@@ -47,23 +47,23 @@ const ListIndex = () => {
   const forceUpdate = React.useCallback(() => updateState({}), []);
 
   //const [fetchFilteredBoards, { data, loading, error, refetch }] = useLazyQuery(
-  const { data, loading, error, refetch } = useQuery(GET_BOARDS, {
+  const { data, loading, error, refetch } = useQuery(GET_FILES, {
     variables: {
       search,
       page: page,
       limit: perpage
     },
     //fetchPolicy: 'no-cache', //'cache-and-network', //'no-cache', //'cache-and-network', //
-    onCompleted: ({ getBoards }) => {
-      console.log('useQuery(GET_BOARDS) onCompleted:', getBoards)
+    onCompleted: ({ getFiles }) => {
+      console.log('useQuery(GET_FILES) onCompleted:', getFiles)
       setUpdateData(null)
-      setBoards([])
-      // prevStateRef.current = getBoards.boards
-      setBoards(getBoards.boards)
-      setTotalPage(getBoards.totalPages)
-      setCount(getBoards.count)
+      setFiles([])
+      // prevStateRef.current = getFiles.files
+      setFiles(getFiles.files)
+      setTotalPage(getFiles.totalPages)
+      setCount(getFiles.count)
 
-      if (getBoards.boards.length > 0)
+      if (getFiles.files.length > 0)
         setVisiblePN(true)
       else
         setVisiblePN(false)
@@ -83,23 +83,23 @@ const ListIndex = () => {
     // console.log('cache', cache)
     // console.log('data', data)
     //       const idx = data.updateBoard?._id
-    //       const index = findIndexInBoards(idx)
-    //       handleUpdateBoards(index, data.updateBoard)
+    //       const index = findIndexInFiles(idx)
+    //       handleUpdateFiles(index, data.updateBoard)
     //     },
-    onCompleted: async ({ updateBoard }) => {
+    onCompleted: async ({ updateFile }) => {
 
-      const idx = updateBoard._id
-      const index = findIndexInBoards(idx)
+      const idx = updateFile._id
+      const index = findIndexInFiles(idx)
       console.log('onCompleted', idx, index)
-      console.log('updateBoard completed', updateBoard)
-      // boards[index] = updateBoard
+      console.log('updateFile completed', updateFile)
+      // boards[index] = updateFile
 
       setOpenUpdateDialog(false)
       setUpdateData(null)
       const variant = 'success'
       enqueueSnackbar(' created successfully', { variant })
       refetchQuery()
-      // await handleUpdateBoards(index, updateBoard)
+      // await handleUpdateFiles(index, updateFile)
       // setOpenUpdateDialog(false)
       // //const variant = 'success'
       // enqueueSnackbar(' created successfully', { variant })
@@ -112,9 +112,9 @@ const ListIndex = () => {
     }
   });
 
-  const [deleteBoard] = useMutation(DELETE_BOARD, {
+  const [deleteBoard] = useMutation(DELETE_FILE, {
     onCompleted: () => {
-      console.log('deleteBoard')
+      console.log('deleteFile')
       //fetchFilteredBoards()
       refetchQuery()
     },
@@ -131,35 +131,35 @@ const ListIndex = () => {
     })
   }
   const refetchQuery = () => {
-    console.log('Whiteboard refetchQuery')
+    console.log('Files refetchQuery')
     setUpdateData(null)
-    setBoards([])
+    setFiles([])
     refetch()
 
   }
 
   const editItem = (idx) => {
     console.log('editItem', idx)
-    console.log('editItem', boards)
-    const item = findBoardItemByIdInBoards(idx)
+    console.log('editItem', files)
+    const item = findBoardItemByIdInFiles(idx)
     setUpdateData(item)
     setOpenUpdateDialog(true)
 
   }
-  const handleUpdateBoards = (index, item) => {
-    const newBoards = [...boards];
-    newBoards.splice(index, 1)
-    newBoards.unshift(item)
-    console.log('newBoards', newBoards)
-    setBoards(newBoards)
-    // setBoards({...boards})
+  const handleUpdateFiles = (index, item) => {
+    const newFiles = [...files];
+    newFiles.splice(index, 1)
+    newFiles.unshift(item)
+    console.log('newFiles', newFiles)
+    setFiles(newFiles)
+    // setFiles({...files})
     forceUpdate()
-    //if (prevStateRef.current !== newBoards) refetch()
+    //if (prevStateRef.current !== newFiles) refetch()
   }
 
-  const findIndexInBoards = (id) => {
-    var index = boards.findIndex(x => x._id === id);
-    //console.log('updated index, state', index, boards)
+  const findIndexInFiles = (id) => {
+    var index = files.findIndex(x => x._id === id);
+    //console.log('updated index, state', index, files)
     if (index === -1) {
       // console.log('updateItem Not in list', id, updatedItem)
       return null
@@ -167,14 +167,14 @@ const ListIndex = () => {
       return index
     }
   }
-  const findBoardItemByIdInBoards = (id) => {
-    var index = boards.findIndex(x => x._id === id);
-    //console.log('updated index, state', index, boards)
+  const findBoardItemByIdInFiles = (id) => {
+    var index = files.findIndex(x => x._id === id);
+    //console.log('updated index, state', index, files)
     if (index === -1) {
       // console.log('updateItem Not in list', id, updatedItem)
       return null
     } else {
-      return boards[index]
+      return files[index]
     }
   }
 
@@ -182,21 +182,21 @@ const ListIndex = () => {
   // React.useEffect(() => {
   //   if (!data) return
 
-  //   setBoards(data.getBoards.boards)
-  //     setTotalPage(data.getBoards.totalPages)
-  //     setCount(data.getBoards.count)
+  //   setFiles(data.getFiles.boards)
+  //     setTotalPage(data.getFiles.totalPages)
+  //     setCount(data.getFiles.count)
 
-  //     if (data.getBoards.boards.length > 0)
+  //     if (data.getFiles.boards.length > 0)
   //       setVisiblePN(true)
   //     else
   //       setVisiblePN(false)
-  //   return () => setBoards([])
+  //   return () => setFiles([])
   // }, [data])
   //   React.useEffect(() => {
   //     if (boards.length === 0) return
   // console.log('boards updated')
   //     return () => {
-  //       //setBoards({data: []})
+  //       //setFiles({data: []})
   //     }
   //   }, [boards])
 
@@ -215,23 +215,23 @@ const ListIndex = () => {
           perpage={perpage}
           setPerpage={setPerpage}
           totalpage={totalpage}
-          data={boards}
-          setData={setBoards}
+          data={files}
+          setData={setFiles}
           visiblePN={visiblePN}
           refetch={refetchQuery}
           active={openAddDialog}
           setOpenDialog={setOpenAddDialog}
           addComponent={
-            <Add onClick={setOpenAddDialog} active={openAddDialog} refetch={refetchQuery} data={boards} setData={setBoards} owner={user.lastname} />
+            <Add onClick={setOpenAddDialog} active={openAddDialog} refetch={refetchQuery} data={files} setData={setFiles} owner={user.lastName} />
           }
         />
         <Grid container spacing={{ sm: 1, md: 1 }} >
           {error && <Alert severity="warning">{JSON.stringify(error, null, 2)}</Alert>}
-          {boards && boards.map((board) => {
-            return <ListIndexItem data={board} key={board._id} delete={deleteItem} edit={editItem} />
+          {files && files.map((file) => {
+            return <ListIndexItem data={file} key={file._id} delete={deleteItem} edit={editItem} />
           })}
         </Grid>
-        {boards && <Update onClick={setOpenUpdateDialog} active={openUpdateDialog} updateBoard={updateBoard} refetch={refetchQuery} data={updateData} setData={setBoards} />}
+
       </Box>
     </React.Fragment>
   )

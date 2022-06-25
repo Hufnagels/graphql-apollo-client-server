@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import _ from 'lodash';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 
 // Material
 import {
@@ -22,8 +23,8 @@ import MobileDatePicker from '@mui/lab/MobileDatePicker';
 
 // Custom
 import { useMutation } from "@apollo/client";
-import { CREATE_USER } from "../../app/queries";
-import { authContext } from "../../app/context/authContext"
+import { SIGNUP_USER } from "../../app/queries";
+import { login } from '../../app/reducers/authSlice'
 
 const validationSchema = yup.object({
   firstName: yup
@@ -51,11 +52,26 @@ const validationSchema = yup.object({
     .oneOf([yup.ref('password'), null], 'Passwords must match')
 });
 
-
 const SignUp = () => {
+
   const navigate = useNavigate()
-  const context = useContext(authContext)
-  const [createUser, { error }] = useMutation(CREATE_USER);
+  const dispatch = useDispatch()
+  const [signupUser, { error }] = useMutation(SIGNUP_USER, {
+    onCompleted: ({ signupUser }) => {
+      // console.log('SIGNUP_USER', signupUser)
+      // return
+      // // localStorage.setItem(REACT_APP_LS_TOKEN_NAME, loginUser.tokens.accessToken);
+      // dispatch(login(signupUser))
+      const variant = 'success'
+      enqueueSnackbar('SigIn with your new credentials', { variant })
+      setTimeout(navigate('/signin', { replace: true }), 5000);
+
+    },
+    onError: (error) => {
+      const variant = 'error'
+      enqueueSnackbar(error.message, { variant })
+    }
+  })
 
   const { enqueueSnackbar } = useSnackbar();
   const [dateOfBirth, setDateOfBirth] = useState(new Date())
@@ -73,33 +89,9 @@ const SignUp = () => {
     onSubmit: (values) => {
       values.date_of_birth = dateOfBirth.toISOString()
       const newData = _.omit(values, 'passwordConfirmation')
-      createUser(
-        {
-          variables: { input: newData }
-        }
-      ).then((res) => {
-        //console.log('createUser promise', res.data.createUser)
-        context.login(res.data.createUser)
-        //const variant = 'success'
-        //enqueueSnackbar('User created successfully', { variant })
-        navigate('/')
-        //console.log('createUser setUsers')
-      }).catch((err) => {
-        //console.log('createUser catch err', err.message)
-        const variant = 'error'
-        enqueueSnackbar(err.message, { variant })
-      })
+      signupUser({ variables: { input: newData } })
     },
   })
-
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-  //   const data = new FormData(event.currentTarget);
-  //   console.log({
-  //     email: data.get('email'),
-  //     password: data.get('password'),
-  //   });
-  // };
 
   return (
     <Container component="main" maxWidth="xs">

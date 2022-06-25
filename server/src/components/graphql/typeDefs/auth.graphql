@@ -27,6 +27,16 @@ type Auth {
   tokens: Tokens
 }
 
+input UserInputSignup {
+  # username: String
+  firstName: String
+  lastName: String
+  date_of_birth: String
+  email: String
+  password: String
+  passwordConfirmation: String
+}
+
 # loginUser
 input UserInputLogin {
   email: String
@@ -40,6 +50,7 @@ input refreshTokenInput {
 }
 
 type Mutation {
+  signupUser(input: UserInputSignup): Boolean #Auth #User
   loginUser(input:UserInputLogin): Auth
   refreshToken(input:refreshTokenInput): Auth
 }

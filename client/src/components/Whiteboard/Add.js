@@ -20,7 +20,7 @@ import {
 import {
   useMutation
 } from "@apollo/client";
-import { CREATE_BOARD, GET_BOARDS } from "../../app/queries";
+import { CREATE_BOARD, } from "../../app/queries";
 import { makePageTitleFromPath } from '../../app/functions/text'
 
 const validationSchema = yup.object({
@@ -36,23 +36,23 @@ const validationSchema = yup.object({
     .string('Enter description'),
 });
 
-const Add = ({ onClick, active, refetch, data, setData }) => {
+const Add = (props) => { //{ onClick, active, refetch, data, setData }
 
   const { enqueueSnackbar } = useSnackbar();
-  const [open, setOpen] = React.useState(active);
+  const [open, setOpen] = React.useState(props.active);
   const location = useLocation();
   const [title, setTitle] = React.useState(makePageTitleFromPath(location.pathname))
 
   const [createBoard, { error }] = useMutation(CREATE_BOARD, {
-    //refetchQueries: [{ query: GET_BOARDS }],
+
     onCompleted: ({ createBoard }) => {
       console.log('createBoard completed', createBoard)
       const variant = 'success'
       enqueueSnackbar(title + ' created successfully', { variant })
 
-      onClick(false)
+      props.onClick(false)
       setOpen(false)
-      refetch();
+      props.refetch();
     },
     onError: (error) => {
       // console.log('CREATE_MINDMAP error', error)
@@ -67,7 +67,7 @@ const Add = ({ onClick, active, refetch, data, setData }) => {
   }
   const formik = useFormik({
     initialValues: {
-      owner: 'varkonyi',
+      owner: props.owner,
       title: 'New Empty board',
       description: 'New Empty board',
     },
@@ -80,14 +80,14 @@ const Add = ({ onClick, active, refetch, data, setData }) => {
   })
 
   const handleClose = () => {
-    onClick(false)
+    props.onClick(false)
     formik.resetForm()
     setOpen(false);
   };
 
   React.useEffect(() => {
-    setOpen(active)
-  }, [active])
+    setOpen(props.active)
+  }, [props.active])
 
   return (
     <div>

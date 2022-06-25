@@ -18,9 +18,7 @@ import {
 import MobileDatePicker from '@mui/lab/MobileDatePicker';
 
 // Custom
-import {
-  useMutation
-} from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { CREATE_MAP } from "../../app/queries";
 import { makePageTitleFromPath } from '../../app/functions/text'
 
@@ -37,10 +35,10 @@ const validationSchema = yup.object({
 
 });
 
-const Add = ({ onClick, active, refetch, data, setData}) => {
+const Add = (props) => {
 
   const { enqueueSnackbar } = useSnackbar();
-  const [open, setOpen] = React.useState(active);
+  const [open, setOpen] = React.useState(props.active);
   const location = useLocation();
   const [title, setTitle] = React.useState(makePageTitleFromPath(location.pathname))
 
@@ -53,9 +51,9 @@ const Add = ({ onClick, active, refetch, data, setData}) => {
       //       })
       const variant = 'success'
       enqueueSnackbar(title + ' created successfully', { variant })
-      onClick(false)
+      props.onClick(false)
       setOpen(false)
-      refetch();
+      props.refetch();
     },
     onError: (error) => {
       // console.log('CREATE_MAP error', error)
@@ -66,7 +64,7 @@ const Add = ({ onClick, active, refetch, data, setData}) => {
 
   const formik = useFormik({
     initialValues: {
-      "owner": 'varkonyi',
+      "owner": props.owner,
       "title": '',
       "description": '',
       "originalMap": '',
@@ -83,14 +81,14 @@ const Add = ({ onClick, active, refetch, data, setData}) => {
 
   const handleClose = () => {
     setOpen(false);
-    onClick(false)
+    props.onClick(false)
     formik.resetForm()
 
   };
 
   React.useEffect(() => {
-    setOpen(active)
-  }, [active])
+    setOpen(props.active)
+  }, [props.active])
 
   return (
     <div>

@@ -2,6 +2,7 @@ import React from "react";
 import { Line, Transformer } from "react-konva";
 
 const Freehand = ({ shapeProps, isSelected, onSelect, onChange }) => {
+
   const shapeRef = React.useRef();
   const trRef = React.useRef();
   //console.log('shapeProps lines',shapeProps)
@@ -18,6 +19,7 @@ const Freehand = ({ shapeProps, isSelected, onSelect, onChange }) => {
     <React.Fragment>
       <Line
         onClick={onSelect}
+        onTap={onSelect}
         ref={shapeRef}
         {...shapeProps}
         lineCap='round'

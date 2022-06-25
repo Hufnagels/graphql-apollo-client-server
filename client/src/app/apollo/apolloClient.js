@@ -7,6 +7,7 @@ import {
   split,
 } from '@apollo/client';
 // import { withClientState } from 'apollo-link-state';
+import { createUploadLink } from 'apollo-upload-client';
 import { onError } from "@apollo/client/link/error";
 import { setContext } from '@apollo/client/link/context'
 import { getMainDefinition } from '@apollo/client/utilities';
@@ -19,17 +20,18 @@ import { store } from '../store/store'
 import { REACT_APP_LS_TOKEN_NAME, REACT_APP_API_URL } from '../config/config'
 
 if (process.env.NODE_ENV !== 'production') {
-  // console.log('apolloClient NODE_ENV', process.env.NODE_ENV)
-  // console.log('apolloClient REACT_APP_API_URL', process.env.REACT_APP_API_URL)
+  console.log('apolloClient NODE_ENV', process.env.NODE_ENV)
+  console.log('apolloClient REACT_APP_API_URL', REACT_APP_API_URL)
 }
 
 
 const httpLink = new HttpLink({
-  uri: `http://${process.env.REACT_APP_API_URL}/graphql`,
+  uri: `http://${REACT_APP_API_URL}/graphql`,
   //credentials: 'include',
-
 })
-
+const uploadLink = createUploadLink({
+  uri: `http://${REACT_APP_API_URL}/graphql`,
+})
 const authLink = setContext((_, { headers }) => {
   const token = !store.getState().auth.tokens ? false : (store.getState().auth.tokens.accessToken) //|| localStorage.getItem(REACT_APP_LS_TOKEN_NAME) || ""
   // console.info('apolloClient authLink STORE', store.getState().auth)
@@ -39,7 +41,7 @@ const authLink = setContext((_, { headers }) => {
     headers: {
       ...headers,
       // AccesControllAllowOrigin: "http://localhost:3000",
-        // "Access-Control-Allow-Origin": "http://localhost:3000",
+      // "Access-Control-Allow-Origin": "http://localhost:3000",
       //   "Access-Control-Allow-Credentials" : true,
       authorization: token ? `Bearer ${token}` : "",
     }
@@ -75,23 +77,23 @@ const splitLink = split(
     );
   },
   wsLink,
-  authLink.concat(httpLink),
+  authLink.concat(uploadLink) //(httpLink),
 );
 /**/
 const errorLink = onError(({ graphQLErrors, networkError }) => {
-  if (graphQLErrors){
+  if (graphQLErrors) {
     if (process.env.NODE_ENV !== 'production')
       graphQLErrors.forEach(({ message, locations, path }) =>
         console.log(
           `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
         ),
       );
-  
+
     return graphQLErrors
   }
 
   if (networkError) {
-    if (process.env.NODE_ENV !== 'production') 
+    if (process.env.NODE_ENV !== 'production')
       console.log(`[Network error]: ${networkError}`)
   }
 });
@@ -102,12 +104,13 @@ const defaultOptions = {
     // errorPolicy: 'none',
   },
   query: {
-    fetchPolicy: 'no-cache',
+    fetchPolicy: 'cache-and-network', // 'no-cache',
     // errorPolicy: 'none',
   },
-  // mutate: {
+  mutate: {
+    fetchPolicy: 'no-cache',
     // errorPolicy: 'all',
-  // },
+  },
 }
 const cache = new InMemoryCache();
 // const stateLink = withClientState({ cache, });

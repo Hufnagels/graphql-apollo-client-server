@@ -1,0 +1,68 @@
+scalar Upload
+
+type File {
+  #_id: ID!
+  path: String
+  filename: String
+  length: String
+  mimetype: String
+  encoding: String
+},
+
+type Tag {
+  title: String
+}
+
+type Metadata {
+  owner: String
+  title: String
+  description: String
+  encoding: String
+  thumbnail: String
+  tags: [String]
+}
+
+type ListFiles {
+  _id: ID!
+  length: Int
+  chunkSize: Int
+  uploadDate: String
+  filename: String
+  contentType: String
+  metadata: Metadata
+},
+
+type ListFilesResult {
+  files: [ListFiles]
+  currentPage: Int
+  totalPages: Int
+  count: Int
+}
+
+type DownloadedFile {
+  _id: ID!
+  length: Int
+  chunkSize: Int
+  uploadDate: String
+  filename: String
+  contentType: String
+  metadata: Metadata
+  file: String
+},
+
+type MultipleUploadResult {
+  message: String
+}
+
+type Query {
+  getFiles(search: String, page: Int, limit: Int): ListFilesResult
+  getFile(_id: ID!): DownloadedFile
+},
+
+type Mutation {
+  # Multiple uploads are supported. See graphql-upload docs for details.
+  singleUpload(file: Upload!, title: String!, description: String): File!
+  multipleUpload(files: [Upload!], title: String!, description: String, tags: String): MultipleUploadResult #[File!]!
+  deleteFile(_id: ID!): Boolean
+}
+

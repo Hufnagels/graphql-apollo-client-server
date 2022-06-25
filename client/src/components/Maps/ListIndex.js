@@ -6,6 +6,7 @@ import {
 } from "@apollo/client";
 import { useLocation } from "react-router-dom"
 import _ from "lodash"
+import { useDispatch, useSelector } from "react-redux";
 
 // Material
 import {
@@ -25,7 +26,7 @@ import SearchBar from '../Layout/SearchBar';
 import { makeListTitleFromPath } from '../../app/functions/text'
 
 const ListIndex = () => {
-  // console.log('ListIndex')
+  const { isLoggedIn, user, tokens } = useSelector((state) => state.auth);
   const location = useLocation();
   const [title, setTitle] = React.useState(makeListTitleFromPath(location.pathname) + ' list')
 
@@ -43,8 +44,7 @@ const ListIndex = () => {
   const [visiblePN, setVisiblePN] = React.useState(false)
 
   // const [ fetchFilteredMaps, { data, loading, error, refetch } ] = useLazyQuery(
-  const { data, loading, error, refetch } = useQuery(
-    GET_MAPS, 
+  const { data, loading, error, refetch } = useQuery(GET_MAPS,
     {
       variables: {
         search,
@@ -52,12 +52,8 @@ const ListIndex = () => {
         limit: perpage
       },
       onCompleted: ({ getMaps }) => {
-        console.log('getMaps', getMaps)
+        console.log('useQuery(GET_MAPS) onCompleted:', getMaps)
         const newData = getMaps.maps
-        // setMaps({
-        //   ...maps,
-        //   data: getMaps.maps
-        // })
         setMaps(newData)
         setTotalPage(getMaps.totalPages)
         setCount(getMaps.count)
@@ -106,7 +102,7 @@ const ListIndex = () => {
   }, [data])
 
   if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>
-  
+
   return (
     <React.Fragment>
       <Box style={{ padding: '0rem' }}>
@@ -127,13 +123,13 @@ const ListIndex = () => {
           active={openDialog}
           setOpenDialog={setOpenDialog}
           addComponent={
-            <Add onClick={setOpenDialog} active={openDialog} refetch={refetchQuery} data={maps} setData={setMaps} />
+            <Add onClick={setOpenDialog} active={openDialog} refetch={refetchQuery} data={maps} setData={setMaps} owner={user.lastName} />
           }
         />
         <Grid container spacing={{ sm: 1, md: 1 }} >
           {error && <Alert severity="warning"> No maps were found </Alert>}
           {maps && maps.map((map, idx) => {
-            return <ListIndexItem data={map} key={map._id} title={map.title} delete={deleteItem}/>
+            return <ListIndexItem data={map} key={map._id} title={map.title} delete={deleteItem} />
           })}
         </Grid>
       </Box>

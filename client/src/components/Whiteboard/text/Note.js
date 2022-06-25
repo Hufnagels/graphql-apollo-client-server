@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import EditableText from "./_EditableText";
+//import EditableText from "./_EditableText";
 import { Text, Transformer } from "react-konva";
 
 const Note = ({
@@ -48,15 +48,15 @@ const Note = ({
     }
   }, [selected, isEditing, isTransforming]);
 
-  function toggleEdit() {
-    setIsEditing(!isEditing);
-    // onTextClick(!isEditing);
-  }
+  // function toggleEdit() {
+  //   setIsEditing(!isEditing);
+  //   // onTextClick(!isEditing);
+  // }
 
-  function toggleTransforming() {
-    setIsTransforming(!isTransforming);
-    // onTextClick(!isTransforming);
-  }
+  // function toggleTransforming() {
+  //   setIsTransforming(!isTransforming);
+  //   // onTextClick(!isTransforming);
+  // }
 
   const textchange = (e) => {
     // hide text node and transformer:
@@ -221,11 +221,11 @@ const Note = ({
           });
         }}
         onTransform={e => {
-          const node = textRef.current;
-          const scaleX = node.scaleX();
-          const scaleY = node.scaleY();
-          const rotation = node.rotation()
-          const fs = node.fontSize()
+          // const node = textRef.current;
+          // const scaleX = node.scaleX();
+          // const scaleY = node.scaleY();
+          // const rotation = node.rotation()
+          // const fs = node.fontSize()
           // console.log('fs',fs)
           // console.log('node shapeProps',shapeProps)
           // console.log('e', e)

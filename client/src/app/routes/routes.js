@@ -20,6 +20,10 @@ import UsersListItem from "../../components/Users/ListItem";
 import Chat from "../../components/Chat/Chat"
 import BoardListIndex from "../../components/Whiteboard/ListIndex"
 import BoardListItem from "../../components/Whiteboard/ListItem2"
+//UPLOADS
+import UploadsListIndex from "../../components/Uploads/ListIndex";
+import FilePreview from "../../components/Uploads/Preview";
+// import FileUpdate from "../../components/Uploads/UpdateItem";
 
 ///////MAIN SECTION
 import MainLayout from "../../pages/frontend/Layout/MainLayout";
@@ -84,6 +88,17 @@ const routes = (isLoggedIn) => [
           { index: true, element: <PostsListIndex /> },
           { path: "/app/blogs/:id", element: <PostUpdate /> },
           { path: "/app/blogs/:id/preview", element: <PostPreview /> },
+        ],
+      },
+      {
+        path: "/app/uploads",
+        element: <Outlet />,
+        name: 'Uploads',
+        description: 'Uploaded files',
+        children: [
+          { index: true, element: <UploadsListIndex /> },
+          // { path: "/app/uploads/:id", element: <FileUpdate /> },
+          { path: "/app/uploads/:id/preview", element: <FilePreview /> },
         ],
       },
       {

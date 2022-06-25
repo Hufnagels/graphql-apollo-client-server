@@ -6,7 +6,7 @@ const Img = ({ shapeProps, isSelected, onSelect, onChange, imageUrl }) => {
   const shapeRef = React.useRef();
   const trRef = React.useRef();
   const [image] = useImage(imageUrl);
-// console.log('shapeProps image', shapeProps, isSelected, imageUrl)
+  // console.log('shapeProps image', shapeProps, isSelected, imageUrl)
   React.useEffect(() => {
     if (isSelected) {
       // we need to attach transformer manually
@@ -34,6 +34,7 @@ const Img = ({ shapeProps, isSelected, onSelect, onChange, imageUrl }) => {
           const node = shapeRef.current;
           const scaleX = node.scaleX();
           const scaleY = node.scaleY();
+          const rotation = node.rotation()
           node.scaleX(1);
           node.scaleY(1);
           onChange({
@@ -42,6 +43,7 @@ const Img = ({ shapeProps, isSelected, onSelect, onChange, imageUrl }) => {
             y: node.y(),
             width: node.width() * scaleX,
             height: node.height() * scaleY,
+            rotation
           });
         }}
       />

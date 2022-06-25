@@ -57,6 +57,7 @@ export const decodeToken = async (heaaderToken) => {
 
 export const checkSignedIn = async (req, requiredAuth = true) => {
   //console.log('auth.js req.headers.authorization:', req.headers.authorization)
+  //throw new AuthenticationError('Authentication failed', 'AUTHENTICATION_ERROR')
   const authHeader = req.headers.authorization
   if (process.env.NODE_ENV !== 'production') console.log('#1 auth.js checkSignedIn', authHeader)
 

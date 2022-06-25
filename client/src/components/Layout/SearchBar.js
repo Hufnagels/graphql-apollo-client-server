@@ -146,6 +146,7 @@ const SearchBar = (props) => {
 
   const handlePageChange = (event, value) => {
     props.setPage(value);
+    //props.refetch()
   };
   const handlePerPageChange = (event, value) => {
     props.setPerpage(event.target.value);

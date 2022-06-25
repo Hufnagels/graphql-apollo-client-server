@@ -23,7 +23,7 @@ const App = () => {
   const [open, setOpen] = React.useState(false);
 
   const { isLoggedIn, user, tokens } = useSelector((state) => state.auth);
-  // console.log('App js isLoggedIn, user, tokens',isLoggedIn, user, tokens)
+  //console.log('App js isLoggedIn, user, tokens', isLoggedIn, user, tokens)
   const page = useRoutes(routes(isLoggedIn));
   const dispatch = useDispatch()
 

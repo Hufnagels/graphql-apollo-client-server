@@ -16,6 +16,7 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onChange, updateItem,shap
     <React.Fragment>
       <Rect
         onClick={onSelect}
+        onTap={onSelect}
         ref={shapeRef}
         {...shapeProps}
         draggable

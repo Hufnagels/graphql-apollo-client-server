@@ -63,8 +63,7 @@ const validationSchema = yup.object({
     .transform((_, val) => val === String(val) ? val : null),
 });
 
-const Add = ({ onClick, active, refetch, data, setData }) => {
-
+const Add = (props) => {
   const location = useLocation();
   const [title, setTitle] = React.useState(makePageTitleFromPath(location.pathname))
   const { enqueueSnackbar } = useSnackbar();
@@ -76,9 +75,9 @@ const Add = ({ onClick, active, refetch, data, setData }) => {
       // console.log('CREATE_POST completed', createPost)
       const variant = 'success'
       enqueueSnackbar(title + ' created successfully', { variant })
-      onClick(false)
+      props.onClick(false)
       setOpen(false)
-      refetch();
+      props.refetch();
     },
     onError: (error) => {
       // console.log('CREATE_POST error', error)
@@ -89,7 +88,7 @@ const Add = ({ onClick, active, refetch, data, setData }) => {
 
   const formik = useFormik({
     initialValues: {
-      "author": '',
+      "author": props.owner,
       "title": '',
       "subtitle": '',
       "description": '',
@@ -103,14 +102,14 @@ const Add = ({ onClick, active, refetch, data, setData }) => {
   })
 
   const handleClose = () => {
-    onClick(false)
+    props.onClick(false)
     formik.resetForm()
     setOpen(false);
   };
 
   React.useEffect(() => {
-    setOpen(active)
-  }, [active])
+    setOpen(props.active)
+  }, [props.active])
 
   React.useLayoutEffect(() => {
     if (open) {

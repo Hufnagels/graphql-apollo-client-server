@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import { useLocation } from "react-router-dom"
 import _ from "lodash"
 import { useSnackbar } from 'notistack';
+import { useDispatch, useSelector } from "react-redux";
 
 // Material
 import {
@@ -20,6 +21,7 @@ import SearchBar from '../Layout/SearchBar';
 import { makeListTitleFromPath } from '../../app/functions/text'
 
 const ListIndex = () => {
+  const { isLoggedIn, user, tokens } = useSelector((state) => state.auth);
   const location = useLocation();
   const { enqueueSnackbar } = useSnackbar();
   const [title, setTitle] = React.useState(makeListTitleFromPath(location.pathname) + ' list')
@@ -37,8 +39,7 @@ const ListIndex = () => {
   const [visiblePN, setVisiblePN] = React.useState(false)
 
   //const [ fetchFilteredMindmaps, { data, loading, error, refetch } ] = useLazyQuery(
-  const { data, loading, error, refetch } = useQuery(
-    GET_MINDMAPS, 
+  const { data, loading, error, refetch } = useQuery( GET_MINDMAPS,
     {
       variables: {
         search,
@@ -46,7 +47,7 @@ const ListIndex = () => {
         limit: perpage
       },
       onCompleted: ({ getMindmaps }) => {
-        console.log('getMindmaps', getMindmaps)
+        console.log('useQuery(GET_MINDMAPS) onCompleted:', getMindmaps)
         const newData = getMindmaps.mindmaps
         setMindmaps(newData)
         setTotalPage(getMindmaps.totalPages)
@@ -115,7 +116,7 @@ const ListIndex = () => {
           active={openDialog}
           setOpenDialog={setOpenDialog}
           addComponent={
-            <Add onClick={setOpenDialog} active={openDialog} refetch={refetchQuery} data={mindmaps} setData={setMindmaps} />
+            <Add onClick={setOpenDialog} active={openDialog} refetch={refetchQuery} data={mindmaps} setData={setMindmaps} owner={user.lastName} />
           }
         />
         <Grid container spacing={{ sm: 1, md: 1 }} >

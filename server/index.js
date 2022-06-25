@@ -12,6 +12,7 @@ import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
+import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.js'
 
 // Custom
 import { PORT, ORIGIN } from './src/app/config/config.js'
@@ -19,7 +20,7 @@ import homeRoutes from './src/app/routes/home.js'
 import db from './src/components/database/connection/mongoconnect.js'
 import resolvers from './src/components/graphql/resolvers.js'
 import typeDefs from './src/components/graphql/typeDefs.js'
-import { checkUserExist } from './src/app/controllers/auth.js'
+//import { checkUserExist } from './src/app/controllers/auth.js'
 
 const serverPort = PORT //process.env.PORT || 4002;
 const origin = ORIGIN
@@ -34,9 +35,18 @@ const serverStart = async () => {
   const app = express();
   //app.use(cors(corsOptions));
   app.use(cors())
-
-  app.use(express.json({ limit: '50mb' }));
-  app.use(express.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
+  app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }))
+  app.use(express.json({ limit: '50mb' }))
+  app.use(express.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }))
+  // app.use((req, res, next) => {
+  // 	res.setHeader('Access-Control-Allow-Origin', '*');
+  // 	res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS');
+  // 	res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  // 	if (req.method === 'OPTIONS') {
+  // 		return res.sendStatus(200);
+  // 	}
+  // 	next();
+  // });
 
   app.use('/', homeRoutes);
   const httpServer = createServer(app);

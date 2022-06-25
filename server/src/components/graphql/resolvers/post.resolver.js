@@ -75,22 +75,7 @@ const PostResolver = {
         post: res._doc,
       }
     },
-    deletePost: async (parent, args, { req }, context, info) => {
-      await checkSignedIn(req, true)
-      const { _id } = args
-
-      Posts.findByIdAndDelete({ _id }, function (err, docs) {
-        if (err) {
-          console.log(err)
-          return false
-        }
-        else {
-          console.log("Deleted : ", docs);
-          return true
-        }
-      })
-
-    },
+    
     updatePost: async (parent, args, { req }, context, info) => {
       await checkSignedIn(req, true)
       const { _id } = args
@@ -113,7 +98,24 @@ const PostResolver = {
       //console.log('updatePost post', post)
       return { post }
 
-    }
+    },
+    
+    deletePost: async (parent, args, { req }, context, info) => {
+      await checkSignedIn(req, true)
+      const { _id } = args
+
+      Posts.findByIdAndDelete({ _id }, function (err, docs) {
+        if (err) {
+          console.log(err)
+          return false
+        }
+        else {
+          console.log("Deleted : ", docs);
+          return true
+        }
+      })
+
+    },
   }
 };
 

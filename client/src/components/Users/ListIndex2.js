@@ -23,8 +23,8 @@ import {
 import { tableCellClasses } from '@mui/material/TableCell';
 import { styled } from '@mui/material/styles';
 
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import PreviewOutlinedIcon from '@mui/icons-material/PreviewOutlined';
+import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
 // Custom
@@ -66,9 +66,7 @@ const ListIndex2 = () => {
     setPerpage(+event.target.value);
     setPage(1);
   };
-  const { data, loading, error, refetch } = useQuery(
-  //const [fetchFilteredUsers, { data, loading, error, refetch }] = useLazyQuery(
-    GET_USERS,
+  const { data, loading, error, refetch } = useQuery(GET_USERS,
     {
       variables: {
         search,
@@ -76,12 +74,8 @@ const ListIndex2 = () => {
         limit: perpage
       },
       onCompleted: ({ getUsers }) => {
-        // ('getUsers', getUsers)
+        console.log('useQuery(GET_USERS) onCompleted:', getUsers)
         const newData = getUsers.users
-        // setUsers({
-        //   ...users,
-        //   data: getUsers.users
-        // })
         setUsers(newData)
         setTotalPage(getUsers.totalPages)
         setCount(getUsers.count)
@@ -177,9 +171,20 @@ const ListIndex2 = () => {
                     <TableCell align="left">{row.lastName}</TableCell>
                     <TableCell align="right">
                       <Stack direction="row" spacing={1} style={{ justifyContent: 'flex-end' }}>
-                        <IconButton><Link to={"/app/users/" + row._id} key={"edit_" + row._id}><EditOutlinedIcon fontSize="small" /></Link></IconButton><Divider orientation="vertical" flexItem />
-                        <IconButton><Link to={"/app/users/" + row._id} key={"preview_" + row._id}><PreviewOutlinedIcon fontSize="small" /></Link></IconButton><Divider orientation="vertical" flexItem />
-                        <IconButton onClick={(e) => deleteItem(row._id)} key={"delete_" + row._id}><DeleteOutlineOutlinedIcon fontSize="small" /></IconButton>
+                        <Link to={"/app/users/" + row._id} key={"edit_" + row._id}>
+                          <IconButton>
+                            <ModeEditOutlineOutlinedIcon fontSize="medium" />
+                          </IconButton><Divider orientation="vertical" flexItem />
+                        </Link>
+                        <Link to={"/app/users/" + row._id} key={"preview_" + row._id}>
+                          <IconButton>
+                            <VisibilityOutlinedIcon fontSize="medium" />
+                          </IconButton>
+                        </Link>
+                        <Divider orientation="vertical" flexItem />
+                        <IconButton onClick={(e) => deleteItem(row._id)} key={"delete_" + row._id}>
+                          <DeleteOutlineOutlinedIcon fontSize="medium" />
+                        </IconButton>
                       </Stack>
                     </TableCell>
                   </TableRow>

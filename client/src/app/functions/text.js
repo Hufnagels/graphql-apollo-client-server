@@ -36,3 +36,12 @@ export const makeListTitleFromPath = (path, camelcase = false) => {
   return pluralize.isSingular(listTitle) ? pluralize(listTitle) : listTitle
 }
 // const [title, setTitle] = React.useState(_.capitalize(location.pathname.slice(location.pathname.lastIndexOf("/") + 1, location.pathname.length)) + ' list')
+
+/**
+ * @function capitalizeString
+ * @param text
+ * @oputput Capitalized text string
+ */
+export const capitalizeString = (s) => {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}

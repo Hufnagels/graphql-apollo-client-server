@@ -100,14 +100,16 @@ const ListIndexItem = (props) => {
             backgroundColor: theme.palette.custom.light,
           }}
         >
-          <Link to={window.location.pathname + "/" + data._id} key={"board_key_" + data._id}>
+          <IconButton aria-label="edit data" onClick={() => props.edit(data._id)}>
+            <ModeEditOutlineOutlinedIcon />
+          </IconButton>
+
+          <Link to={window.location.pathname + "/" + data._id} key={"board_o_key_" + data._id}>
             <IconButton aria-label="open data">
-              <ModeEditOutlineOutlinedIcon />
+              <VisibilityOutlinedIcon />
             </IconButton>
           </Link>
-          <IconButton aria-label="preview board">
-            <VisibilityOutlinedIcon />
-          </IconButton>
+
           <IconButton aria-label="delete board" onClick={() => props.delete(data._id)}>
             <DeleteOutlineOutlinedIcon />
           </IconButton>

@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import mongoose from "mongoose"
 import { ApolloError, } from 'apollo-server-express'
 import bcrypt from 'bcryptjs'
 
@@ -9,6 +10,45 @@ const AuthResolver = {
   Query: {},
 
   Mutation: {
+    signupUser: async (parent, { input: { firstName, lastName, date_of_birth, email, password } }, { req }, context) => {
+      // Check if user exists already
+      const existingUser = await User.findOne({ email })
+      if (existingUser) throw new ApolloError('User with this email is exist', 'USER_EXISTS_ERROR')
+
+      // Build new user
+      const _id = new mongoose.Types.ObjectId();
+      const newUser = new User({
+        _id,
+        firstName,
+        lastName,
+        date_of_birth,
+        email: email.toLowerCase(),
+        password,
+      })
+
+      // Create JSON webtoken
+      const tokens = await issueTokens(newUser)
+      newUser.token = tokens.refreshToken
+      //console.log('created user tokens', tokens)
+      // Store new User
+      const res = await newUser.save()
+      // console.log('created user res', res)
+      // console.log('created user return', {
+      //   id: res._id,
+      //   ...res._doc,
+      //   ...tokens
+      // })
+      return true
+
+      return new Promise((resolve, reject) => {
+        newUser.save().then((user) => {
+          resolve(user);
+        }).catch((err) => {
+          reject(err);
+        });
+      });
+    },
+
     loginUser: async (parent, { input: { email, password } }) => {
       // check credentials
       //await loginUserValidator.validateAsync({ email, password }, { abortEarly: false })
@@ -36,6 +76,7 @@ const AuthResolver = {
         tokens
       }
     },
+
     refreshToken: async (parent, { input: { _id, email, } }, context) => {
       //console.log('refreshToken context', _id, email) //, context.req.authorization)
       //return null

@@ -1,7 +1,8 @@
 import React, { memo } from 'react'
-import { useLazyQuery, useQuery, useMutation} from '@apollo/client';
+import { useLazyQuery, useQuery, useMutation } from '@apollo/client';
 import { useLocation } from 'react-router-dom'
 import _ from 'lodash'
+import { useDispatch, useSelector } from "react-redux";
 
 // Material
 import {
@@ -20,7 +21,7 @@ import SearchBar from '../Layout/SearchBar';
 import { makeListTitleFromPath } from '../../app/functions/text'
 
 const ListIndex = () => {
-  // console.log('ListIndex'
+  const { isLoggedIn, user, tokens } = useSelector((state) => state.auth);
   const location = useLocation();
   const [title, setTitle] = React.useState(makeListTitleFromPath(location.pathname) + ' list')
 
@@ -29,7 +30,7 @@ const ListIndex = () => {
   const [openDialog, setOpenDialog] = React.useState(false)
   const [search, setSearch] = React.useState(null)
 
-  const [posts, setPosts] = React.useState({ data: [] })
+  const [posts, setPosts] = React.useState([])
 
   const [page, setPage] = React.useState(1);
   const [totalpage, setTotalPage] = React.useState(1)
@@ -37,9 +38,7 @@ const ListIndex = () => {
   const [count, setCount] = React.useState(0)
   const [visiblePN, setVisiblePN] = React.useState(false)
 
-  const { data, loading, error, refetch } = useQuery(
-    //const [ fetchFilteredPosts, { data, loading, error, refetch } ] = useLazyQuery(
-    GET_POSTS,
+  const { data, loading, error, refetch } = useQuery( GET_POSTS,
     {
       variables: {
         search,
@@ -47,14 +46,9 @@ const ListIndex = () => {
         limit: perpage
       },
       onCompleted: ({ getPosts }) => {
-        // console.log('getPosts', getPosts)
-        //setPosts(getPosts.posts)
-        setTotalPage(getPosts.totalPages)
-        setPage(getPosts.currentPage)
-        setPosts({
-          ...posts,
-          data: getPosts.posts
-        })
+        console.log('useQuery(GET_POSTS) onCompleted:', getPosts)
+        const newData = getPosts.posts
+        setPosts(newData)
         setTotalPage(getPosts.totalPages)
         setCount(getPosts.count)
         if (getPosts.posts.length > 0)
@@ -63,7 +57,8 @@ const ListIndex = () => {
           setVisiblePN(false)
       },
       onError: (error) => {
-        // console.log(error)
+        const variant = 'error'
+        //enqueueSnackbar(error.message, { variant })
       }
     }
   )
@@ -89,10 +84,11 @@ const ListIndex = () => {
     refetch()
   }
   React.useEffect(() => {
-    //fetchFilteredPosts()
-    return () => {
-      setPosts({data: []})
-    }
+    if (!data) return
+    setPosts(data.getPosts?.posts)
+    // return () => {
+    //   setPosts([])
+    // }
   }, [data])
 
   if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>
@@ -117,12 +113,12 @@ const ListIndex = () => {
           active={openDialog}
           setOpenDialog={setOpenDialog}
           addComponent={
-            <Add onClick={setOpenDialog} active={openDialog} refetch={refetch} data={posts} setData={setPosts}/>
+            <Add onClick={setOpenDialog} active={openDialog} refetch={refetch} data={posts} setData={setPosts} owner={user.lastName} />
           }
         />
         <Grid container spacing={{ sm: 1, md: 1 }} >
-        {error && <Alert severity="warning">{JSON.stringify(error, null, 2)}</Alert>}
-          {posts.data && posts.data.map((post, idx) => {
+          {error && <Alert severity="warning">{JSON.stringify(error, null, 2)}</Alert>}
+          {posts && posts.map((post, idx) => {
             return <ListIndexItem data={post} key={post._id} delete={deleteItem} />
           })}
         </Grid>
