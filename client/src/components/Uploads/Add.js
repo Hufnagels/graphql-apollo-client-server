@@ -100,7 +100,7 @@ const Add = (props) => { //{ onClick, active, refetch, data, setData }
       //return
       const flatTagList = _.map(tags, "title")
       console.log('flatTagList', flatTagList)
-      //return
+      // return
       uploadFile({
         variables: {
           files: values.files,
@@ -224,7 +224,7 @@ const Add = (props) => { //{ onClick, active, refetch, data, setData }
               </Grid>
               <Grid item sx={{ width: 300, }}>
                 <Box sx={{ width: 280, height: 350 }}>
-                  <AutocompleteControlled setTags={setTags} />
+                  <AutocompleteControlled tags={tags} setTags={setTags} />
                 </Box>
               </Grid>
             </Grid>

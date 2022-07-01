@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { ApolloError, UserInputError} from 'apollo-server-express'
+import { ApolloError, UserInputError } from 'apollo-server-express'
 
 import Maps from '../../database/models/map.model.js'
 import { issueTokens, checkSignedIn, getRefreshToken } from '../../../app/controllers/auth.js'
@@ -33,7 +33,7 @@ const MapResolver = {
       const maps = await Maps.find(searchQuery)
         .sort({ createdAt: -1 })
         .limit(limit)
-        .skip((page - 1) * limit)
+        .skip((correctedPage - 1) * limit)
         .lean();
 
       return {
@@ -57,7 +57,7 @@ const MapResolver = {
       await checkSignedIn(req, true)
       console.log('createMap args', args.input)
       //console.log('createMap context', context.user)
-      
+
       const { owner, title, description, originalMap, currentMap, mapimage } = args.input;
 
       const map = new Maps({

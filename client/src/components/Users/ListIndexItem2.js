@@ -31,27 +31,37 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.custom.light,
     color: theme.palette.custom.dark,
+    fontSize: '0.75rem',
   },
   [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
+    fontSize: '0.75rem',
+  },
+  [`&.${tableCellClasses.footer}`]: {
+    backgroundColor: theme.palette.custom.light,
+    fontSize: '0.75rem',
   },
 }));
 
 const ListIndexItem2 = props => {
   console.log('ListIndexItem2 props', props)
-  const [data, setData] = React.useState(props.items)
-  React.useEffect(() => {
-    if (!data) return
-    setData(props.items)
-    return () => {
-      //setBoards({data: []})
-    }
-  }, [data])
+  const [data, setData] = React.useState(props.data)
+  // React.useEffect(() => {
+  //   if (!data) return
+  //   setData(props.data)
+  //   return () => {
+  //     //setBoards({data: []})
+  //   }
+  // }, [data])
 
   return (
     <React.Fragment>
-      <TableContainer component={Paper} sx={{ maxHeight: 590 }}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table" stickyHeader>
+      <TableContainer component={Paper} sx={{ height: 500, maxHeight: 500 }}>
+        <Table 
+          sx={{ minWidth: 650 }} 
+          aria-label="simple table" 
+          stickyHeader
+          size={false ? 'small' : 'medium'}
+        >
           <TableHead>
             <TableRow key='headerrow'>
               {/* <StyledTableCell align="left">Username</StyledTableCell> */}
@@ -75,12 +85,12 @@ const ListIndexItem2 = props => {
                 <TableCell align="left">{row.lastName}</TableCell>
                 <TableCell align="right">
                   <Stack direction="row" spacing={1} style={{ justifyContent: 'flex-end' }}>
-                    <Link to={"/app/props.items/" + row._id} key={"edit_" + row._id}>
+                    <Link to={"/app/users/" + row._id} key={"edit_" + row._id}>
                       <IconButton>
                         <ModeEditOutlineOutlinedIcon fontSize="medium" />
                       </IconButton><Divider orientation="vertical" flexItem />
                     </Link>
-                    <Link to={"/app/props.items/" + row._id} key={"preview_" + row._id}>
+                    <Link to={"/app/users/" + row._id} key={"preview_" + row._id}>
                       <IconButton>
                         <VisibilityOutlinedIcon fontSize="medium" />
                       </IconButton>
@@ -95,26 +105,26 @@ const ListIndexItem2 = props => {
             ))}
           </TableBody>
 
-          <TableFooter>
-            <TableRow key='footerrow'>
-              {/* <StyledTableCell align="left">Username</StyledTableCell> */}
+          {/* <TableFooter>
+            <TableRow key='footerrow' sx={{ fontSize: '0.875rem' }}>
+              
               <StyledTableCell align="left">Email</StyledTableCell>
               <StyledTableCell align="left">Date</StyledTableCell>
               <StyledTableCell align="left">First name</StyledTableCell>
               <StyledTableCell align="left">Last name</StyledTableCell>
               <StyledTableCell align="right">Action</StyledTableCell>
             </TableRow>
-          </TableFooter>
+          </TableFooter> */}
         </Table>
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[2, 10, 20, 50, 100]}
         component="div"
         count={props.count}
-        rowsPerPage={props.perpage}
-        page={props.currentPage}
-        onPageChange={props.handleChangePage}
-        onRowsPerPageChange={props.handleChangeRowsPerPage}
+        rowsPerPage={props.rowsPerPage}
+        page={props.page}
+        onPageChange={props.onPageChange}
+        onRowsPerPageChange={props.onRowsPerPageChange}
       />
     </React.Fragment>
   )

@@ -1,11 +1,8 @@
 import React, { memo } from 'react'
-import {
-  useQuery,
-  useLazyQuery,
-  useMutation,
-} from "@apollo/client";
+import { useLazyQuery, useQuery, useMutation } from "@apollo/client";
 import { useLocation } from "react-router-dom"
 import _ from "lodash"
+import { useSnackbar } from 'notistack';
 import { useDispatch, useSelector } from "react-redux";
 
 // Material
@@ -15,64 +12,92 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
-
 import { useTheme } from '@mui/material/styles';
 
 // Custom
 import ListIndexItem from './ListIndexItem';
 import { GET_MAPS, DELETE_MAP } from "../../app/queries";
 import Add from './Add';
+
 import SearchBar from '../Layout/SearchBar';
 import { makeListTitleFromPath } from '../../app/functions/text'
+import { LIMIT } from '../Layout/Pagination.options'
+
+const GET_RECORDS = GET_MAPS
+//const UPDATE_RECORD = 
+const DELETE_RECORD = DELETE_MAP
 
 const ListIndex = () => {
-  const { isLoggedIn, user, tokens } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
+  const { enqueueSnackbar } = useSnackbar();
   const location = useLocation();
   const [title, setTitle] = React.useState(makeListTitleFromPath(location.pathname) + ' list')
 
   const theme = useTheme();
+  const [openAddDialog, setOpenAddDialog] = React.useState(false)
+  const [openUpdateDialog, setOpenUpdateDialog] = React.useState(false)
+  const [updateData, setUpdateData] = React.useState(null)
 
-  const [openDialog, setOpenDialog] = React.useState(false)
-  const [search, setSearch] = React.useState(null)
-
-  const [maps, setMaps] = React.useState([])
-
-  const [page, setPage] = React.useState(1);
-  const [totalpage, setTotalPage] = React.useState(1)
-  const [perpage, setPerpage] = React.useState(10)
+  // Return from backend
+  // count: 9
+  // currentPage: 1
+  // totalPages: 5
+  // files: (2)
   const [count, setCount] = React.useState(0)
-  const [visiblePN, setVisiblePN] = React.useState(false)
+  const [currentPage, setCurrentPage] = React.useState(1)
+  const [totalpage, setTotalPage] = React.useState(1)
+  const [records, setRecords] = React.useState([])
 
-  // const [ fetchFilteredMaps, { data, loading, error, refetch } ] = useLazyQuery(
-  const { data, loading, error, refetch } = useQuery(GET_MAPS,
-    {
-      variables: {
-        search,
-        page: page,
-        limit: perpage
-      },
-      onCompleted: ({ getMaps }) => {
-        console.log('useQuery(GET_MAPS) onCompleted:', getMaps)
-        const newData = getMaps.maps
-        setMaps(newData)
-        setTotalPage(getMaps.totalPages)
-        setCount(getMaps.count)
-        if (getMaps.maps.length > 0)
-          setVisiblePN(true)
-        else
-          setVisiblePN(false)
-      },
-      onError: (error) => {
-        const variant = 'error'
-        //enqueueSnackbar(error.message, { variant })
-      }
+  const [search, setSearch] = React.useState(null)
+  const [limit, setLimit] = React.useState(LIMIT)
+
+  const [dialogVisibility, setDialogVisibility] = React.useState(false)
+
+  const prevStateRef = React.useRef()
+  const [, updateState] = React.useState();
+  const forceUpdate = React.useCallback(() => updateState({}), []);
+
+  const [fetchFilteredRecords, { data, loading, error, refetch }] = useLazyQuery(GET_RECORDS, {
+    // const { data, loading, error, refetch } = useQuery(GET_RECORDS, {
+    variables: {
+      search,
+      page: currentPage,
+      limit: limit
+    },
+    fetchPolicy: 'no-cache', //'cache-and-network', //'no-cache', //'cache-and-network', //
+    onCompleted: ({ getMaps }) => {
+      const response = getMaps
+      const responseData = getMaps?.maps
+      console.log('useQuery(GET_RECORDS) onCompleted:', response)
+
+      setUpdateData(null)
+      setRecords([])
+      setRecords(responseData)
+      setTotalPage(response.totalPages)
+      setCount(response.count)
+
+      if (responseData.length > 0)
+        setDialogVisibility(true)
+      else
+        setDialogVisibility(false)
+    },
+    onError: (error) => {
+      const variant = 'error'
+      enqueueSnackbar(error.message, { variant })
     }
+  }
   )
+  const refetchQuery = () => {
+    console.log('Files refetchQuery')
+    setUpdateData(null)
+    //setRecords([])
+    refetch()
 
-  const [deleteMap] = useMutation(DELETE_MAP, {
+  }
+  const [deleteRecord] = useMutation(DELETE_RECORD, {
     onCompleted: () => {
-      console.log('deleteMap')
-      //fetchFilteredBoards()
+      console.log('deleteRecord')
+      //fetchFilteredRecords()
       refetchQuery()
     },
     onError: (error) => {
@@ -80,26 +105,81 @@ const ListIndex = () => {
     }
   })
   const deleteItem = (idx) => {
-    console.log(idx)
-    deleteMap({
+    console.log('deleteItem', idx)
+    deleteRecord({
       variables: {
         id: idx
       }
     })
   }
-  const refetchQuery = () => {
-    console.log('deleteMap refetchQuery')
-    refetch()
+  const editItem = (idx) => {
+    console.log('editItem', idx)
+    console.log('editItem', records)
+    const item = findRecordByIdInRecords(idx)
+    setUpdateData(item)
+    setOpenUpdateDialog(true)
+
   }
-  React.useEffect(() => {
-    if (!data) return
-    setMaps(data.getMaps?.maps)
-    setTotalPage(data.getMaps.totalPages)
-    setCount(data.getMaps.count)
-    return () => {
-      //setBoards({data: []})
+  const handleUpdateFiles = (index, item) => {
+    const newRecords = [...records];
+    newRecords.splice(index, 1)
+    newRecords.unshift(item)
+    console.log('newRecords', newRecords)
+    setRecords(newRecords)
+    // setRecords({...files})
+    forceUpdate()
+    //if (prevStateRef.current !== newRecords) refetch()
+  }
+
+  // Child components functions
+  const handlePageChange = page => {
+    console.log('handlePageChange', page, limit)
+    setCurrentPage(page)
+    fetchFilteredRecords({
+      variables: {
+        search,
+        page: page,
+        limit: limit
+      }
+    })
+  }
+  const handleLimitChange = e => {
+    console.log('handleLimitChange', e.target.value)
+    setLimit(e.target.value)
+  }
+
+  // Common functions
+  const findIndexInRecords = id => {
+    var index = records.findIndex(x => x._id === id);
+    //console.log('updated index, state', index, records)
+    if (index === -1) {
+      // console.log('updateItem Not in list', id, updatedItem)
+      return null
+    } else {
+      return index
     }
-  }, [data])
+  }
+  const findRecordByIdInRecords = id => {
+    var index = records.findIndex(x => x._id === id);
+    //console.log('updated index, state', index, records)
+    if (index === -1) {
+      // console.log('updateItem Not in list', id, updatedItem)
+      return null
+    } else {
+      return records[index]
+    }
+  }
+
+  React.useEffect(() => {
+    //console.log('React.useEffect', currentPage, limit)
+    fetchFilteredRecords({
+      variables: {
+        search,
+        page: currentPage,
+        limit: limit
+      }
+    })
+  }, [limit])
 
   if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>
 
@@ -108,33 +188,45 @@ const ListIndex = () => {
       <Box style={{ padding: '0rem' }}>
         <SearchBar
           title={title}
-          //fn={fetchFilteredMaps}
+          data={records}
+          recordCount={count}
+
           search={search}
           setSearch={setSearch}
-          page={page}
-          setPage={setPage}
-          perpage={perpage}
-          setPerpage={setPerpage}
-          totalpage={totalpage}
-          data={maps}
-          setData={setMaps}
-          visiblePN={visiblePN}
-          refetch={refetchQuery}
-          active={openDialog}
-          setOpenDialog={setOpenDialog}
+
+          currentPage={currentPage}
+          displayItemPerPage={limit}
+          setDisplayItemPerPage={setLimit}
+
+          handlePaginationChange={handlePageChange}
+          handleLimitChange={handleLimitChange}
+
+          // refetch={refetchQuery}
+
+          active={openAddDialog}
+          setOpenDialog={setOpenAddDialog}
           addComponent={
-            <Add onClick={setOpenDialog} active={openDialog} refetch={refetchQuery} data={maps} setData={setMaps} owner={user.lastName} />
+            <Add
+              onClick={setOpenAddDialog}
+              active={openAddDialog}
+              refetch={refetchQuery}
+              data={records}
+              setData={setRecords}
+              owner={user.lastName}
+            />
           }
         />
         <Grid container spacing={{ sm: 1, md: 1 }} >
-          {error && <Alert severity="warning"> No maps were found </Alert>}
-          {maps && maps.map((map, idx) => {
-            return <ListIndexItem data={map} key={map._id} title={map.title} delete={deleteItem} />
+          {error && <Alert severity="warning">{JSON.stringify(error, null, 2)}</Alert>}
+          {records.length === 0 && <Grid item sx={{ width: '100%' }}><Alert severity="info">No records found</Alert></Grid>}
+          {records && records.map((record) => {
+            return <ListIndexItem data={record} key={record._id} delete={deleteItem} edit={editItem} />
           })}
         </Grid>
+
       </Box>
     </React.Fragment>
   )
 }
 
-export default memo(ListIndex)
+export default ListIndex

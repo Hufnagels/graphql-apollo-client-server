@@ -6,6 +6,7 @@ import MindmapResolver from './resolvers/mindmap.resolver.js'
 import ChatResolver from './resolvers/chat.resolver.js'
 import BoardResolver from './resolvers/board.resolver.js'
 import FilehandlingResolver from './resolvers/filehandling.resolver.js'
+import TagsResolver from './resolvers/tag.resolver.js'
 
 const resolvers = {
   Query: {
@@ -16,6 +17,7 @@ const resolvers = {
     ...ChatResolver.Query,
     ...BoardResolver.Query,
     ...FilehandlingResolver.Query,
+    ...TagsResolver.Query,
   },
   Mutation: {
     ...AuthResolver.Mutation,

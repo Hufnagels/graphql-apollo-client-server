@@ -17,16 +17,27 @@ export const storeFile = async (upload, owner, title, description, tags) => {
   console.log('storeFile upload filename', filename)
 
   // Check contentType
-  const image = await streamToString(createReadStream())
-  const sharpImage = await sharp(image)
-    .resize(300, 300, {
-      fit: sharp.fit.inside,
-      withoutEnlargement: true
-    })
-    .toFormat("jpeg")
-    .jpeg({ quality: 90 })
-    .toBuffer()
-  const base64Thumbnail = await `data:image/jpeg;base64,${sharpImage.toString('base64')}`
+  let base64Thumbnail = null
+  if(
+    mimetype === "application/vnd.openxmlformats-officedocument.presentationml.presentation" || 
+    mimetype === "application/zip" || 
+    mimetype === "text/plain" || 
+    mimetype === "application/msword" || 
+    mimetype === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || 
+    mimetype === "application/pdf"
+  ) base64Thumbnail = null
+  else {
+    const image = await streamToString(createReadStream())
+    const sharpImage = await sharp(image)
+      .resize(300, 300, {
+        fit: sharp.fit.inside,
+        withoutEnlargement: true
+      })
+      .toFormat("jpeg")
+      .jpeg({ quality: 90 })
+      .toBuffer()
+    base64Thumbnail = await `data:image/jpeg;base64,${sharpImage.toString('base64')}`
+  }
   //console.log('storeFile resizedFile', base64Thumbnail)
 
   const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: 'upload' })

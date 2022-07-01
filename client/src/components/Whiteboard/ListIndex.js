@@ -19,11 +19,17 @@ import ListIndexItem from './ListIndexItem';
 import { GET_BOARDS, DELETE_BOARD, UPDATE_BOARD } from "../../app/queries";
 import Add from './Add';
 import Update from './UpdateItem'
+
 import SearchBar from '../Layout/SearchBar';
 import { makeListTitleFromPath } from '../../app/functions/text'
+import { LIMIT } from '../Layout/Pagination.options'
+
+const GET_RECORDS = GET_BOARDS
+const UPDATE_RECORD = UPDATE_BOARD
+const DELETE_RECORD = DELETE_BOARD
 
 const ListIndex = () => {
-  const { isLoggedIn, user, tokens } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const { enqueueSnackbar } = useSnackbar();
   const location = useLocation();
   const [title, setTitle] = React.useState(makeListTitleFromPath(location.pathname) + ' list')
@@ -32,41 +38,49 @@ const ListIndex = () => {
   const [openAddDialog, setOpenAddDialog] = React.useState(false)
   const [openUpdateDialog, setOpenUpdateDialog] = React.useState(false)
   const [updateData, setUpdateData] = React.useState(null)
-  const [search, setSearch] = React.useState(null)
 
-  const [boards, setBoards] = React.useState([])
-
-  const [page, setPage] = React.useState(1);
-  const [totalpage, setTotalPage] = React.useState(1)
-  const [perpage, setPerpage] = React.useState(10)
+  // Return from backend
+  // count: 9
+  // currentPage: 1
+  // totalPages: 5
+  // files: (2)
   const [count, setCount] = React.useState(0)
-  const [visiblePN, setVisiblePN] = React.useState(false)
+  const [currentPage, setCurrentPage] = React.useState(1)
+  const [totalpage, setTotalPage] = React.useState(1)
+  const [records, setRecords] = React.useState([])
+
+  const [search, setSearch] = React.useState(null)
+  const [limit, setLimit] = React.useState(LIMIT)
+
+  const [dialogVisibility, setDialogVisibility] = React.useState(false)
 
   const prevStateRef = React.useRef()
   const [, updateState] = React.useState();
   const forceUpdate = React.useCallback(() => updateState({}), []);
 
-  //const [fetchFilteredBoards, { data, loading, error, refetch }] = useLazyQuery(
-  const { data, loading, error, refetch } = useQuery(GET_BOARDS, {
+  const [fetchFilteredRecords, { data, loading, error, refetch }] = useLazyQuery(GET_RECORDS, {
+    // const { data, loading, error, refetch } = useQuery(GET_RECORDS, {
     variables: {
       search,
-      page: page,
-      limit: perpage
+      page: currentPage,
+      limit: limit
     },
-    //fetchPolicy: 'no-cache', //'cache-and-network', //'no-cache', //'cache-and-network', //
+    fetchPolicy: 'no-cache', //'cache-and-network', //'no-cache', //'cache-and-network', //
     onCompleted: ({ getBoards }) => {
-      console.log('useQuery(GET_BOARDS) onCompleted:', getBoards)
-      setUpdateData(null)
-      setBoards([])
-      // prevStateRef.current = getBoards.boards
-      setBoards(getBoards.boards)
-      setTotalPage(getBoards.totalPages)
-      setCount(getBoards.count)
+      const response = getBoards
+      const responseData = getBoards?.boards
+      console.log('useQuery(GET_RECORDS) onCompleted:', response)
 
-      if (getBoards.boards.length > 0)
-        setVisiblePN(true)
+      setUpdateData(null)
+      setRecords([])
+      setRecords(responseData)
+      setTotalPage(response.totalPages)
+      setCount(response.count)
+
+      if (responseData.length > 0)
+        setDialogVisibility(true)
       else
-        setVisiblePN(false)
+        setDialogVisibility(false)
     },
     onError: (error) => {
       const variant = 'error'
@@ -74,48 +88,46 @@ const ListIndex = () => {
     }
   }
   )
-
-  const [updateBoard, { error: updateError }] = useMutation(UPDATE_BOARD, {
+  const [updateRecord, { error: updateError }] = useMutation(UPDATE_RECORD, {
     // refetchQueries: [
     //   { query: GET_BOARDS }
     // ],
     //     update (cache, { data }) {
     // console.log('cache', cache)
     // console.log('data', data)
-    //       const idx = data.updateBoard?._id
+    //       const idx = data.updateRecord?._id
     //       const index = findIndexInBoards(idx)
-    //       handleUpdateBoards(index, data.updateBoard)
+    //       handleUpdateRecords(index, data.updateRecord)
     //     },
     onCompleted: async ({ updateBoard }) => {
 
       const idx = updateBoard._id
-      const index = findIndexInBoards(idx)
+      const index = findIndexInRecords(idx)
       console.log('onCompleted', idx, index)
       console.log('updateBoard completed', updateBoard)
-      // boards[index] = updateBoard
 
       setOpenUpdateDialog(false)
       setUpdateData(null)
       const variant = 'success'
       enqueueSnackbar(' created successfully', { variant })
       refetchQuery()
-      // await handleUpdateBoards(index, updateBoard)
-      // setOpenUpdateDialog(false)
-      // //const variant = 'success'
-      // enqueueSnackbar(' created successfully', { variant })
-
     },
     onError: (error) => {
-      // console.log('CREATE_MINDMAP error', error)
       const variant = 'error'
       enqueueSnackbar(error.message, { variant })
     }
   });
+  const refetchQuery = () => {
+    console.log('refetchQuery')
+    setUpdateData(null)
+    //setRecords([])
+    refetch()
 
-  const [deleteBoard] = useMutation(DELETE_BOARD, {
+  }
+  const [deleteRecord] = useMutation(DELETE_RECORD, {
     onCompleted: () => {
-      console.log('deleteBoard')
-      //fetchFilteredBoards()
+      console.log('deleteRecord')
+      //fetchFilteredRecords()
       refetchQuery()
     },
     onError: (error) => {
@@ -124,42 +136,52 @@ const ListIndex = () => {
   })
   const deleteItem = (idx) => {
     console.log('deleteItem', idx)
-    deleteBoard({
+    deleteRecord({
       variables: {
         id: idx
       }
     })
   }
-  const refetchQuery = () => {
-    console.log('Whiteboard refetchQuery')
-    setUpdateData(null)
-    setBoards([])
-    refetch()
-
-  }
-
   const editItem = (idx) => {
     console.log('editItem', idx)
-    console.log('editItem', boards)
-    const item = findBoardItemByIdInBoards(idx)
+    console.log('editItem', records)
+    const item = findRecordByIdInRecords(idx)
     setUpdateData(item)
     setOpenUpdateDialog(true)
 
   }
-  const handleUpdateBoards = (index, item) => {
-    const newBoards = [...boards];
-    newBoards.splice(index, 1)
-    newBoards.unshift(item)
-    console.log('newBoards', newBoards)
-    setBoards(newBoards)
-    // setBoards({...boards})
+  const handleUpdateFiles = (index, item) => {
+    const newRecords = [...records];
+    newRecords.splice(index, 1)
+    newRecords.unshift(item)
+    console.log('newRecords', newRecords)
+    setRecords(newRecords)
+    // setRecords({...files})
     forceUpdate()
-    //if (prevStateRef.current !== newBoards) refetch()
+    //if (prevStateRef.current !== newRecords) refetch()
   }
 
-  const findIndexInBoards = (id) => {
-    var index = boards.findIndex(x => x._id === id);
-    //console.log('updated index, state', index, boards)
+  // Child components functions
+  const handlePageChange = page => {
+    console.log('handlePageChange', page, limit)
+    setCurrentPage(page)
+    fetchFilteredRecords({
+      variables: {
+        search,
+        page: page,
+        limit: limit
+      }
+    })
+  }
+  const handleLimitChange = e => {
+    console.log('handleLimitChange', e.target.value)
+    setLimit(e.target.value)
+  }
+
+  // Common functions
+  const findIndexInRecords = id => {
+    var index = records.findIndex(x => x._id === id);
+    //console.log('updated index, state', index, records)
     if (index === -1) {
       // console.log('updateItem Not in list', id, updatedItem)
       return null
@@ -167,38 +189,28 @@ const ListIndex = () => {
       return index
     }
   }
-  const findBoardItemByIdInBoards = (id) => {
-    var index = boards.findIndex(x => x._id === id);
-    //console.log('updated index, state', index, boards)
+  const findRecordByIdInRecords = id => {
+    var index = records.findIndex(x => x._id === id);
+    //console.log('updated index, state', index, records)
     if (index === -1) {
       // console.log('updateItem Not in list', id, updatedItem)
       return null
     } else {
-      return boards[index]
+      return records[index]
     }
   }
 
+  React.useEffect(() => {
+    //console.log('React.useEffect', currentPage, limit)
+    fetchFilteredRecords({
+      variables: {
+        search,
+        page: currentPage,
+        limit: limit
+      }
+    })
+  }, [limit])
 
-  // React.useEffect(() => {
-  //   if (!data) return
-
-  //   setBoards(data.getBoards.boards)
-  //     setTotalPage(data.getBoards.totalPages)
-  //     setCount(data.getBoards.count)
-
-  //     if (data.getBoards.boards.length > 0)
-  //       setVisiblePN(true)
-  //     else
-  //       setVisiblePN(false)
-  //   return () => setBoards([])
-  // }, [data])
-  //   React.useEffect(() => {
-  //     if (boards.length === 0) return
-  // console.log('boards updated')
-  //     return () => {
-  //       //setBoards({data: []})
-  //     }
-  //   }, [boards])
 
   if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>
 
@@ -207,31 +219,52 @@ const ListIndex = () => {
       <Box style={{ padding: '0rem' }}>
         <SearchBar
           title={title}
-          //fn={fetchFilteredBoards}
+          data={records}
+          recordCount={count}
+
           search={search}
           setSearch={setSearch}
-          page={page}
-          setPage={setPage}
-          perpage={perpage}
-          setPerpage={setPerpage}
-          totalpage={totalpage}
-          data={boards}
-          setData={setBoards}
-          visiblePN={visiblePN}
-          refetch={refetchQuery}
+
+          currentPage={currentPage}
+          displayItemPerPage={limit}
+          setDisplayItemPerPage={setLimit}
+
+          handlePaginationChange={handlePageChange}
+          handleLimitChange={handleLimitChange}
+
+          // refetch={refetchQuery}
+
           active={openAddDialog}
           setOpenDialog={setOpenAddDialog}
           addComponent={
-            <Add onClick={setOpenAddDialog} active={openAddDialog} refetch={refetchQuery} data={boards} setData={setBoards} owner={user.lastname} />
+            <Add
+              onClick={setOpenAddDialog}
+              active={openAddDialog}
+              refetch={refetchQuery}
+              data={records}
+              setData={setRecords}
+              owner={user.lastName}
+            />
           }
         />
         <Grid container spacing={{ sm: 1, md: 1 }} >
           {error && <Alert severity="warning">{JSON.stringify(error, null, 2)}</Alert>}
-          {boards && boards.map((board) => {
-            return <ListIndexItem data={board} key={board._id} delete={deleteItem} edit={editItem} />
+          {records.length === 0 && <Grid item sx={{ width: '100%' }}><Alert severity="info">No records found</Alert></Grid>}
+          {records && records.map((record) => {
+            return <ListIndexItem data={record} key={record._id} delete={deleteItem} edit={editItem} />
           })}
         </Grid>
-        {boards && <Update onClick={setOpenUpdateDialog} active={openUpdateDialog} updateBoard={updateBoard} refetch={refetchQuery} data={updateData} setData={setBoards} />}
+        {records &&
+          <Update
+            onClick={setOpenUpdateDialog}
+            active={openUpdateDialog}
+            updateRecord={updateRecord}
+            refetch={refetchQuery}
+            data={updateData}
+            setData={setRecords}
+          />
+        }
+
       </Box>
     </React.Fragment>
   )

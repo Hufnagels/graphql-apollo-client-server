@@ -234,7 +234,7 @@ const Add = (props) => {
                   />
                 </Grid>
                 <Grid item xs={10} md={10} lg={10} sx={{ paddingBottom: '2rem' }}>
-                  <Typography variant="body2" component="div">formik values == {JSON.stringify(formik.values)}</Typography>
+                  {/* <Typography variant="body2" component="div">formik values == {JSON.stringify(formik.values)}</Typography> */}
                   <TextEditor
                     setFieldValue={(val) => formik.setFieldValue("description", val)}
                     value={formik.values.description}

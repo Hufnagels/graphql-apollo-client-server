@@ -18,6 +18,7 @@ import {
 import { GET_FILE } from "../../app/queries";
 import { makePageTitleFromPath } from '../../app/functions/text'
 import { formatTimeToCurrentTimeZone } from '../../app/functions/time'
+import { NO_IMAGE } from '../../app/app.options'
 
 const Preview = (props) => {
 
@@ -30,7 +31,8 @@ const Preview = (props) => {
 
   //const { post } = props;
   const [file, setFile] = React.useState(null)
-  //  console.log('Preview props', props, id);
+  const [image, setImage] = React.useState(null)
+  // console.log('Preview props', props, id);
 
   const { data, loading, error } = useQuery(GET_FILE, {
     variables: { id: id },
@@ -44,15 +46,20 @@ const Preview = (props) => {
   });
 
   React.useEffect(() => {
-    console.log('FilePreview --> data useEffect', data)
+    // console.log('FilePreview --> data useEffect', data?.getFile)
     if (!data) return
     setFile(data.getFile)
+    if (data.getFile.contentType.match('image.*'))
+      setImage(`data:${data.getFile.contentType};base64,${data.getFile.file}`)
+    else
+      setImage(NO_IMAGE)
+
     //  console.log(data)
   }, [data])
 
   if (loading) return <CircularProgress color="secondary" />
-  //console.log('data', data)
-  //return null
+  // console.log('data', data)
+  // return null
   return (
     <React.Fragment>
       {error && <pre>
@@ -84,7 +91,7 @@ const Preview = (props) => {
                 <Stack direction="row" spacing={2} >
                   <Box>
                     <img
-                      src={`data:${file.contentType};base64,${file.file}`}
+                      src={image} //{`data:${file.contentType};base64,${file.file}`}
                       style={{ display: 'block', width: 'auto', height: '70vh' }}
                       alt={file.filename}
                     />
@@ -107,7 +114,7 @@ const Preview = (props) => {
                     <Box>
                       <Stack direction="row" spacing={1}>
                         {file.metadata.tags && file.metadata.tags.map(tag => {
-                          return <Chip label={tag} variant="filled" color="primary" key={tag} />
+                          return <Chip label={tag} variant="filled" color="custom" key={tag} />
                         })}
                       </Stack>
 

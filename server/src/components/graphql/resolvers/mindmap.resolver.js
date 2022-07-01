@@ -26,7 +26,7 @@ const MindmapResolver = {
       const mindmaps = await Mindmaps.find(searchQuery)
         .sort({ createdAt: -1 })
         .limit(limit)
-        .skip((page - 1) * limit)
+        .skip((correctedPage - 1) * limit)
         .lean();
 
       return {

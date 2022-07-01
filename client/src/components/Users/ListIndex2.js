@@ -30,8 +30,13 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 // Custom
 import { GET_USERS, DELETE_USER } from "../../app/queries";
 import Add from './Add';
+import ListIndexItem2 from './ListIndexItem2'
+import ListIndexItem3 from './ListIndexItem3'
+
 import SearchBar from '../Layout/SearchBar';
 import { makeListTitleFromPath } from '../../app/functions/text'
+import { LIMIT } from '../Layout/Pagination.options'
+
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -53,7 +58,7 @@ const ListIndex2 = () => {
 
   const [page, setPage] = React.useState(1);
   const [totalpage, setTotalPage] = React.useState(1)
-  const [perpage, setPerpage] = React.useState(10)
+  const [perpage, setPerpage] = React.useState(LIMIT)
   const [count, setCount] = React.useState(0)
   const [visiblePN, setVisiblePN] = React.useState(false)
 
@@ -73,6 +78,7 @@ const ListIndex2 = () => {
         page: page,
         limit: perpage
       },
+      fetchPolicy: 'no-cache',
       onCompleted: ({ getUsers }) => {
         console.log('useQuery(GET_USERS) onCompleted:', getUsers)
         const newData = getUsers.users
@@ -125,19 +131,24 @@ const ListIndex2 = () => {
     <React.Fragment>
       <Box style={{ padding: '0rem' }}>
         <SearchBar
+          customPagination={true}
           title={title}
-          //fn={{}/* fetchFilteredUsers */}
+          data={users}
+          recordCount={count}
+
           search={search}
           setSearch={setSearch}
-          page={page}
-          setPage={setPage}
-          perpage={perpage}
-          setPerpage={setPerpage}
-          totalpage={totalpage}
-          data={users}
-          setData={setUsers}
-          visiblePN={false}
+
+          // page={page}
+          // setPage={setPage}
+          // perpage={perpage}
+          // setPerpage={setPerpage}
+          // totalpage={totalpage}
+
+          // setData={setUsers}
+          // visiblePN={false}
           refetch={refetchQuery}
+
           active={openDialog}
           setOpenDialog={setOpenDialog}
           addComponent={
@@ -145,7 +156,19 @@ const ListIndex2 = () => {
           }
         />
         {error && <Alert severity="warning">{JSON.stringify(error, null, 2)}</Alert>}
-        {users && !error && <React.Fragment>
+        {users &&
+          <ListIndexItem3
+            data={users}
+            delete={deleteItem}
+            count={count}
+            rowsPerPage={perpage}
+            page={page - 1}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        }
+
+        {users && error && <React.Fragment>
           <TableContainer component={Paper} sx={{ maxHeight: 590 }}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table" stickyHeader>
               <TableHead>

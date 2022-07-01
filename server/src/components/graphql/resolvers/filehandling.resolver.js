@@ -37,11 +37,11 @@ const FilehandlingResolver = {
 
       const totalPages = Math.ceil(count / limit)
       const correctedPage = totalPages < page ? totalPages : page
-
+      console.log('totalPages', totalPages, correctedPage)
       const files = await Files.find(searchQuery)
-        .sort({ updatedAt: -1 })
+        .sort({ uploadDate: -1 })
         .limit(limit)
-        .skip((page - 1) * limit)
+        .skip((correctedPage - 1) * limit)
         .lean();
 
       return {
@@ -87,42 +87,54 @@ const FilehandlingResolver = {
       const user = await checkSignedIn(context.req, true)
       const { email } = user
       tags = JSON.parse(tags)
-      console.log('multipleUpload title, description', title, description, tags)
       let fileIDs = []
+      console.log('multipleUpload title, description', title, description, tags)
       console.log('multipleUpload files', files)
       console.log('multipleUpload tags', tags, tags.length)
-      if (tags.length > 0 ){
+      // Create taglist for bulkwrite
+      if (tags.length > 0) {
         const tagList = tags.map(tag => {
           return {
-            title: tag, 
+            title: tag,
             owner: email,
           }
         })
-        
         console.log('multipleUpload tagList', tagList)
 
         let tagsUpdate = tagList.map(tag => ({
           updateOne: {
-            filter: {title: tag.title, owner: tag.owner},
-            update: {$set: tag},
+            filter: { title: tag.title, owner: tag.owner },
+            update: { $set: tag },
             upsert: true
           }
         }))
-        await Tags.bulkWrite(tagsUpdate).catch(e => {
-          console.log('Tags.bulkWrite', e);
-          throw new UserInputError('Taglist update failed')
-        })
+        // await Tags.bulkWrite(tagsUpdate).catch(e => {
+        //   console.log('Tags.bulkWrite', e);
+        //   throw new UserInputError('Taglist update failed')
+        // })
+        try {
+          let result = await new Promise((resolve, reject) => {
 
+            Tags.bulkWrite(tagsUpdate, (err, r) => {
+              if (err) reject(err);
+              resolve(r);
+            });
+          });
+          console.log(JSON.stringify(result, undefined, 2));
+          console.log("Success!");
+        } catch (e) {
+          console.log("Failed:");
+          console.log(e);
+        }
       }
-      
 
-      
+      // Update tags with _id and insert to metadata
 
       for (const file of files) {
         const fileId = await storeFile(file, email, title, description, tags).then(result => result)
         fileIDs.push(fileId)
       }
-      
+
       // await Promise.all(files.map(async (file) => {
       //   const contents = await storeFile(file, email, title, description).then(result => result)
       //   fileIDs.push(contents)

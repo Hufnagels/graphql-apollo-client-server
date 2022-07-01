@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider as ReduxStoreProvider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react'
@@ -18,8 +18,10 @@ import CustomTheme from './app/theme/CustomTheme';
 import CustomApolloProvider from './app/apollo/apolloClient'
 import { store, persistor } from './app/store/store'
 
-const rootElement = document.getElementById("root");
-ReactDOM.render(
+const container = document.getElementById('root');
+const root = createRoot(container);
+//const rootElement = document.getElementById("root");
+root.render(
   /* <AuthProvider> */
   <ReduxStoreProvider store={store}>
     <PersistGate loading={<div>Loading...</div>} persistor={persistor}>
@@ -39,8 +41,8 @@ ReactDOM.render(
     </PersistGate>
   </ReduxStoreProvider>
   /* </AuthProvider> */
-  ,
-  rootElement
+  // ,
+  // rootElement
 );
 
 reportWebVitals();

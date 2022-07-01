@@ -20,6 +20,7 @@ export const TextEditor = ({ value, setFieldValue }) => {
   );
 
   const onEditorStateChange = (editorState) => {
+    console.log('editor', editorState);
     const forFormik = draftToHtml(
       convertToRaw(editorState.getCurrentContent())
     );
@@ -27,9 +28,9 @@ export const TextEditor = ({ value, setFieldValue }) => {
     setEditorState(editorState);
   };
 
-  React.useLayoutEffect(() => {
-//console.log('TextEditor')
-  },[])
+//   React.useLayoutEffect(() => {
+// //console.log('TextEditor')
+//   },[])
 
   return (
     <React.Fragment>

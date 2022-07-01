@@ -78,7 +78,7 @@ const Update = (props) => { // { onClick, active, refetch, data, setData/* , upd
       //const newData = _.merge(data, values)
       console.log('UpdateItem values in formik onSubmit ', values)
       handleClose()
-      props.updateBoard({
+      props.updateRecord({
         variables: {
           id: id,
           input: {

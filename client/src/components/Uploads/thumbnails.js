@@ -3,6 +3,7 @@ import React from 'react'
 // Material
 import {
   Alert,
+  Icon,
   Typography,
   ImageList,
   ImageListItem,
@@ -13,6 +14,7 @@ import {
 import { useTheme } from '@mui/material/styles';
 import { grey } from '@mui/material/colors';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import { formatBytes } from '../../app/functions/math'
 
@@ -35,11 +37,20 @@ const Thumbnails = props => {
               maxHeight: '200px !important',
               height: '200px !important',
               backgroundColor: grey[100],
-              background: grey[100]
+              background: grey[100],
+              display: 'flex',
+              alignContent: 'center',
+              flexDirection: 'column',
+              justifyContent: 'space-around',
+              alignItems: 'center',
+              flexWrap: 'nowrap',
             }}
             cols={item.cols || 1} rows={item.rows || 1}
 
           >
+            {!item.preview ? 
+            <Icon size="large" component={VisibilityOffIcon} />
+            :
             <img
               src={item.preview}
               srcSet={item.preview}
@@ -48,6 +59,7 @@ const Thumbnails = props => {
               style={{ maxWidth: '200px !important', maxHeight: '200px !important', objectFit: 'contain' }}
               onLoad={() => { URL.revokeObjectURL(item.preview) }}
             />
+            }
             <ImageListItemBar
               title={<Typography component="span" variant="caption">{item.name}</Typography>}
               subtitle={<Typography component="span" variant="caption">{formatBytes(item.size)}</Typography>}

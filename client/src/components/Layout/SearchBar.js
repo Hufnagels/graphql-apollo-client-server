@@ -27,6 +27,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 
 // Custom
+import PaginationComponent from './Pagination';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -63,6 +64,40 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
       },
     },
   },
+}));
+
+const ElevationScroll = (props) => {
+  const { children, window } = props;
+  // Note that you normally won't need to set the window ref as useScrollTrigger
+  // will default to window.
+  // This is only being set here because the demo is in an iframe.
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 0,
+    target: window ? window() : undefined,
+  });
+
+  return React.cloneElement(children, {
+    elevation: trigger ? 4 : 0,
+  });
+}
+
+ElevationScroll.propTypes = {
+  children: PropTypes.element.isRequired,
+  /**
+   * Injected by the documentation to work in an iframe.
+   * You won't need it on your project.
+   */
+  window: PropTypes.func,
+};
+
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+
 }));
 
 const CustomizedSearch = (props) => {
@@ -105,135 +140,125 @@ const CustomizedSearch = (props) => {
   )
 }
 
-const ElevationScroll = (props) => {
-  const { children, window } = props;
-  // Note that you normally won't need to set the window ref as useScrollTrigger
-  // will default to window.
-  // This is only being set here because the demo is in an iframe.
-  const trigger = useScrollTrigger({
-    disableHysteresis: true,
-    threshold: 0,
-    target: window ? window() : undefined,
-  });
-
-  return React.cloneElement(children, {
-    elevation: trigger ? 4 : 0,
-  });
-}
-
-ElevationScroll.propTypes = {
-  children: PropTypes.element.isRequired,
-  /**
-   * Injected by the documentation to work in an iframe.
-   * You won't need it on your project.
-   */
-  window: PropTypes.func,
-};
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-
-}));
-
 const SearchBar = (props) => {
-  //console.log('SearchBar totalpage', props.totalpage)
+  //console.log('SearchBar props', props)
 
   const theme = useTheme();
 
-  const handlePageChange = (event, value) => {
-    props.setPage(value);
-    //props.refetch()
-  };
-  const handlePerPageChange = (event, value) => {
-    props.setPerpage(event.target.value);
-  };
+  // const handlePageChange = (event, value) => {
+  //   props.setPage(value);
+  //   //props.refetch()
+  // };
+  // const handlePerPageChange = (event, value) => {
+  //   props.setPerpage(event.target.value);
+  //   //props.setPage(1)
+  // };
+  const [displayPagination, setDisplayPagination] = React.useState(props.customPagination || false)
+  // Pagination settings
+  //const [currentPage, setCurrentPage] = React.useState(props.currentPage);
+  const [PageSize, setPageSize] = React.useState(props.displayItemPerPage)
+  // const currentTableData = React.useMemo(() => {
+  //   const firstPageIndex = (currentPage - 1) * PageSize;
+  //   const lastPageIndex = firstPageIndex + PageSize;
+  //   return props.data.slice(firstPageIndex, lastPageIndex);
+  // }, [currentPage]);
 
   return (
     <Box sx={{ flexGrow: 1 }} style={{ paddingBottom: '0.5rem' }}>
 
-      <ElevationScroll {...props}>
-        <AppBar position="static" style={{ backgroundColor: theme.palette.custom.light }}>
-          <Toolbar disableGutters variant="dense" sx={{
-            flexGrow: 1,
-            display: 'flex',
-            flexDirection: { xs: 'column', md: 'row' },
-            alignItems: { xs: 'center', sm: 'flex-start', md: '' },
-          }}
-          >
-            <Box sx={{ m: 1.5 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                endIcon={<AddIcon />}
-                onClick={(e) => { props.setOpenDialog(true) }}
-              >Add</Button>
-            </Box>
+      {/* <ElevationScroll {...props}> */}
+      <AppBar position="static" style={{ backgroundColor: theme.palette.custom.light, boxShadow: 'none' }}>
+        <Toolbar disableGutters variant="dense" sx={{
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: { xs: 'center', sm: 'flex-start', md: '' },
+        }}
+        >
+          <Box sx={{ m: 1.5 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              endIcon={<AddIcon />}
+              onClick={(e) => { props.setOpenDialog(true) }}
+            >Add</Button>
+          </Box>
 
-            <Box sx={{ m: { sx: 1, sm: 1, md: 2 }, flexGrow: 1, display: { xs: 'none', sm: 'block' } }} >
-              <Typography
-                variant="h6"
-                noWrap
-                component="div"
-                color="custom.dark"
-                sx={{ flexGrow: 1, }}
-              >
-                {props.title}
-              </Typography>
-            </Box>
+          <Box sx={{ m: { sx: 1, sm: 1, md: 2 }, flexGrow: 1, display: { xs: 'none', sm: 'block' } }} >
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              color="custom.dark"
+              sx={{ flexGrow: 1, }}
+            >
+              {props.title}
+            </Typography>
+          </Box>
 
-            {props.visiblePN &&
-              <Stack
-                spacing={2}
-                direction="row"
-                sx={{
-                  backgroundColor: theme.palette.custom.light,
-                  alignItems: 'center',
-                  marginLeft: theme.spacing(1),
-                  marginRight: theme.spacing(1),
-                  marginTop: 1
-                }}
-                divider={<Divider orientation="vertical" flexItem />}
-              >
+          {!displayPagination &&
+            <Stack
+              spacing={2}
+              direction="row"
+              sx={{
+                backgroundColor: theme.palette.custom.light,
+                alignItems: 'center',
+                marginLeft: theme.spacing(1),
+                marginRight: theme.spacing(1),
+                marginTop: 1
+              }}
+              divider={<Divider orientation="vertical" flexItem />}
+            >
+              {props.recordCount && (PageSize < props.recordCount) ?
                 <Item>
-                  <Pagination
+                  {/* <Pagination
                     count={(props.totalpage > 10) ? 10 : props.totalpage}
                     page={props.page}
                     onChange={handlePageChange}
-                  />
-                </Item>
-                <Item sx={{ paddingTop: 0.1, paddingBottom: 0.1 }}>
-                  <FormControl sx={{ m: 1, minWidth: 80, color: theme.palette.custom.light }} variant="standard">
-                    <Select
-                      labelId="demo-simple-select-autowidth-label"
-                      id="demo-simple-select-autowidth"
-                      value={props.perpage}
-                      onChange={handlePerPageChange}
-                      autoWidth
-                      label="perpage"
-                      size="small"
-                    >
-                      {[2, 10, 20, 50, 100].map((v, idx) => <MenuItem key={idx} value={v} color="custom.light">{v}</MenuItem>)}
-                    </Select>
-                  </FormControl>
-                </Item>
-              </Stack>
-            }
+                  /> */}
 
-            <CustomizedSearch
-              //fn={props.fn}
-              search={props.search}
-              setSearch={props.setSearch}
-              page={props.page}
-              perpage={props.perpage}
-              setData={props.setData}
-            />
-          </Toolbar>
-        </AppBar>
-      </ElevationScroll>
+                  <PaginationComponent
+                    currentPage={props.currentPage}
+                    totalCount={props.recordCount}
+                    pageSize={PageSize}
+                    onPageChange={(page) => {
+                      //setCurrentPage(page)
+                      props.handlePaginationChange(page)
+                    }}
+                  />
+
+                </Item>
+                : null
+              }
+              {<Item sx={{ paddingTop: 0.1, paddingBottom: 0.1 }}>
+                <FormControl sx={{ m: 1, minWidth: 80, color: theme.palette.custom.light }} variant="standard">
+                  <Select
+                    labelId="demo-simple-select-autowidth-label"
+                    id="demo-simple-select-autowidth"
+                    value={props.displayItemPerPage}
+                    onChange={props.handleLimitChange}
+                    autoWidth
+                    label="perpage"
+                    size="small"
+                  >
+                    {[2, 10, 20, 50, 100].map((v, idx) => <MenuItem key={idx} value={v} color="custom.light">{v}</MenuItem>)}
+                  </Select>
+                </FormControl>
+              </Item>}
+            </Stack>
+          }
+
+          <CustomizedSearch
+            //fn={props.fn}
+            search={props.search}
+            setSearch={props.setSearch}
+            page={props.page}
+            perpage={props.perpage}
+            setData={props.setData}
+          />
+        </Toolbar>
+      </AppBar>
+      {/* </ElevationScroll> */}
       {props.addComponent}
     </Box>
   )

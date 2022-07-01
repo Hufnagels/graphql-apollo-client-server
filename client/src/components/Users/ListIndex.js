@@ -16,6 +16,7 @@ import ListIndexItem from './ListIndexItem';
 import { GET_USERS, DELETE_USER } from "../../app/queries";
 import Add from './Add';
 import SearchBar from '../Layout/SearchBar';
+import { LIMIT } from '../Layout/Pagination.options'
 
 const ListIndex = () => {
   //console.log('ListIndex')
@@ -30,7 +31,7 @@ const ListIndex = () => {
 
   const [page, setPage] = React.useState(1);
   const [totalpage, setTotalPage] = React.useState(1)
-  const [perpage, setPerpage] = React.useState(10)
+  const [perpage, setPerpage] = React.useState(LIMIT)
   const [visiblePN, setVisiblePN] = React.useState(false)
 
   const [
@@ -122,7 +123,7 @@ const ListIndex = () => {
         />
         <Grid container spacing={{ sm: 1, md: 1 }} >
           {users && users.map((user, idx) => {
-            return <ListIndexItem data={user} key={user._id} title={user.username} delete={deleteItem}/>
+            return <ListIndexItem data={user} key={user._id} title={user.username} delete={deleteItem} />
           })}
         </Grid>
       </Box>

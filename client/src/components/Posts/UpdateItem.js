@@ -261,7 +261,7 @@ const Edit = ({ onClick, active, refetch, setData }) => {
                     />
                   </Grid>
                   <Grid item xs={11} md={11} lg={11} sx={{ paddingBottom: '2rem' }}>
-                    <Typography variant="body2" component="div">formik values == {JSON.stringify(formik.values)}</Typography>
+                    {/* <Typography variant="body2" component="div">formik values == {JSON.stringify(formik.values)}</Typography> */}
                     <TextEditor
                       setFieldValue={(val) => formik.setFieldValue("description", val)}
                       value={formik.values.description}

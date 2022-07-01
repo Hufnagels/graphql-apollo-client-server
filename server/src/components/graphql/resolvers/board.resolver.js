@@ -37,9 +37,9 @@ const BoardResolver = {
       const correctedPage = totalPages < page ? totalPages : page
 
       const boards = await Boards.find(searchQuery)
-        .sort({ updatedAt: -1 })
+        .sort({ createdAt: -1 })
         .limit(limit)
-        .skip((page - 1) * limit)
+        .skip((correctedPage - 1) * limit)
         .lean();
 
       return {

@@ -43,6 +43,12 @@ const CustomTheme = createTheme({
       dark: grey[700],
       contrastText: grey[50],
     },
+    custom2: {
+      light: grey[100],
+      main: '#0288d1',
+      dark: grey[700],
+      contrastText: grey[50],
+    },
   },
   components: {
     MuiCardActionArea: {

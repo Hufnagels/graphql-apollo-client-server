@@ -1,0 +1,69 @@
+scalar Date
+
+interface MapError {
+  message: String!
+  path: String
+}
+
+type Tag {
+  _id: ID!
+  owner: String!
+  title: String!
+  createdAt: String
+  updatedAt: String
+}
+
+# getTags
+type TagsResult {
+  tags: [Tag]
+  currentPage: Int
+  totalPages: Int
+  count: Int
+}
+
+#Relay pagination
+enum TagOrderField {
+    createdAt
+    owner
+    title
+}
+
+enum OrderDirection {
+    ASC
+    DESC
+}
+
+input TagOrder {
+    direction: OrderDirection!
+    field: TagOrderField
+}
+type TagEdge {
+  node: Tag
+  cursor: String
+}
+type PageInfo {
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+  startCursor: String
+  endCursor: String
+}
+type TagsConnection {
+  edges: [TagEdge]
+  pageInfo: PageInfo
+  totalCount: Int
+}
+
+# Queries section
+type Query {
+  getTags(search: String, page: Int, limit: Int): TagsResult
+  getTag(_id: ID!): [Tag]
+  findAll(cursor: String, limit: Int!, orderBy: TagOrder): TagsConnection
+}
+
+# Mutation section
+type ReturnedMapError implements MapError {
+  message: String!
+  locations: [String]
+  path: String
+}
+
