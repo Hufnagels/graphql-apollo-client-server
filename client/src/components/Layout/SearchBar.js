@@ -25,6 +25,7 @@ import { grey } from '@mui/material/colors';
 
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
 // Custom
 import PaginationComponent from './Pagination';
@@ -115,7 +116,12 @@ const CustomizedSearch = (props) => {
     //props.setData([])
     props.setSearch(searchString)
   }
+  const clearSearch = e => {
+    e.preventDefault()
+    setSearchString(null)
+    props.setSearch(null)
 
+  }
   const checkKeyPress = (e) => {
     if (e.key === 'Enter') {
       sendSearchData(e)
@@ -133,8 +139,28 @@ const CustomizedSearch = (props) => {
           value={searchString === null ? '' : searchString}
         />
         <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={sendSearchData}>
-          <SearchIcon color="custom.dark" />
+          <SearchIcon 
+            fontSize="large"
+            sx={{
+              color: (theme) =>
+                theme.palette.mode === 'light'
+                  ? theme.palette.custom.dark
+                  : theme.palette.custom.dark,
+            }}
+          />
         </IconButton>
+        {searchString && 
+        <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={clearSearch} >
+          <DeleteOutlineOutlinedIcon fontSize="large"
+            sx={{
+              color: (theme) =>
+                theme.palette.mode === 'light'
+                  ? theme.palette.custom3.light
+                  : theme.palette.custom.dark,
+            }}
+          />
+        </IconButton>
+        }
       </Box>
     </Search>
   )
@@ -178,7 +204,7 @@ const SearchBar = (props) => {
           <Box sx={{ m: 1.5 }}>
             <Button
               variant="contained"
-              color="primary"
+              color="custom3"
               endIcon={<AddIcon />}
               onClick={(e) => { props.setOpenDialog(true) }}
             >Add</Button>

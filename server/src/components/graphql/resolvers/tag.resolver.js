@@ -12,7 +12,7 @@ const TagResolver = {
       //console.log('getTags', args, context)
       const email = 'kbvconsulting@gmail.com'
       const { search, page = 1, limit = 100 } = args;
-      console.log('getTags search', search)
+      console.log('TAG Resolver getTags search', search)
       let searchQuery = {};
       if (search) {
         searchQuery = {
@@ -66,12 +66,12 @@ const TagResolver = {
     },
     findAll: async (parent, { cursor, limit, orderBy }, context) => {
       const { field, direction } = orderBy
-      console.log('args:', cursor, limit, field, direction)
+      console.log('TAG Resolver findall args:', cursor, limit, field, direction)
       // args: undefined 2 { direction: 'ASC', field: 'title' }
       const res = await Tags.find({})
         .sort({ field: direction === 'ASC' ? 1 : -1 })
         .limit(limit)
-      console.log('result:', res)
+      console.log('TAG Resolver findAll result:', res)
       return {
         edges: {
           node: res._doc

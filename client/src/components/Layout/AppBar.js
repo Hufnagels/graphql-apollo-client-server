@@ -19,8 +19,10 @@ import {
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu';
 import MoreIcon from '@mui/icons-material/MoreVert';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 // Custom
+import Title from "./Title";
 //import { authContext } from '../../app/context/authContext'
 import { logout } from '../../app/reducers/authSlice'
 
@@ -67,163 +69,161 @@ const HeaderResponsiveAppBar = (props) => {
         sx={{
           backgroundColor: (theme) =>
             theme.palette.mode === 'light'
-              ? theme.palette.info.light
-              : theme.palette.info.dark,
+              ? theme.palette.custom3.light
+              : theme.palette.custom3.dark,
         }}
       >
-        <Container maxWidth="xl">
-          <Toolbar disableGutters>
-            {/*
+        {/* <Container maxWidth="xl"> */}
+        <Toolbar /* variant="dense" */ disableGutters={props.toggler ? true : false}>
+          {/*
             Desktop title
             */}
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
+          {props.toggler && <IconButton onClick={props.toggler('left', true)} >
+            <KeyboardArrowRightIcon
+              fontSize="large"
               sx={{
-                mr: 2, display: { xs: 'none', md: 'flex' }, flexWrap: 'nowrap',
-                flexDirection: 'row',
-                alignContent: 'flex-start', justifyContent: 'space-between', alignItems: 'center'
+                color: (theme) => theme.palette.mode === 'dark'
+                  ? theme.palette.custom.light
+                  : theme.palette.custom.light,
               }}
-            >
-              <img src={window.location.origin + "/android-icon-48x48.png"} style={{ margin: '0 10px' }} alt="" />
-              {props.title}
-            </Typography>
-            {/* 
+            />
+          </IconButton>}
+          <Title title={'GQL react' || props.title} />
+          {/* 
             Desktop menu
              */}
-            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            {props.pages && props.pages.map((page, idx) => (
+              <NavLink to={page.link} key={idx}>
+                {({ isActive }) => (
+                  <Button
+                    className={isActive ? 'active-button link-button' : 'link-button'}
+                    key={page.name}
+                    onClick={handleCloseNavMenu}
+                    sx={{ color: 'white', display: 'block' }}
+                    variant={isActive ? 'contained' : 'text'}
+                  >
+                    {page.name}
+                  </Button>
+                )}
+              </NavLink>
+            ))}
+
+          </Box>
+
+          {/* 
+            Mobile menu
+             */}
+          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' }, }}>
+            <IconButton
+              fontSize="large"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleOpenNavMenu}
+              color="secondary"
+            >
+              <MenuIcon fontSize="large" />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorElNav}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
+              sx={{
+                display: { xs: 'block', md: 'none' },
+
+              }}
+            >
               {props.pages && props.pages.map((page, idx) => (
-                <NavLink to={page.link} key={idx}>
+                <NavLink to={page.link} key={idx} end>
                   {({ isActive }) => (
                     <Button
-                      className={isActive ? 'active-button link-button' : 'link-button'}
                       key={page.name}
                       onClick={handleCloseNavMenu}
-                      sx={{ my: 2, color: 'white', display: 'block' }}
-                      variant={isActive ? 'contained' : 'text'}
+                      sx={{ my: 2, display: 'block', color: '#333' }}
+                      variant={isActive ? 'outlined' : 'text'}
                     >
                       {page.name}
                     </Button>
                   )}
                 </NavLink>
               ))}
-
-            </Box>
-
-            {/* 
-            Mobile menu
-             */}
-            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' }, }}>
-              <IconButton
-                fontSize="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleOpenNavMenu}
-                color="secondary"
-              >
-                <MenuIcon fontSize="large" />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorElNav}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'left',
-                }}
-                open={Boolean(anchorElNav)}
-                onClose={handleCloseNavMenu}
-                sx={{
-                  display: { xs: 'block', md: 'none' },
-
-                }}
-              >
-                {props.pages && props.pages.map((page, idx) => (
-                  <NavLink to={page.link} key={idx} end>
-                    {({ isActive }) => (
-                      <Button
-                        key={page.name}
-                        onClick={handleCloseNavMenu}
-                        sx={{ my: 2, display: 'block', color: '#333' }}
-                        variant={isActive ? 'outlined' : 'text'}
-                      >
-                        {page.name}
-                      </Button>
-                    )}
-                  </NavLink>
-                ))}
-              </Menu>
-            </Box>
-            {/* 
+            </Menu>
+          </Box>
+          {/* 
             Mobile title
              */}
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}
-            >
-              {props.title}
-            </Typography>
-            {/* 
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}
+          >
+            {props.title}
+          </Typography>
+          {/* 
             User menu
              */}
 
-            {props.settings && <Box sx={{ flexGrow: 0 }}>
-              <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} >
-                  <MoreIcon
-                    fontSize="large"
-                    sx={{
-                      color: (theme) => theme.palette.mode === 'dark'
-                        ? theme.palette.custom.light
-                        : theme.palette.custom.light,
-                    }}
-                  /> {/* <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" /> */}
-                </IconButton>
-              </Tooltip>
-              <Menu
-                sx={{ mt: '45px' }}
-                id="menu-appbar"
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
-              >
-                {props.settings.map((setting, idx) => (
-                  <NavLink to={setting.link} key={idx} end>
-                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                      <Typography textAlign="center">{setting.name}</Typography>
-                    </MenuItem>
-                  </NavLink>
-                )
-                )}
-                {user && <Divider orientation="horizontal" />}
-                {user &&
-                  <NavLink to={'/'} key={'logout'} end>
-                    <MenuItem key={'logoutLink'} onClick={handleLogout}>
-                      <Typography textAlign="center">Logout</Typography>
-                    </MenuItem>
-                  </NavLink>
-                }
-              </Menu>
-            </Box>}
-          </Toolbar>
-        </Container>
+          {props.settings && <Box sx={{ flexGrow: 0 }}>
+            <Tooltip title="Open settings">
+              <IconButton onClick={handleOpenUserMenu} >
+                <MoreIcon
+                  fontSize="large"
+                  sx={{
+                    color: (theme) => theme.palette.mode === 'dark'
+                      ? theme.palette.custom.light
+                      : theme.palette.custom.light,
+                  }}
+                /> {/* <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" /> */}
+              </IconButton>
+            </Tooltip>
+            <Menu
+              sx={{ mt: '45px' }}
+              id="menu-appbar"
+              anchorEl={anchorElUser}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
+            >
+              {props.settings.map((setting, idx) => (
+                <NavLink to={setting.link} key={idx} end>
+                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                    <Typography textAlign="center">{setting.name}</Typography>
+                  </MenuItem>
+                </NavLink>
+              )
+              )}
+              {user && <Divider orientation="horizontal" />}
+              {user &&
+                <NavLink to={'/'} key={'logout'} end>
+                  <MenuItem key={'logoutLink'} onClick={handleLogout}>
+                    <Typography textAlign="center">Logout</Typography>
+                  </MenuItem>
+                </NavLink>
+              }
+            </Menu>
+          </Box>}
+        </Toolbar>
+        {/* </Container> */}
       </AppBar>
     </React.Fragment>
   );

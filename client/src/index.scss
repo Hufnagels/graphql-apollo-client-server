@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap');
+
 body {
   margin: 0;
   font-family: -apple-system, Roboto, Helvetica, Arial, sans-serif;
@@ -5,6 +7,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.title--text {
+  font-family: 'Oswald', sans-serif !important;
+}
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
@@ -27,3 +32,4 @@ a {
   height: calc(100vh - 150px);
   border: 1px solid #000;
 }
+

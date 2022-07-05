@@ -49,6 +49,13 @@ const CustomTheme = createTheme({
       dark: grey[700],
       contrastText: grey[50],
     },
+    custom3: {
+      light: '#b87e4a',
+      main: '#b87839',
+      dark: '#b56b2a',
+      contrastText: grey[50],
+    },
+    
   },
   components: {
     MuiCardActionArea: {
@@ -86,7 +93,7 @@ const CustomTheme = createTheme({
           "&.link-button:hover ": {
             opacity: '1',
             boxShadow: 'none !important',
-            backgroundColor: '#0288d1 !important',
+            backgroundColor: '#b56b2a !important',// #0288d1
           },
           "&.link-button:active ": {
             opacity: '1',
@@ -99,7 +106,7 @@ const CustomTheme = createTheme({
             boxShadow: 'none',
             //backgroundColor: '#6879dd  !important',
             backgroundColor: 'transparent  !important',
-            borderBottom: '1px solid #0288d1',
+            borderBottom: '1px solid #ffffff',// #0288d1
           },
         }
         

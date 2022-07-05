@@ -43,18 +43,18 @@ const ListIndexItem = (props) => {
 
   return (
     <Grid item xs={12} sm={12} md={6} lg={4} xl={3}>
-      <Card variant="outlined" >
-      <CardHeader
+      <Card elevation={1} square={true}>
+        <CardHeader
           avatar={
             <Avatar
-            sx={{ bgcolor: stringToColor(data.owner) }}
-            aria-label="recipe"
-            alt={data.owner}
-            variant="square"
+              sx={{ bgcolor: stringToColor(data.owner) }}
+              aria-label="recipe"
+              alt={data.owner}
+              variant="square"
 
-          >
-            {data.owner.charAt(0)}
-          </Avatar>
+            >
+              {data.owner.charAt(0)}
+            </Avatar>
           }
           action={
             <IconButton aria-label="settings" onClick={handleClick}>
@@ -87,7 +87,17 @@ const ListIndexItem = (props) => {
           <Skeleton variant="rectangular" height={140} />
         }
         <CardContent >
-          <Typography variant="body2" component="div">
+          <Typography
+            variant="body2"
+            component="span"
+            sx={{
+              display: 'inline-block',
+              width: '100%',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden !important',
+              textOverflow: 'ellipsis',
+            }}
+          >
             {data.description}
           </Typography>
         </CardContent>

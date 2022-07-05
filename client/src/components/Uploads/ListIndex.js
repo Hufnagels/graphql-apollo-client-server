@@ -179,7 +179,7 @@ const ListIndex = () => {
         limit: limit
       }
     })
-  }, [limit])
+  }, [limit, search])
 
   if (loading) return <React.Fragment><CircularProgress color="secondary" />Loading....</React.Fragment>
 

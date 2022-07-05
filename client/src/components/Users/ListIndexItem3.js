@@ -112,7 +112,7 @@ function EnhancedTableHead(props) {
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
-            size="medium"
+            size="large"
             inputProps={{
               'aria-label': 'select all desserts',
             }}
@@ -226,7 +226,7 @@ export default function EnhancedTable(props) {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = data.map((n) => n.name);
+      const newSelecteds = data.map((n) => n.email);
       setSelected(newSelecteds);
       return;
     }
@@ -312,6 +312,7 @@ export default function EnhancedTable(props) {
                       >
                         <TableCell padding="checkbox">
                           <Checkbox
+                            size="large"
                             color="primary"
                             checked={isItemSelected}
                             inputProps={{

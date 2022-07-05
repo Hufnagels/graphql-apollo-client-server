@@ -87,7 +87,17 @@ const ListIndexItem = (props) => {
           <Skeleton variant="rectangular" height={140} />
         }
         <CardContent >
-          <Typography variant="body2" component="div">
+          <Typography 
+            variant="body2" 
+            component="span"
+            sx={{
+              display: 'inline-block',
+              width: '100%',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden !important',
+              textOverflow: 'ellipsis',
+            }}
+          >
             {data.subtitle}
           </Typography>
         </CardContent>

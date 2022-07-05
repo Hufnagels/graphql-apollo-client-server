@@ -18,10 +18,12 @@ import {
   FormControl,
   Link,
   Paper,
+  Stack,
   Grid,
   Box,
   Typography,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -45,7 +47,7 @@ const validationSchema = yup.object({
 const REACT_APP_LS_TOKEN_NAME = process.env.REACT_APP_LS_TOKEN_NAME
 
 const SignInSide = () => {
-
+  const theme = useTheme();
   const navigate = useNavigate()
   const dispatch = useDispatch()
   //const context = useContext(authContext)
@@ -94,42 +96,23 @@ const SignInSide = () => {
         {
           variables: { input: values }
         },
-      )/* .then((res) => {
-        // console.log('loginUser promise', res.data.loginUser)
-        //context.login(res.data.loginUser.user, res.data.loginUser.tokens)
-        dispatch(login(res.data.loginUser))
-        //const variant = 'success'
-        //enqueueSnackbar('User created successfully', { variant })
-        navigate('/')
-        // console.log('loginUser setUsers')
-      }).catch((err) => {
-        // console.log('loginUser catch err', err.message)
-        const variant = 'error'
-        enqueueSnackbar(err.message, { variant })
-      }) */
+      )
     },
   })
 
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-  //   const data = new FormData(event.currentTarget);
-  //   console.log({
-  //     email: data.get('email'),
-  //     password: data.get('password'),
-  //   });
-  // };
-
   return (
-    <Grid container component="main" sx={{ height: '100vh' }}>
+    <Grid container component="main" sx={{ height: '100%', paadding: 0 }}>
       <CssBaseline />
-      {error && JSON.stringify(error, null,2)}
+      {error && JSON.stringify(error, null, 2)}
       <Grid
         item
-        xs={false}
-        sm={4}
-        md={7}
+        // xs={false}
+        // sm={4}
+        // md={7}
+        xs={12} sm={12} md={12} lg={12} xl={12}
         sx={{
-          backgroundImage: 'url(https://source.unsplash.com/random)',
+          
+          backgroundImage: 'url(https://images.unsplash.com/photo-1655821189192-ee3bdde7ea2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY1NjcwNTM0OQ&ixlib=rb-1.2.1&q=80&w=1080)', //https://source.unsplash.com/random
           backgroundRepeat: 'no-repeat',
           backgroundColor: (theme) =>
             theme.palette.mode === 'light'
@@ -137,24 +120,28 @@ const SignInSide = () => {
               : theme.palette.info.dark,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
+          minHeight: 'calc(100vh - 163px)',
         }}
-      />
-      <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+      >
+      {/* <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square> */}
+      <Stack direction="row-reverse" spacing={6}>
         <Box
           sx={{
             my: 8,
             mx: 4,
+            p:5,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            // border:'1px solid green',
+            borderRadius:'25rem',
+            height:'33rem',
+            backgroundColor: theme.palette.primary.contrastText,
+            background: theme.palette.primary.contrastText,
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
+          <Avatar sx={{ m: 1, backgroundColor: theme.palette.custom3.dark }}> <LockOutlinedIcon /> </Avatar>
+          <Typography component="h1" variant="h5"> Sign in </Typography>
           <form onSubmit={formik.handleSubmit}>
             {/* component="form" noValidate onSubmit={handleSubmit} */}
             <Box sx={{ mt: 1 }}>
@@ -222,8 +209,8 @@ const SignInSide = () => {
                 sx={{
                   mt: 3, mb: 2, backgroundColor: (theme) =>
                     theme.palette.mode === 'light'
-                      ? theme.palette.info.light
-                      : theme.palette.info.dark,
+                      ? theme.palette.custom3.dark
+                      : theme.palette.custom3.dark,
                 }}
               >
                 Sign In
@@ -240,6 +227,8 @@ const SignInSide = () => {
             </Box>
           </form>
         </Box>
+      </Stack>
+        
       </Grid>
     </Grid>
   );

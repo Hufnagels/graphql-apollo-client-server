@@ -15,9 +15,9 @@ const Main = () => {
 
   return (
     <React.Fragment>
-      <Grid container sx={{ margin: '0', padding: '1rem', }}>
+      <Grid container sx={{ margin: '0', padding: '0', }}>
         <Grid item xs>
-          <Box sx={{ minHeight: 'calc(100vh - 193px)', }}>
+          <Box sx={{ minHeight: 'calc(100vh - 163px)', }}>
             <Outlet />
           </Box>
         </Grid>

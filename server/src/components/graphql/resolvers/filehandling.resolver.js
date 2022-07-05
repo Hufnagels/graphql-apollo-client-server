@@ -20,9 +20,10 @@ const FilehandlingResolver = {
       if (search) {
         searchQuery = {
           $or: [
-            { filename: { $regex: search, $options: 'i' } },
-            //{ metadata.title: { $regex: search, $options: 'i' } },
-            //{ metadata.description: { $regex: search, $options: 'i' } }
+            { "filename": { $regex: search, $options: 'i' } },
+            { "metadata.title": { $regex: search, $options: 'i' } },
+            { "metadata.description": { $regex: search, $options: 'i' } },
+            { "metadata.tags": { $regex: search, $options: 'i' } }
           ]
         }
       }
@@ -37,7 +38,7 @@ const FilehandlingResolver = {
 
       const totalPages = Math.ceil(count / limit)
       const correctedPage = totalPages < page ? totalPages : page
-      console.log('totalPages', totalPages, correctedPage)
+      console.log('UPLOAD Resolver totalPages', totalPages, correctedPage)
       const files = await Files.find(searchQuery)
         .sort({ uploadDate: -1 })
         .limit(limit)
@@ -76,7 +77,7 @@ const FilehandlingResolver = {
     singleUpload: async (_, { file, title, description }, context, info) => {
       const user = await checkSignedIn(context.req, true)
       const { email } = user
-      console.log('upload', title, description)
+      console.log('UPLOAD Resolver singleUpload', title, description)
 
       const fileId = await storeFile(file, email, title, description).then(result => result);
 
@@ -88,9 +89,9 @@ const FilehandlingResolver = {
       const { email } = user
       tags = JSON.parse(tags)
       let fileIDs = []
-      console.log('multipleUpload title, description', title, description, tags)
-      console.log('multipleUpload files', files)
-      console.log('multipleUpload tags', tags, tags.length)
+      console.log('UPLOAD Resolver multipleUpload title, description', title, description, tags)
+      console.log('UPLOAD Resolver multipleUpload files', files)
+      console.log('UPLOAD Resolver multipleUpload tags', tags, tags.length)
       // Create taglist for bulkwrite
       if (tags.length > 0) {
         const tagList = tags.map(tag => {
@@ -99,7 +100,7 @@ const FilehandlingResolver = {
             owner: email,
           }
         })
-        console.log('multipleUpload tagList', tagList)
+        console.log('UPLOAD Resolver multipleUpload tagList', tagList)
 
         let tagsUpdate = tagList.map(tag => ({
           updateOne: {
@@ -120,10 +121,10 @@ const FilehandlingResolver = {
               resolve(r);
             });
           });
-          console.log(JSON.stringify(result, undefined, 2));
-          console.log("Success!");
+          console.log('UPLOAD Resolver multipleUpload result', JSON.stringify(result, undefined, 2));
+          console.log("UPLOAD Resolver multipleUploadr Success!");
         } catch (e) {
-          console.log("Failed:");
+          console.log("UPLOAD Resolver multipleUpload Failed:");
           console.log(e);
         }
       }
@@ -141,7 +142,7 @@ const FilehandlingResolver = {
       //   console.log(contents)
       // }));
       //const fileId = await storeFile(file, email, title, description).then(result => result);
-      console.log('multipleUpload ', fileIDs)
+      console.log('UPLOAD Resolver multipleUpload fileIDs', fileIDs)
       return { fileIDs }
     },
     deleteFile: async (_, { _id }, context) => {
